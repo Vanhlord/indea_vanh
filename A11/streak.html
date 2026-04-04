@@ -1,0 +1,916 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>🔥 Streak Leaderboard | NexusBD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f4f7f6;
+        }
+        
+        /* Fire animation for active streak */
+        @keyframes firePulse {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.1); filter: brightness(1.2); }
+        }
+        .fire-active { animation: firePulse 1.5s ease-in-out infinite; }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Top 3 badges */
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4a); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #daa520); box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4); }
+        
+        /* Inactive user - grayed out */
+        .inactive-user { opacity: 0.5; filter: grayscale(0.8); }
+        
+        /* Confetti animation */
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            animation: confetti 3s ease-out forwards;
+            z-index: 9999;
+        }
+        
+        /* Progress ring */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        /* Hover effects */
+        .streak-card {
+            transition: all 0.3s ease;
+        }
+        .streak-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        /* Check-in button pulse */
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
+        }
+        .btn-checkin { animation: btnPulse 2s infinite; }
+        .btn-checkin:disabled { animation: none; }
+        
+        /* Sidebar transition */
+        #sidebar {
+            transition: left 0.3s ease;
+        }
+        
+        /* Profile modal */
+        .profile-modal { animation: modalFadeIn 0.3s ease-out; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .profile-backdrop { backdrop-filter: blur(4px); }
+</style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+
+<body class="text-[#333] min-h-screen overflow-y-auto lg:flex lg:flex-row lg:h-screen lg:overflow-hidden">
+
+    <!-- OVERLAY -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        
+        <!-- Header -->
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">NexusBD</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <!-- Hệ thống -->
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+            <a href="/" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="copyIP()">
+                <i class="fas fa-copy"></i> Copy IP
+            </div>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/html/status-server.html">
+                <i class="fas fa-chart-line w-5"></i> Status server
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/chat.html">
+                <i class="fas fa-comments w-5"></i> Chat
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium shadow-lg shadow-orange-100" href="/A11/streak.html">
+                <i class="fas fa-fire"></i> Streak
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
+                <i class="fas fa-cloud w-5"></i> Cloud</a>
+
+            <!-- Thư viện -->
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Thư viện</div>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/rawphoto.html">
+                <i class="fas fa-expand"></i> Album
+            </a>
+
+            <!-- Tiện ích -->
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+            <div class="tool-grid-sidebar">
+                <a class="tool-tile" href="/p/snapsave.html">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a class="tool-tile" href="/html/tiktok.html">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a class="tool-tile" href="/html/youtube.html">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+                <a class="tool-tile" href="/html/soundcloud.html">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <span>SoundCloud</span>
+                </a>
+                <a class="tool-tile" href="/html/dowloadmc.html">
+                    <i class="fas fa-download"></i>
+                    <span>Minecraft</span>
+                </a>
+            </div>
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">kho rác</div>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
+                <i class="fas fa-toolbox"></i> Kho công cụ
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 NexusBD</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="lg:flex-1 lg:flex lg:flex-col lg:min-h-0 lg:overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-200 p-2 sm:p-4 flex items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="toggleSidebar()" class="lg:hidden w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl flex items-center justify-center fire-active">
+                    <i class="fas fa-fire text-white text-sm sm:text-xl"></i>
+                </button>
+                <div class="hidden lg:flex w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl items-center justify-center fire-active">
+                    <i class="fas fa-fire text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-bold gradient-text">Streak</h1>
+                    <p class="text-[10px] sm:text-xs text-gray-500 hidden sm:block">Điểm danh mỗi ngày!</p>
+                </div>
+            </div>
+            
+            <div id="userSection" class="flex items-center gap-2 sm:gap-3">
+                <!-- Guest View -->
+                <div id="guestView" class="flex items-center gap-1 sm:gap-2">
+                    <span class="text-xs text-gray-500 hidden sm:inline">Đăng nhập</span>
+                    <a href="/api/auth/discord" class="bg-[#5865F2] hover:bg-[#4752C4] text-white px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 sm:gap-2">
+                        <i class="fa-brands fa-discord"></i> <span class="hidden sm:inline">Đăng nhập</span>
+                    </a>
+                </div>
+                <!-- User View (logged in) -->
+                <div id="userView" class="hidden flex items-center gap-2 sm:gap-3">
+                    <img id="userAvatar" src="" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-orange-500" alt="">
+                    <div class="text-right hidden sm:block">
+                        <div id="userName" class="text-sm font-medium text-gray-800"></div>
+                        <div class="text-xs text-gray-500">🔥 <span id="userStreak">0</span></div>
+                    </div>
+                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="lg:flex-1 lg:overflow-y-auto p-2 sm:p-4 lg:p-6 pb-20 sm:pb-6">
+            <div class="max-w-6xl mx-auto">
+
+                <!-- Streak Reminder Banner -->
+                <div id="streakReminderBanner" class="hidden mb-4 sm:mb-6">
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl p-3 sm:p-4 text-amber-900 shadow-sm">
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div id="streakReminderText" class="text-sm sm:text-base font-semibold">
+                                    Đã nhắc mọi người giữ streak hôm nay.
+                                </div>
+                                <div id="streakReminderMeta" class="text-[10px] sm:text-xs text-amber-700 mt-0.5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Streak Card -->
+                <div id="myStreakCard" class="hidden mb-4 sm:mb-6">
+                    <div class="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                            <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                                <!-- Progress Ring -->
+                                <div class="relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 flex-shrink-0">
+                                    <svg class="progress-ring w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
+                                        <circle cx="50%" cy="50%" r="40%" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                        <circle id="progressCircle" cx="50%" cy="50%" r="40%" stroke="#f97316" stroke-width="8" fill="none"
+                                            stroke-dasharray="251.2" stroke-dashoffset="0" stroke-linecap="round" class="progress-ring-circle"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="text-center">
+                                            <div id="currentStreak" class="text-lg sm:text-xl lg:text-2xl font-bold text-orange-500">0</div>
+                                            <div class="text-[10px] sm:text-xs text-gray-500">ngày</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stats -->
+                                <div class="flex-1 min-w-0">
+                                    <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-0.5">Streak của bạn</h2>
+                                    <p class="text-gray-500 text-xs sm:text-sm mb-1 sm:mb-2 hidden sm:block">Điểm danh liên tục để giữ chuỗi!</p>
+                                    <div class="flex gap-2 sm:gap-4 text-xs sm:text-sm">
+                                        <div class="bg-gray-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg">
+                                            <span class="text-gray-500">Max:</span>
+                                            <span id="maxStreak" class="text-orange-500 font-semibold ml-1">0</span>
+                                        </div>
+                                        <div class="bg-gray-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg">
+                                            <span class="text-gray-500">Tổng:</span>
+                                            <span id="totalCheckins" class="text-green-500 font-semibold ml-1">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button id="checkinBtn" onclick="checkIn()" disabled
+                                class="btn-checkin bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 sm:gap-2 shadow-lg shadow-orange-500/30 w-full sm:w-auto justify-center">
+                                <i class="fas fa-fire"></i>
+                                <span id="checkinText">Đã điểm danh</span>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-0 text-xs sm:text-sm">
+                            <span class="text-gray-500">
+                                <i class="far fa-clock mr-1"></i>
+                                Gần nhất: <span id="lastCheckin" class="text-gray-800">Chưa có</span>
+                            </span>
+                            <span id="nextCheckin" class="text-orange-500">
+                                Điểm danh lại: <span id="countdown">--:--:--</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                    <div class="bg-white rounded-lg sm:rounded-xl p-2 sm:p-4 text-center border border-gray-200 shadow-sm">
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-orange-500 mb-0.5 sm:mb-1" id="totalUsers">0</div>
+                        <div class="text-[10px] sm:text-xs text-gray-500">Người tham gia</div>
+                    </div>
+                    <div class="bg-white rounded-lg sm:rounded-xl p-2 sm:p-4 text-center border border-gray-200 shadow-sm">
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-500 mb-0.5 sm:mb-1" id="avgStreak">0</div>
+                        <div class="text-[10px] sm:text-xs text-gray-500">Streak TB</div>
+                    </div>
+                    <div class="bg-white rounded-lg sm:rounded-xl p-2 sm:p-4 text-center border border-gray-200 shadow-sm">
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-red-500 mb-0.5 sm:mb-1" id="topStreak">0</div>
+                        <div class="text-[10px] sm:text-xs text-gray-500">Cao nhất</div>
+                    </div>
+                    <div class="bg-white rounded-lg sm:rounded-xl p-2 sm:p-4 text-center border border-gray-200 shadow-sm">
+                        <div class="text-xl sm:text-2xl lg:text-3xl font-bold text-green-500 mb-0.5 sm:mb-1" id="todayCheckins">0</div>
+                        <div class="text-[10px] sm:text-xs text-gray-500">Hôm nay</div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="p-2 sm:p-4 border-b border-gray-200 flex items-center justify-between">
+                        <h2 class="text-sm sm:text-lg font-bold text-gray-800 flex items-center gap-1 sm:gap-2">
+                            <i class="fas fa-trophy text-yellow-500"></i>
+                            <span class="hidden sm:inline">Bảng xếp hạng</span>
+                            <span class="sm:hidden">BXH</span>
+                        </h2>
+                        <div class="flex gap-1 sm:gap-2">
+                            <button onclick="loadLeaderboard('streak')" class="px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm bg-orange-100 text-orange-600 border border-orange-200">Streak</button>
+                            <button onclick="loadLeaderboard('total')" class="px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200">Tổng</button>
+                        </div>
+                    </div>
+                    
+                    <div id="leaderboardList" class="divide-y divide-gray-100">
+                        <div class="p-8 text-center text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Đang tải bảng xếp hạng...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rules -->
+                <div class="mt-4 sm:mt-8 bg-blue-50 border border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                    <div class="flex items-start gap-2 sm:gap-3">
+                        <i class="fas fa-info-circle text-blue-500 mt-0.5 sm:mt-1 text-sm sm:text-base"></i>
+                        <div class="text-xs sm:text-sm text-gray-600">
+                            <p class="font-medium text-blue-600 mb-1 sm:mb-1">Luật chơi:</p>
+                            <ul class="space-y-1 text-gray-500 text-xs sm:text-xs">
+                                <li>• Điểm danh mỗi ngày để tăng streak</li>
+                                <li>• Quên điểm danh >24h sẽ mất streak</li>
+                                <li>• Chỉ được điểm danh 1 lần mỗi ngày</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-white text-gray-800 px-6 py-3 rounded-xl shadow-2xl border border-gray-200 transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <i id="toastIcon" class="fas fa-check-circle text-green-500"></i>
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 z-[2000] hidden">
+        <div class="profile-backdrop absolute inset-0 bg-black/40" onclick="closeProfileModal()"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="profile-modal bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-md pointer-events-auto overflow-hidden border border-gray-100">
+                <!-- Header Banner -->
+                <div id="modalHeader" class="relative h-28 sm:h-36 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 overflow-hidden">
+                    <img id="modalBanner" src="" alt="" class="absolute inset-0 w-full h-full object-cover hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30"></div>
+                    <button onclick="closeProfileModal()" class="absolute top-3 right-3 w-8 h-8 bg-black/30 hover:bg-black/40 rounded-full flex items-center justify-center text-white transition-colors z-20">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Avatar & Name -->
+                <div class="px-4 sm:px-6 relative -mt-10 sm:-mt-12 flex items-end gap-3 sm:gap-4">
+                    <div class="relative flex-shrink-0">
+                        <img id="modalAvatar" src="" alt="" class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-lg object-cover bg-white" 
+                            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div id="modalRankBadge" class="absolute -bottom-1 -right-1 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-gray-800 font-bold text-xs sm:text-sm shadow-lg border-2 border-white">
+                            1
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0 pb-1">
+                        <div class="inline-block bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 mb-1">
+                            <h3 id="modalUsername" class="text-lg sm:text-2xl font-bold text-gray-800 truncate">Username</h3>
+                        </div>
+                        <p id="modalStatus" class="text-xs sm:text-sm text-gray-500 flex items-center gap-1 mt-0.5">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            <span>Đang hoạt động</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="px-4 sm:px-6 mt-6 pb-4">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                        <div class="bg-orange-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center border border-orange-100">
+                            <div class="text-xl sm:text-2xl font-bold text-orange-500" id="modalCurrentStreak">0</div>
+                            <div class="text-[10px] sm:text-xs text-gray-500 mt-0.5">Streak hiện tại</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center border border-yellow-100">
+                            <div class="text-xl sm:text-2xl font-bold text-yellow-500" id="modalMaxStreak">0</div>
+                            <div class="text-[10px] sm:text-xs text-gray-500 mt-0.5">Cao nhất</div>
+                        </div>
+                        <div class="bg-blue-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center border border-blue-100">
+                            <div class="text-xl sm:text-2xl font-bold text-blue-500" id="modalTotalCheckins">0</div>
+                            <div class="text-[10px] sm:text-xs text-gray-500 mt-0.5">Tổng điểm danh</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="px-4 sm:px-6 pb-5 sm:pb-6 space-y-3">
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-500">Xếp hạng</span>
+                        <span id="modalRank" class="text-sm font-semibold text-gray-800">#1</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-sm text-gray-500">Điểm danh gần nhất</span>
+                        <span id="modalLastCheckin" class="text-sm font-semibold text-gray-800">--</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-gray-500">Tỷ lệ duy trì</span>
+                        <span id="modalConsistency" class="text-sm font-semibold text-gray-800">100%</span>
+                    </div>
+                </div>
+                
+                <!-- Close Button -->
+                <div class="px-4 sm:px-6 pb-5 sm:pb-6">
+                    <button onclick="closeProfileModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 sm:py-3 rounded-xl transition-colors text-sm sm:text-base">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+        // Global state
+        let currentUser = null;
+        let myStreakData = null;
+        let leaderboardData = [];
+        let sortBy = 'streak';
+
+        // ===== CHECK LOGIN =====
+        async function checkLogin() {
+            try {
+                const res = await fetch('/api/user-info');
+                const data = await res.json();
+                
+                if (data.loggedIn) {
+                    currentUser = data;
+                    document.getElementById('guestView').classList.add('hidden');
+                    document.getElementById('userView').classList.remove('hidden');
+                    document.getElementById('userName').textContent = data.username;
+                    document.getElementById('userAvatar').src = data.avatar;
+                    document.getElementById('myStreakCard').classList.remove('hidden');
+                    
+                    loadMyStreak();
+                } else {
+                    document.getElementById('guestView').classList.remove('hidden');
+                    document.getElementById('userView').classList.add('hidden');
+                    document.getElementById('myStreakCard').classList.add('hidden');
+                }
+            } catch (e) {
+                console.error('Error checking login:', e);
+            }
+        }
+
+        // ===== LOAD MY STREAK =====
+        async function loadMyStreak() {
+            if (!currentUser) return;
+            
+            try {
+                const res = await fetch('/api/streaks/me');
+                const data = await res.json();
+                
+                myStreakData = data;
+                
+                // Update UI
+                document.getElementById('userStreak').textContent = data.currentStreak;
+                document.getElementById('currentStreak').textContent = data.currentStreak;
+                document.getElementById('maxStreak').textContent = data.maxStreak;
+                document.getElementById('totalCheckins').textContent = data.totalCheckIns;
+                
+                // Update progress ring
+                const maxStreak = Math.max(data.maxStreak, 30);
+                const progress = (data.currentStreak / maxStreak) * 251.2;
+                document.getElementById('progressCircle').style.strokeDashoffset = 251.2 - progress;
+                
+                // Last check-in
+                if (data.lastCheckIn) {
+                    const date = new Date(data.lastCheckIn);
+                    document.getElementById('lastCheckin').textContent = date.toLocaleDateString('vi-VN');
+                }
+                
+                updateCheckinButton(data);
+                
+            } catch (e) {
+                console.error('Error loading streak:', e);
+            }
+        }
+
+        // ===== LOAD REMINDER STATUS =====
+        async function loadReminderStatus() {
+            try {
+                const res = await fetch('/api/streaks/reminder-status');
+                if (!res.ok) return;
+                const data = await res.json();
+
+                const banner = document.getElementById('streakReminderBanner');
+                const textEl = document.getElementById('streakReminderText');
+                const metaEl = document.getElementById('streakReminderMeta');
+
+                if (!data?.sentToday) {
+                    banner.classList.add('hidden');
+                    return;
+                }
+
+                const total = Number(data.lastSentTotal || 0);
+                const success = Number(data.lastSentSuccess || 0);
+                const failed = Number(data.lastSentFailed || 0);
+                const sentAt = data.lastSentAt ? new Date(data.lastSentAt) : null;
+
+                const timeText = sentAt
+                    ? sentAt.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+                    : '20:00';
+                const dateText = sentAt ? sentAt.toLocaleDateString('vi-VN') : '';
+
+                if (total === 0) {
+                    textEl.textContent = 'Hôm nay không có ai cần nhắc giữ streak.';
+                } else {
+                    textEl.textContent = 'Đã nhắc mọi người giữ streak hôm nay.';
+                }
+
+                let meta = `Thời gian: ${timeText}`;
+                if (dateText) meta += ` • ${dateText}`;
+                if (total === 0) {
+                    meta += ' • Không có người cần nhắc';
+                } else {
+                    meta += ` • Đã gửi: ${success}/${total}`;
+                    if (failed > 0) meta += ` • Lỗi: ${failed}`;
+                }
+                metaEl.textContent = meta;
+
+                banner.classList.remove('hidden');
+            } catch (e) {
+                console.error('Error loading reminder status:', e);
+            }
+        }
+
+        // ===== UPDATE CHECK-IN BUTTON =====
+        function updateCheckinButton(data) {
+            const btn = document.getElementById('checkinBtn');
+            const btnText = document.getElementById('checkinText');
+            const countdownEl = document.getElementById('countdown');
+            const nextCheckinLabel = document.getElementById('nextCheckin');
+            
+            // No check-ins yet
+            if (!data.lastCheckIn) {
+                btn.disabled = false;
+                btnText.textContent = 'Điểm danh ngay!';
+                countdownEl.parentElement.classList.add('hidden');
+                return;
+            }
+            
+            const lastCheckin = new Date(data.lastCheckIn);
+            const now = new Date();
+            
+            // Compare dates only (ignore time)
+            const lastCheckinDay = new Date(lastCheckin.getFullYear(), lastCheckin.getMonth(), lastCheckin.getDate());
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            const alreadyCheckedToday = lastCheckinDay.getTime() === today.getTime();
+            
+            if (alreadyCheckedToday) {
+                // Already checked in today
+                btn.disabled = true;
+                btnText.textContent = 'Đã điểm danh hôm nay';
+                countdownEl.parentElement.classList.remove('hidden');
+                nextCheckinLabel.innerHTML = 'Có thể điểm danh lại vào: <span class="font-semibold">00:00 ngày mai</span>';
+                
+                // Countdown to midnight
+                const midnight = new Date(today);
+                midnight.setDate(midnight.getDate() + 1);
+                midnight.setHours(0, 0, 0, 0);
+                
+                const updateCountdown = () => {
+                    const diff = midnight - new Date();
+                    if (diff <= 0) {
+                        location.reload();
+                        return;
+                    }
+                    const hours = Math.floor(diff / 3600000);
+                    const mins = Math.floor((diff % 3600000) / 60000);
+                    const secs = Math.floor((diff % 60000) / 1000);
+                    countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                };
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            } else {
+                // Can check in
+                btn.disabled = false;
+                btnText.textContent = 'Điểm danh ngay!';
+                countdownEl.parentElement.classList.add('hidden');
+            }
+        }
+
+        // ===== CHECK-IN =====
+        async function checkIn() {
+            if (!currentUser) {
+                showToast('Vui lòng đăng nhập để điểm danh!', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('checkinBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            
+            try {
+                const res = await fetch('/api/streaks/checkin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    // Success
+                    createConfetti();
+                    
+                    // Reload data
+                    loadMyStreak();
+                    loadLeaderboard(sortBy);
+                    
+                    // Show toast
+                    showToast('🔥 +1 Streak! Hiện tại: ' + data.currentStreak + ' ngày', 'success');
+                } else {
+                    // Error
+                    showToast(data.error || 'Điểm danh thất bại!', 'error');
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast('Lỗi kết nối server!', 'error');
+                btn.disabled = false;
+            } finally {
+                btn.innerHTML = '<i class="fas fa-fire"></i> <span id="checkinText">Đã điểm danh</span>';
+            }
+        }
+
+        // ===== CREATE CONFETTI =====
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                document.body.appendChild(confetti);
+                
+                // Remove after animation
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // ===== LOAD LEADERBOARD =====
+        async function loadLeaderboard(sort = 'streak') {
+            sortBy = sort;
+            
+            try {
+                const res = await fetch(`/api/streaks?sort=${sort}`);
+                const data = await res.json();
+                
+                leaderboardData = data.streaks || [];
+                
+                // Update stats
+                document.getElementById('totalUsers').textContent = data.stats?.totalUsers || 0;
+                document.getElementById('avgStreak').textContent = data.stats?.avgStreak || 0;
+                document.getElementById('topStreak').textContent = data.stats?.topStreak || 0;
+                document.getElementById('todayCheckins').textContent = data.stats?.todayCheckins || 0;
+                
+                renderLeaderboard();
+                
+            } catch (e) {
+                console.error('Error loading leaderboard:', e);
+                document.getElementById('leaderboardList').innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-exclamation-circle text-2xl mb-2 text-red-500"></i><p>Không thể tải bảng xếp hạng</p></div>';
+            }
+        }
+
+        // ===== RENDER LEADERBOARD =====
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div class="p-4 sm:p-8 text-center text-gray-500"><i class="fas fa-users text-2xl sm:text-4xl mb-2 sm:mb-3 text-gray-300"></i><p class="text-sm sm:text-base">Chưa có ai điểm danh</p><p class="text-xs sm:text-sm">Hãy là người đầu tiên!</p></div>';
+                return;
+            }
+            
+            const now = new Date();
+            
+            container.innerHTML = leaderboardData.map((user, index) => {
+                const rank = index + 1;
+                const isTop3 = rank <= 3;
+                const isCurrentUser = currentUser && user.userId === currentUser.id;
+                
+                // Check if inactive (>24h)
+                const lastCheckin = user.lastCheckIn ? new Date(user.lastCheckIn) : null;
+                const hoursSince = lastCheckin ? (now - lastCheckin) / 3600000 : 999;
+                const isInactive = hoursSince > 24;
+                
+                // Rank badge
+                let rankClass = 'bg-gray-200';
+                if (rank === 1) rankClass = 'rank-1';
+                else if (rank === 2) rankClass = 'rank-2';
+                else if (rank === 3) rankClass = 'rank-3';
+                
+                const rankBadge = isTop3 
+                    ? `<div class="w-8 h-8 sm:w-10 sm:h-10 ${rankClass} rounded-full flex items-center justify-center text-gray-800 font-bold text-sm sm:text-lg">${rank}</div>`
+                    : `<div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm sm:text-base">${rank}</div>`;
+                
+                // Inactive class
+                const inactiveClass = isInactive ? 'inactive-user' : '';
+                
+                // Status icon
+                const statusIcon = isInactive 
+                    ? '<i class="fas fa-moon text-gray-400 text-sm sm:text-base"></i>'
+                    : '<i class="fas fa-fire text-orange-500 fire-active text-sm sm:text-base"></i>';
+                
+                const statusEmoji = isInactive ? '💤' : '🔥';
+                
+                return `
+                    <div class="streak-card p-2 sm:p-4 flex items-center gap-2 sm:gap-4 ${isCurrentUser ? 'bg-orange-50 border-l-2 sm:border-l-4 border-orange-500' : ''} ${inactiveClass} cursor-pointer" onclick="showProfile('${user.userId}', ${rank})">
+                        ${rankBadge}
+                        <img src="${user.avatar || ''}" alt="" class="w-8 h-8 sm:w-12 sm:h-12 rounded-full border-2 ${isTop3 ? 'border-yellow-400' : 'border-gray-200'} object-cover flex-shrink-0" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1 sm:gap-2">
+                                <span class="font-semibold text-gray-800 truncate text-sm sm:text-base">${escapeHtml(user.username)}</span>
+                                ${isCurrentUser ? '<span class="text-[10px] sm:text-xs bg-orange-100 text-orange-600 px-1.5 sm:px-2 py-0.5 rounded">Bạn</span>' : ''}
+                            </div>
+                            <div class="text-[10px] sm:text-xs text-gray-500 flex items-center gap-1 sm:gap-2 mt-0.5 sm:mt-1">
+                                <span>${statusEmoji}</span>
+                                <span class="hidden sm:inline">•</span>
+                                <span class="hidden sm:inline">${user.totalCheckIns} lần</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="flex items-center gap-1 text-lg sm:text-2xl font-bold ${isInactive ? 'text-gray-400' : 'text-orange-500'}">
+                                ${statusIcon}
+                                <span>${user.currentStreak}</span>
+                            </div>
+                            <div class="text-[10px] sm:text-xs text-gray-400">ngày</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ===== ESCAPE HTML =====
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== SHOW TOAST =====
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toastIcon.className = type === 'success' ? 'fas fa-check-circle text-green-500' : 'fas fa-exclamation-circle text-red-500';
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // ===== LOGOUT =====
+        function logout() {
+            if (confirm('Muốn đăng xuất rồi à!')) {
+                window.location.href = '/api/auth/logout';
+            }
+        }
+
+        // ===== SIDEBAR =====
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('left-0')) {
+                sidebar.classList.remove('left-0');
+                sidebar.classList.add('-left-[260px]');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('left-0');
+                sidebar.classList.remove('-left-[260px]');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('left-0');
+            document.getElementById('sidebar').classList.add('-left-[260px]');
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        // ===== COPY IP =====
+        function copyIP() {
+            const ip = 'vanhmcpe.my-land.fun';
+            const port = '25702';
+            navigator.clipboard.writeText(ip + ':' + port).then(() => {
+                showToast('Đã copy IP: ' + ip + ':' + port);
+            });
+        }
+
+        // ===== SHOW PROFILE =====
+        function showProfile(userId, rank) {
+            const user = leaderboardData.find(u => u.userId === userId);
+            if (!user) return;
+            
+            // Rank badge
+            const rankBadge = document.getElementById('modalRankBadge');
+            rankBadge.textContent = rank;
+            let badgeClass = 'bg-gray-200';
+            if (rank === 1) badgeClass = 'rank-1';
+            else if (rank === 2) badgeClass = 'rank-2';
+            else if (rank === 3) badgeClass = 'rank-3';
+            rankBadge.className = `absolute -bottom-1 -right-1 w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-gray-800 font-bold text-xs sm:text-sm shadow-lg border-2 border-white ${badgeClass}`;
+            
+            // Banner
+            const banner = document.getElementById('modalBanner');
+            const header = document.getElementById('modalHeader');
+            
+            if (user.banner) {
+                banner.src = user.banner;
+                banner.classList.remove('hidden');
+                header.classList.remove('from-orange-400', 'via-red-500', 'to-pink-500');
+                header.classList.add('bg-gray-900');
+            } else {
+                banner.classList.add('hidden');
+                banner.src = '';
+                header.classList.add('from-orange-400', 'via-red-500', 'to-pink-500');
+                header.classList.remove('bg-gray-900');
+            }
+            
+            // Avatar & username
+            document.getElementById('modalAvatar').src = user.avatar || '';
+            document.getElementById('modalUsername').textContent = user.username;
+            
+            // Status
+            const now = new Date();
+            const lastCheckin = user.lastCheckIn ? new Date(user.lastCheckIn) : null;
+            const hoursSince = lastCheckin ? (now - lastCheckin) / 3600000 : 999;
+            const isInactive = hoursSince > 24;
+            
+            const statusEl = document.getElementById('modalStatus');
+            if (isInactive) {
+                statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-gray-400"></span><span class="text-gray-500">Không hoạt động</span>';
+            } else {
+                statusEl.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-gray-500">Đang hoạt động</span>';
+            }
+            
+            // Stats
+            document.getElementById('modalCurrentStreak').textContent = user.currentStreak;
+            document.getElementById('modalMaxStreak').textContent = user.maxStreak;
+            document.getElementById('modalTotalCheckins').textContent = user.totalCheckIns;
+            
+            // Additional info
+            document.getElementById('modalRank').textContent = '#' + rank;
+            document.getElementById('modalLastCheckin').textContent = lastCheckin ? lastCheckin.toLocaleDateString('vi-VN') : 'Chưa có';
+            
+            // Consistency
+            const consistency = user.totalCheckIns > 0 ? Math.round((user.currentStreak / user.totalCheckIns) * 100) : 0;
+            document.getElementById('modalConsistency').textContent = consistency + '%';
+            
+            // Show modal
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ===== CLOSE PROFILE MODAL =====
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // ===== INIT =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeProfileModal();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkLogin();
+            loadLeaderboard(sortBy);
+            loadReminderStatus();
+            
+            // Refresh every 30s
+            setInterval(() => loadLeaderboard(sortBy), 30000);
+            setInterval(() => loadReminderStatus(), 60000);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+

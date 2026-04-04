@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <!-- CSP Meta Tag to allow external CDNs and inline event handlers -->
+         <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanhmcpe.top/html/dowloadmc.html">
+    <meta property="og:title" content="VNA - Trang tải Minecraft">
+    <meta property="og:description" content="Cộng đồng Minecraft Bedrock đa năng - Chill cùng VNA Server">
+    <meta property="og:image" content="./photos/raw/anh-nhom/taimc.png">
+
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <title>Minecraft Download | VNA</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+</style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-[#f4f7f6] text-[#333] flex h-screen overflow-hidden">
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">MC Note</span>
+        </div>
+
+        <!-- Scrollable Navigation -->
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='https://vanhmcpe.top'">
+                <i class="fas fa-home"></i> Trang chủ
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="copyIP()">
+                <i class="fas fa-copy"></i> Copy IP
+            </div>
+            
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='status-server.html'">
+                <i class="fas fa-chart-line w-5"></i> Status server
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../A11/chat.html'">
+                    <i class="fas fa-comments w-5"></i> Chat
+                </div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/streak.html">
+                <i class="fas fa-fire w-5"></i> Streak
+            </a>
+<a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
+                <i class="fas fa-cloud w-5"></i> Cloud</a>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Thư viện</div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../p/rawphoto.html'">
+                <i class="fas fa-expand"></i> Album
+            </div>
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+            <div class="tool-grid-sidebar">
+                <a class="tool-tile" href="/p/snapsave.html">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a class="tool-tile" href="/html/tiktok.html">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a class="tool-tile" href="/html/youtube.html">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+                <a class="tool-tile" href="/html/soundcloud.html">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <span>SoundCloud</span>
+                </a>
+                <a class="tool-tile" href="/html/dowloadmc.html">
+                    <i class="fas fa-download"></i>
+                    <span>Minecraft</span>
+                </a>
+            </div>
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-6 mb-2 px-3">Kho rác</h2>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
+                <i class="fas fa-toolbox"></i> Kho công cụ
+            </a>
+        </nav>
+
+        <!-- Footer -->
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-200 bg-white flex justify-center items-center relative">
+            <button type="button" class="hamburger text-2xl text-gray-700 absolute left-4 lg:hidden" onclick="window.toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="bg-gray-100 px-3 py-1 rounded-lg border border-gray-200 flex items-center gap-2">
+                <i class="fas fa-clock text-gray-600 text-sm"></i>
+                <span class="text-sm font-medium text-gray-700" id="headerTime">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Main Content -->
+            <div class="max-w-6xl mx-auto px-6 py-12">
+                <div class="max-w-[480px] mx-auto bg-white p-6 lg:p-10 rounded-[2rem] shadow-sm border border-gray-100 text-center mt-2 lg:mt-6">
+                    <div class="flex justify-center mb-5">
+                        <div class="relative">
+                            <img src="../photos/mc.png" alt="Minecraft" class="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl shadow-xl border-4 border-white">
+                            <div class="absolute -bottom-1 -right-1 bg-[#2ecc71] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+                                <i class="fas fa-check text-[8px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-2xl lg:text-3xl font-extrabold text-[#1e293b] mb-1">Minecraft PE</h1>
+                    <p class="text-[13px] lg:text-sm text-gray-500 mb-8 font-medium">Phiên bản APK Minecraft</p>
+
+                    <div class="space-y-3"> 
+                        <div id="dynamic-downloads" class="space-y-3"></div>
+
+                    </div>
+
+                    <div class="mt-8 p-4 bg-orange-50 rounded-2xl border border-orange-100/50">
+                        <p class="text-[11px] lg:text-xs text-orange-700 leading-relaxed font-medium">
+                            <i class="fas fa-info-circle mr-1"></i> <b>Nhắc nhẹ:</b> Nhớ bật quyền <b>"Cài đặt từ nguồn không xác định"</b> trong máy để cài nhé!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+        // Robust sidebar implementation (overrides broken versions and adds diagnostics)
+        window.toggleSidebar = function toggleSidebarImpl() {
+            try {
+                console.debug('[sidebar] toggleSidebar called');
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                if (!sidebar || !overlay) {
+                    console.warn('[sidebar] missing elements', { sidebar, overlay });
+                    return;
+                }
+
+                // Check if sidebar is in "closed" state by checking if it has -left-[260px]
+                const isClosed = sidebar.classList.contains('-left-[260px]');
+                
+                if (isClosed) {
+                    // Open sidebar
+                    sidebar.classList.remove('-left-[260px]');
+                    sidebar.classList.add('left-0');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    // Close sidebar
+                    sidebar.classList.add('-left-[260px]');
+                    sidebar.classList.remove('left-0');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            } catch (err) {
+                console.error('[sidebar] toggle error', err);
+            }
+        };
+
+        function initSidebarLogic() {
+            console.debug('[sidebar] initSidebarLogic');
+
+            // Any data-toggle triggers
+            document.querySelectorAll('[data-toggle="sidebar"]').forEach(btn => {
+                btn.removeEventListener('click', window.toggleSidebar);
+                btn.addEventListener('click', window.toggleSidebar);
+            });
+
+            // Overlay click to close
+            const overlay = document.getElementById('overlay');
+            if (overlay) {
+                overlay.removeEventListener('click', window.toggleSidebar);
+                overlay.addEventListener('click', window.toggleSidebar);
+            }
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar && !sidebar.classList.contains('-left-[260px]')) {
+                        window.toggleSidebar();
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSidebarLogic);
+        } else {
+            initSidebarLogic();
+        }
+
+        // Diagnostic helper to check DOM elements from console: run __sidebar_check()
+        window.__sidebar_check = function () {
+            return {
+                sidebar: document.getElementById('sidebar'),
+                overlay: document.getElementById('overlay'),
+                hamburger: document.querySelector('.hamburger')
+            };
+        };
+
+        function copyIP() {
+            const ip = 'vanhmcpe.my-land.fun:25702';
+            navigator.clipboard.writeText(ip).then(() => {
+                alert('Đã copy IP server: ' + ip);
+            }).catch(err => {
+                console.error('Không thể copy IP:', err);
+                // Fallback cho trình duyệt cũ
+                const textArea = document.createElement('textarea');
+                textArea.value = ip;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Đã copy IP server: ' + ip);
+            });
+        }
+
+        async function loadMinecraftDownloads() {
+            const container = document.getElementById('dynamic-downloads');
+            if (!container) return;
+            try {
+                const res = await fetch('/api/minecraft-downloads');
+                const data = await res.json();
+                if (!res.ok || !data.success || !Array.isArray(data.items)) {
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.items.forEach((item) => {
+                    if (!item?.title || !item?.url) return;
+                    const link = document.createElement('a');
+                    link.href = item.url;
+                    link.target = '_blank';
+                    link.className = 'flex items-center justify-between p-4 lg:p-5 bg-[#2ecc71] text-white rounded-2xl hover:bg-[#27ae60] transition-all active:scale-[0.97] shadow-lg shadow-green-100 group';
+
+                    const left = document.createElement('div');
+                    left.className = 'flex items-center gap-3';
+
+                    const iconWrap = document.createElement('div');
+                    iconWrap.className = 'bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center shrink-0';
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-brands fa-android text-xl';
+                    iconWrap.appendChild(icon);
+
+                    const textWrap = document.createElement('div');
+                    textWrap.className = 'text-left';
+
+                    const title = document.createElement('span');
+                    title.className = 'block font-bold text-sm lg:text-base leading-none';
+                    title.textContent = item.title;
+
+                    textWrap.appendChild(title);
+
+                    if (item.version) {
+                        const version = document.createElement('span');
+                        version.className = 'text-[10px] opacity-90 mt-1 block uppercase tracking-tight';
+                        version.textContent = item.version;
+                        textWrap.appendChild(version);
+                    }
+
+                    left.appendChild(iconWrap);
+                    left.appendChild(textWrap);
+
+                    const arrow = document.createElement('i');
+                    arrow.className = 'fas fa-arrow-down text-xs opacity-70 group-hover:translate-y-1 transition-transform';
+
+                    link.appendChild(left);
+                    link.appendChild(arrow);
+
+                    container.appendChild(link);
+                });
+            } catch (_err) {
+                // Ignore fetch errors to avoid breaking the page.
+            }
+        }
+
+        // Hàm cập nhật thời gian thực
+function updateTime() {
+    const timeDisplay = document.getElementById('headerTime');
+    if (timeDisplay) {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        timeDisplay.innerText = `${hours}:${minutes}:${seconds}`;
+    }
+}
+
+// Chạy ngay lập tức và lặp lại mỗi giây
+setInterval(updateTime, 1000);
+updateTime();
+
+        loadMinecraftDownloads();
+    </script>
+</body>
+</html>
+
+
+
+
+
+

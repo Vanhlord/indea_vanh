@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC Obfuscator Pro - Bảo Mật Tuyệt Đối</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --accent: #f59e0b;
+            --bg-dark: #020617;
+            --bg-card: #0f172a;
+            --neon-blue: #60a5fa;
+            --neon-orange: #fbbf24;
+            --error-red: #ef4444;
+            --error-deep: #7f1d1d;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            isolation: isolate;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            background:
+                radial-gradient(circle at 18% 18%, rgba(239, 68, 68, 0.2), transparent 28%),
+                radial-gradient(circle at 82% 12%, rgba(185, 28, 28, 0.18), transparent 24%),
+                radial-gradient(circle at 50% 120%, rgba(127, 29, 29, 0.32), transparent 38%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(10, 10, 15, 0.98));
+            filter: saturate(1.08);
+            animation: ambient-red-shift 8s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.22;
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(255, 255, 255, 0.02) 0px,
+                    rgba(255, 255, 255, 0.02) 1px,
+                    transparent 1px,
+                    transparent 4px
+                );
+            mix-blend-mode: screen;
+            animation: scanline-drift 10s linear infinite;
+        }
+
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(248, 113, 113, 0.14);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.58), 0 0 30px rgba(127, 29, 29, 0.12);
+            animation: panel-flicker 7s steps(1, end) infinite;
+        }
+
+        .neon-border {
+            position: relative;
+        }
+
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary));
+            filter: blur(5px);
+            z-index: -1;
+            border-radius: inherit;
+            opacity: 0.3;
+            animation: rotate 4s linear infinite;
+        }
+
+        .error-shell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform-origin: center center;
+            animation: shell-corrupt 2.8s steps(1, end) infinite;
+        }
+
+        .error-veil,
+        .error-noise,
+        .error-slice,
+        .core-rift {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .error-veil {
+            z-index: 1;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 0 30%, rgba(127, 29, 29, 0.12) 72%, rgba(2, 6, 23, 0.44) 100%),
+                linear-gradient(90deg, rgba(239, 68, 68, 0.02), transparent 18%, transparent 82%, rgba(239, 68, 68, 0.04));
+            mix-blend-mode: screen;
+            animation: veil-pulse 5.5s ease-in-out infinite;
+        }
+
+        .error-noise {
+            z-index: 2;
+            opacity: 0.16;
+            background:
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px),
+                repeating-linear-gradient(90deg, rgba(239,68,68,0.04) 0 1px, transparent 1px 5px);
+            mix-blend-mode: soft-light;
+            animation: noise-shift 0.35s steps(2, end) infinite;
+        }
+
+        .error-slice {
+            z-index: 3;
+            opacity: 0;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(248, 113, 113, 0.18) 15%, rgba(255, 255, 255, 0.08) 50%, rgba(248, 113, 113, 0.18) 85%, transparent 100%);
+            mix-blend-mode: screen;
+            animation: screen-tear 6s steps(1, end) infinite;
+        }
+
+        .core-rift {
+            left: -10%;
+            right: -10%;
+            width: 120%;
+            height: 18vh;
+            inset: auto;
+            z-index: 4;
+            opacity: 0;
+            overflow: hidden;
+            mix-blend-mode: screen;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(248, 113, 113, 0.12) 18%, rgba(255, 255, 255, 0.18) 48%, rgba(248, 113, 113, 0.12) 82%, transparent 100%),
+                repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 3px);
+            clip-path: polygon(0 14%, 100% 0, 100% 64%, 0 88%);
+            transform: translate3d(0, 0, 0) skewX(0deg);
+        }
+
+        .core-rift-a { top: 18vh; }
+        .core-rift-b { top: 58vh; }
+
+        .lag-freeze,
+        .lag-status {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .lag-freeze {
+            z-index: 5;
+            opacity: 0;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0)),
+                rgba(8, 10, 18, 0.14);
+            backdrop-filter: blur(0px);
+            transition: opacity 80ms linear, backdrop-filter 80ms linear;
+        }
+
+        .lag-status {
+            z-index: 6;
+            inset: auto 24px 24px auto;
+            width: auto;
+            height: auto;
+            padding: 0.7rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(248, 113, 113, 0.26);
+            background: rgba(15, 23, 42, 0.72);
+            color: #fecaca;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 120ms ease, transform 120ms ease;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34);
+        }
+
+        body.fake-lag {
+            cursor: wait;
+        }
+
+        body.fake-lag .lag-freeze {
+            opacity: 1;
+            backdrop-filter: blur(1.4px);
+        }
+
+        body.fake-lag .lag-status {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        body.fake-lag .error-shell {
+            filter: contrast(1.04) saturate(0.94);
+        }
+
+        body.fake-lag .error-shell > header,
+        body.fake-lag .error-shell > main,
+        body.fake-lag .error-shell > footer {
+            animation-duration: 7.5s !important;
+        }
+
+        body.signal-drop .error-noise {
+            opacity: 0.32;
+        }
+
+        body.signal-drop .error-slice,
+        body.signal-drop .core-rift {
+            opacity: 0.6;
+        }
+
+        body.signal-drop .lag-status::before {
+            content: 'Signal Loss';
+        }
+
+        @keyframes rotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes ambient-red-shift {
+            0% {
+                transform: scale(1) translate3d(0, 0, 0);
+                filter: saturate(1.05) brightness(1);
+            }
+            100% {
+                transform: scale(1.05) translate3d(0, -10px, 0);
+                filter: saturate(1.18) brightness(0.9);
+            }
+        }
+
+        @keyframes scanline-drift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(14px); }
+        }
+
+        @keyframes veil-pulse {
+            0%, 100% { opacity: 0.72; }
+            50% { opacity: 0.96; }
+        }
+
+        @keyframes noise-shift {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(1px, -1px); }
+            50% { transform: translate(-1px, 1px); }
+            75% { transform: translate(1px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes screen-tear {
+            0%, 100% {
+                opacity: 0;
+                transform: translateX(0) skewX(0deg);
+                clip-path: inset(0 0 100% 0);
+            }
+            11%, 13% {
+                opacity: 0.78;
+                transform: translateX(-10px) skewX(-10deg);
+                clip-path: inset(12% 0 70% 0);
+            }
+            32%, 34% {
+                opacity: 0.68;
+                transform: translateX(12px) skewX(9deg);
+                clip-path: inset(46% 0 34% 0);
+            }
+            66%, 67% {
+                opacity: 0.58;
+                transform: translateX(-8px) skewX(-8deg);
+                clip-path: inset(72% 0 10% 0);
+            }
+        }
+
+        @keyframes shell-corrupt {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+                filter: none;
+            }
+            6% {
+                transform: translate3d(-3px, 1px, 0) rotate(-0.15deg);
+            }
+            7% {
+                transform: translate3d(4px, -1px, 0) rotate(0.15deg);
+            }
+            8% {
+                transform: translate3d(-5px, 2px, 0) rotate(-0.2deg);
+            }
+            9% {
+                transform: translate3d(5px, -2px, 0) rotate(0.2deg);
+            }
+            10% {
+                transform: translate3d(-4px, 1px, 0) rotate(-0.15deg);
+            }
+            11% {
+                transform: translate3d(3px, -1px, 0) rotate(0.1deg);
+            }
+            12% {
+                transform: translate3d(0, 0, 0);
+            }
+            28% {
+                transform: translate3d(2px, 0, 0) rotate(0.08deg);
+            }
+            29% {
+                transform: translate3d(-3px, 1px, 0) rotate(-0.08deg);
+            }
+            30% {
+                transform: translate3d(4px, -1px, 0) rotate(0.12deg);
+            }
+            31% {
+                transform: translate3d(-4px, 2px, 0) rotate(-0.12deg);
+            }
+            32% {
+                transform: translate3d(0, 0, 0);
+            }
+            33% {
+                filter: contrast(1.05);
+            }
+            34% {
+                transform: translate3d(-6px, 2px, 0) rotate(-0.24deg);
+                filter: contrast(1.12) saturate(1.08);
+            }
+            35% {
+                transform: translate3d(7px, -2px, 0) rotate(0.24deg);
+            }
+            36% {
+                transform: translate3d(-8px, 3px, 0) rotate(-0.28deg);
+            }
+            37% {
+                transform: translate3d(6px, -3px, 0) rotate(0.22deg);
+            }
+            38% {
+                transform: translate3d(-4px, 2px, 0) rotate(-0.12deg);
+            }
+            39% {
+                transform: translate3d(3px, -1px, 0) rotate(0.08deg);
+            }
+            40% {
+                transform: translate3d(0, 0, 0);
+                filter: none;
+            }
+            58% {
+                transform: translate3d(2px, -1px, 0) rotate(0.08deg);
+            }
+            59% {
+                transform: translate3d(-2px, 1px, 0) rotate(-0.08deg);
+            }
+            60% {
+                transform: translate3d(5px, -2px, 0) rotate(0.18deg);
+            }
+            61% {
+                transform: translate3d(-5px, 2px, 0) rotate(-0.18deg);
+            }
+            62% {
+                transform: translate3d(0, 0, 0);
+            }
+            63% {
+                transform: translate3d(-7px, 2px, 0) rotate(-0.22deg);
+            }
+            64% {
+                transform: translate3d(8px, -3px, 0) rotate(0.26deg);
+                opacity: 0.96;
+            }
+            65% {
+                transform: translate3d(-6px, 3px, 0) rotate(-0.22deg);
+                opacity: 0.92;
+            }
+            66% {
+                transform: translate3d(4px, -2px, 0) rotate(0.14deg);
+                opacity: 1;
+            }
+            67% {
+                transform: translate3d(0, 0, 0);
+            }
+            83% {
+                transform: translate3d(-3px, 1px, 0) rotate(-0.1deg);
+            }
+            84% {
+                transform: translate3d(3px, -1px, 0) rotate(0.1deg);
+            }
+            85% {
+                transform: translate3d(-2px, 1px, 0) rotate(-0.08deg);
+            }
+            86% {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @keyframes panel-flicker {
+            0%, 100% {
+                border-color: rgba(248, 113, 113, 0.14);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.58), 0 0 30px rgba(127, 29, 29, 0.12);
+            }
+            18% {
+                border-color: rgba(248, 113, 113, 0.22);
+            }
+            19% {
+                border-color: rgba(254, 202, 202, 0.32);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.58), 0 0 42px rgba(220, 38, 38, 0.18);
+            }
+            20% {
+                border-color: rgba(248, 113, 113, 0.14);
+            }
+            57% {
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.58), 0 0 36px rgba(127, 29, 29, 0.16);
+            }
+        }
+
+        @keyframes layout-desync {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                filter: none;
+                clip-path: inset(0 0 0 0);
+            }
+            9% {
+                transform: translate3d(-10px, 2px, 0) skewX(-1.3deg);
+            }
+            10% {
+                transform: translate3d(12px, -3px, 0) skewX(1.5deg);
+            }
+            11% {
+                transform: translate3d(-7px, 3px, 0) skewX(-0.8deg);
+            }
+            12% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+            }
+            41% {
+                filter: contrast(1.06) saturate(1.06);
+            }
+            42% {
+                transform: translate3d(14px, -5px, 0) skewX(2deg);
+                filter: contrast(1.16) saturate(1.18) hue-rotate(-10deg);
+                clip-path: inset(1% 0 2% 0);
+            }
+            43% {
+                transform: translate3d(-11px, 6px, 0) skewX(-2deg);
+                clip-path: inset(3% 0 1% 0);
+            }
+            44% {
+                transform: translate3d(7px, -3px, 0) skewX(1deg);
+                clip-path: inset(0 0 4% 0);
+            }
+            45% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                filter: none;
+                clip-path: inset(0 0 0 0);
+            }
+            69% {
+                transform: translate3d(-8px, 2px, 0) skewX(-0.8deg);
+            }
+            70% {
+                transform: translate3d(9px, -2px, 0) skewX(0.9deg);
+            }
+            71% {
+                transform: translate3d(-6px, 1px, 0);
+            }
+            72% {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @keyframes section-shred {
+            0%, 100% {
+                opacity: 0;
+                transform: translateX(0);
+                clip-path: inset(0 0 100% 0);
+            }
+            10%, 11% {
+                opacity: 0.42;
+                transform: translateX(-12px);
+                clip-path: inset(8% 0 72% 0);
+            }
+            43%, 44% {
+                opacity: 0.34;
+                transform: translateX(10px);
+                clip-path: inset(44% 0 34% 0);
+            }
+            70%, 71% {
+                opacity: 0.28;
+                transform: translateX(-8px);
+                clip-path: inset(76% 0 10% 0);
+            }
+        }
+
+        @keyframes text-corrupt {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+                text-shadow: 0 0 0 rgba(239, 68, 68, 0), 0 0 0 rgba(96, 165, 250, 0);
+                opacity: 1;
+            }
+            9% {
+                transform: translate3d(-1px, 0, 0);
+                text-shadow: -2px 0 rgba(239, 68, 68, 0.45), 2px 0 rgba(96, 165, 250, 0.28);
+            }
+            10% {
+                transform: translate3d(2px, -1px, 0);
+            }
+            11% {
+                transform: translate3d(-1px, 1px, 0);
+            }
+            12% {
+                transform: translate3d(0, 0, 0);
+                text-shadow: 0 0 0 rgba(239, 68, 68, 0), 0 0 0 rgba(96, 165, 250, 0);
+            }
+            42% {
+                transform: translate3d(-2px, 0, 0);
+                text-shadow: -3px 0 rgba(239, 68, 68, 0.56), 2px 0 rgba(255, 255, 255, 0.18);
+                opacity: 0.92;
+            }
+            44% {
+                transform: translate3d(0, 0, 0);
+                opacity: 1;
+            }
+            70% {
+                transform: translate3d(1px, 0, 0);
+                text-shadow: 2px 0 rgba(248, 113, 113, 0.35), -2px 0 rgba(96, 165, 250, 0.22);
+            }
+            72% {
+                transform: translate3d(0, 0, 0);
+                text-shadow: 0 0 0 rgba(239, 68, 68, 0), 0 0 0 rgba(96, 165, 250, 0);
+            }
+        }
+
+        @keyframes ui-warp {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                filter: none;
+            }
+            10% {
+                transform: translate3d(-4px, 1px, 0) skewX(-0.8deg);
+                filter: contrast(1.06);
+            }
+            11% {
+                transform: translate3d(5px, -1px, 0) skewX(0.8deg);
+            }
+            12% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                filter: none;
+            }
+            43% {
+                transform: translate3d(6px, -2px, 0) skewX(1deg);
+                filter: hue-rotate(-12deg) saturate(1.1);
+            }
+            44% {
+                transform: translate3d(-5px, 2px, 0) skewX(-1deg);
+            }
+            45% {
+                transform: translate3d(0, 0, 0);
+                filter: none;
+            }
+        }
+
+        .error-shell > header,
+        .error-shell > main,
+        .error-shell > footer {
+            position: relative;
+            animation: layout-desync 4.6s steps(1, end) infinite;
+        }
+
+        .error-shell > main {
+            animation-delay: 0.45s;
+        }
+
+        .error-shell > footer {
+            animation-delay: 0.9s;
+        }
+
+        .error-shell > header::before,
+        .error-shell > main::before,
+        .error-shell > footer::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            pointer-events: none;
+            background: linear-gradient(90deg, transparent 0%, rgba(248, 113, 113, 0.12) 30%, rgba(255, 255, 255, 0.08) 50%, rgba(248, 113, 113, 0.12) 70%, transparent 100%);
+            mix-blend-mode: screen;
+            animation: section-shred 4.6s steps(1, end) infinite;
+        }
+
+        .error-shell > main::before {
+            animation-delay: 0.45s;
+        }
+
+        .error-shell > footer::before {
+            animation-delay: 0.9s;
+        }
+
+        .error-shell h1,
+        .error-shell h2,
+        .error-shell p,
+        .error-shell span,
+        .error-shell label {
+            animation: text-corrupt 4.2s steps(1, end) infinite;
+        }
+
+        .error-shell textarea,
+        .error-shell button,
+        .error-shell .glass,
+        .error-shell .tool-icon,
+        .error-shell input[type="checkbox"] {
+            animation: ui-warp 4.4s steps(1, end) infinite;
+        }
+
+        .error-shell textarea {
+            box-shadow: inset 0 0 18px rgba(239, 68, 68, 0.08), 0 0 24px rgba(127, 29, 29, 0.08);
+        }
+
+        .corrupt-panel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .corrupt-panel::before,
+        .corrupt-panel::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .corrupt-panel::before {
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(248, 113, 113, 0.16) 35%, rgba(255, 255, 255, 0.12) 50%, rgba(248, 113, 113, 0.16) 65%, transparent 100%);
+            mix-blend-mode: screen;
+        }
+
+        .corrupt-panel::after {
+            background:
+                repeating-linear-gradient(0deg, rgba(248, 113, 113, 0.08) 0 2px, transparent 2px 6px);
+            mix-blend-mode: overlay;
+        }
+
+        body.core-collapse .core-rift {
+            opacity: 0.72;
+        }
+
+        .error-shell.critical-failure > header {
+            transform: translate3d(-18px, 4px, 0) skewX(-2.4deg) !important;
+            filter: contrast(1.18) saturate(1.18) hue-rotate(-10deg);
+        }
+
+        .error-shell.critical-failure > main {
+            transform: translate3d(22px, -6px, 0) skewX(2.8deg) !important;
+            filter: contrast(1.24) saturate(1.2) hue-rotate(-16deg);
+        }
+
+        .error-shell.critical-failure > footer {
+            transform: translate3d(-14px, 5px, 0) skewX(-1.4deg) !important;
+            filter: contrast(1.14) saturate(1.1);
+        }
+
+        .error-shell.critical-failure .corrupt-panel {
+            transform: translate3d(var(--corrupt-x, 0), var(--corrupt-y, 0), 0) skewX(var(--corrupt-skew, 0deg)) !important;
+            filter: hue-rotate(var(--corrupt-hue, 0deg)) contrast(1.24) saturate(1.32) brightness(1.04);
+            box-shadow: 0 35px 70px -16px rgba(0, 0, 0, 0.7), 0 0 52px rgba(239, 68, 68, 0.22);
+            border-color: rgba(254, 202, 202, 0.34);
+        }
+
+        .error-shell.critical-failure .corrupt-panel::before,
+        .error-shell.critical-failure .corrupt-panel::after {
+            opacity: 1;
+        }
+
+        .error-shell.critical-failure textarea,
+        .error-shell.critical-failure button,
+        .error-shell.critical-failure label,
+        .error-shell.critical-failure h2,
+        .error-shell.critical-failure p,
+        .error-shell.critical-failure span {
+            transform: translate3d(var(--ui-shift-x, 0), var(--ui-shift-y, 0), 0) skewX(var(--ui-skew, 0deg)) !important;
+            letter-spacing: 0.03em;
+            text-shadow: -2px 0 rgba(239, 68, 68, 0.38), 2px 0 rgba(96, 165, 250, 0.18);
+        }
+
+        .error-shell.critical-failure textarea,
+        .error-shell.critical-failure button {
+            filter: contrast(1.12) saturate(1.12) hue-rotate(-8deg);
+        }
+
+        .error-shell button,
+        .error-shell textarea {
+            will-change: transform, filter;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .btn-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .logo-text {
+            background: linear-gradient(to right, #60a5fa, #fbbf24);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
+        }
+
+        .code-input {
+            background: #020617;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .code-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        @keyframes horror-glitch {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                background: rgba(127, 29, 29, 0.16);
+                color: #fecaca;
+                border-color: rgba(248, 113, 113, 0.3);
+                box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+                text-shadow: 0 0 0 rgba(248, 113, 113, 0);
+            }
+            8% {
+                transform: translate3d(-1px, 0, 0) skewX(-6deg);
+            }
+            10% {
+                transform: translate3d(1px, 0, 0) skewX(6deg);
+                background: rgba(153, 27, 27, 0.3);
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+            }
+            12% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+            }
+            36% {
+                transform: translate3d(-1.5px, 0, 0) skewX(-10deg);
+                background: rgba(220, 38, 38, 0.36);
+                color: #ffffff;
+                border-color: rgba(248, 113, 113, 0.78);
+                box-shadow: 0 0 18px rgba(239, 68, 68, 0.34);
+                text-shadow: 0 0 8px rgba(254, 202, 202, 0.5);
+            }
+            38% {
+                transform: translate3d(1.5px, 0, 0) skewX(8deg);
+            }
+            40% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+            }
+            63% {
+                opacity: 0.92;
+            }
+            64% {
+                opacity: 0.5;
+            }
+            66% {
+                opacity: 1;
+            }
+            82% {
+                background: rgba(153, 27, 27, 0.28);
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.26);
+            }
+        }
+
+        @keyframes horror-slice-top {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0;
+                clip-path: inset(0 0 58% 0);
+            }
+            9%, 11% {
+                transform: translate(-2px, -1px);
+                opacity: 0.72;
+                clip-path: inset(0 0 62% 0);
+            }
+            36%, 39% {
+                transform: translate(2px, -1px);
+                opacity: 0.78;
+                clip-path: inset(0 0 55% 0);
+            }
+        }
+
+        @keyframes horror-slice-bottom {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0;
+                clip-path: inset(48% 0 0 0);
+            }
+            10%, 12% {
+                transform: translate(2px, 1px);
+                opacity: 0.65;
+                clip-path: inset(52% 0 0 0);
+            }
+            37%, 40% {
+                transform: translate(-2px, 1px);
+                opacity: 0.72;
+                clip-path: inset(45% 0 0 0);
+            }
+        }
+
+        .horror-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            isolation: isolate;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            background: rgba(127, 29, 29, 0.16);
+            color: #fecaca;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            animation: horror-glitch 2.2s infinite steps(1, end);
+        }
+
+        .horror-badge::before,
+        .horror-badge::after {
+            content: attr(data-label);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .horror-badge::before {
+            color: rgba(255, 214, 214, 0.9);
+            text-shadow: -1px 0 rgba(255, 255, 255, 0.18);
+            animation: horror-slice-top 2.2s infinite steps(1, end);
+        }
+
+        .horror-badge::after {
+            color: rgba(248, 113, 113, 0.92);
+            text-shadow: 1px 0 rgba(127, 29, 29, 0.6);
+            animation: horror-slice-bottom 2.2s infinite steps(1, end);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+    <div class="error-veil"></div>
+    <div class="error-noise"></div>
+    <div class="error-slice"></div>
+    <div class="core-rift core-rift-a"></div>
+    <div class="core-rift core-rift-b"></div>
+    <div class="lag-freeze"></div>
+    <div class="lag-status">Latency Spike</div>
+    <div class="error-shell">
+
+    <!-- Header -->
+    <header class="w-full max-w-6xl mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+            <div class="mb-2 flex flex-wrap items-center gap-3">
+                <h1 class="text-4xl md:text-5xl font-extrabold logo-text">AMC OBFL-V2</h1>
+                <span class="horror-badge rounded-full px-4 py-1.5 text-[11px] font-extrabold" data-label="ERROR">ERROR</span>
+            </div>
+            <p class="text-gray-400 font-medium">Bảo vệ tài sản trí tuệ của bạn với công nghệ mã hóa tiên tiến.</p>
+        </div>
+        <div class="flex items-center gap-4 bg-slate-900/50 p-2 rounded-2xl border border-white/5">
+            <div class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-blue-400 border-r border-white/10">
+                <span class="status-dot bg-blue-400"></span> Engine Online
+            </div>
+            <div class="px-4 py-2 text-xs font-bold uppercase tracking-widest text-orange-400">
+                <span class="status-dot bg-orange-400"></span> Deep Scan Ready
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Tool -->
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Input Area -->
+        <div class="glass corrupt-panel p-6 rounded-3xl flex flex-col gap-4 neon-border h-[600px]">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Source Code (HTML/CSS/JS)
+                </h2>
+                <button onclick="document.getElementById('fileInput').click()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition border border-white/5">
+                    Tải File Lên
+                </button>
+                <input type="file" id="fileInput" class="hidden" accept=".html,.js,.css">
+            </div>
+            
+            <textarea id="inputCode" class="flex-1 w-full code-input rounded-2xl p-4 font-mono text-sm text-blue-100 outline-none resize-none custom-scrollbar" placeholder="Dán mã nguồn của bạn vào đây..."></textarea>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <label class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl cursor-pointer border border-white/5 hover:border-blue-500/30 transition">
+                    <input type="checkbox" id="renameCss" checked class="w-4 h-4 bg-blue-500 rounded">
+                    <span class="text-sm font-semibold select-none">Đổi tên Class/ID/Variable</span>
+                </label>
+                <label class="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl cursor-pointer border border-white/5 hover:border-orange-500/30 transition">
+                    <input type="checkbox" id="deepJs" checked class="w-4 h-4 bg-orange-500 rounded">
+                    <span class="text-sm font-semibold select-none">Mã hóa JS Chuyên Sâu</span>
+                </label>
+            </div>
+
+            <button onclick="runObfuscation()" id="btnRun" class="w-full bg-primary hover:bg-blue-600 text-white font-bold py-4 rounded-2xl btn-glow flex items-center justify-center gap-3 group">
+                <span id="btnText">TIẾN HÀNH MÃ HÓA</span>
+                <svg id="loader" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </button>
+        </div>
+
+        <!-- Output Area -->
+        <div class="glass corrupt-panel p-6 rounded-3xl flex flex-col gap-4 h-[600px] bg-slate-900/40 border border-white/10">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Protected Code
+                </h2>
+                <div class="flex gap-2">
+                    <button id="btnCopy" onclick="copyResult()" class="hidden text-xs bg-slate-800 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition border border-white/5">Copy</button>
+                    <button id="btnDownload" onclick="downloadResult()" class="hidden text-xs bg-accent/20 hover:bg-accent px-3 py-1.5 rounded-lg transition text-accent hover:text-white border border-accent/20">Tải File</button>
+                </div>
+            </div>
+
+            <textarea id="outputCode" readonly class="flex-1 w-full bg-black/50 border border-white/5 rounded-2xl p-4 font-mono text-sm text-green-400 outline-none resize-none custom-scrollbar" placeholder="Kết quả sau khi mã hóa sẽ hiển thị tại đây..."></textarea>
+            
+            <div id="stats" class="hidden grid grid-cols-3 gap-4 text-center">
+                <div class="bg-white/5 p-3 rounded-2xl">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Filesize Change</div>
+                    <div id="fileDiff" class="text-sm font-bold text-blue-400">+0%</div>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Entropy</div>
+                    <div class="text-sm font-bold text-purple-400">High</div>
+                </div>
+                <div class="bg-white/5 p-3 rounded-2xl">
+                    <div class="text-[10px] text-gray-500 uppercase font-bold">Unreadable</div>
+                    <div class="text-sm font-bold text-green-400">99.9%</div>
+                </div>
+            </div>
+            
+            <div id="placeholderStats" class="flex-1 flex flex-col items-center justify-center opacity-20 filter grayscale">
+                <svg class="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <p class="text-sm">Secure Engine Idle</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-6xl text-center text-gray-600 text-xs py-8 border-t border-white/5">
+        &copy; 2026 AMC Obfuscation System. Phát triển bởi AI Antigravity. Toàn bộ mã hóa hoạt động offline trên trình duyệt của bạn.
+    </footer>
+    </div>
+
+    <!-- Logic Engine -->
+    <script>
+        class ObflEngine {
+            constructor() {
+                this.mapping = new Map();
+                this.prefix = "_0x" + Math.random().toString(16).slice(2, 5);
+                this.counter = 0;
+            }
+
+            getShortName(original) {
+                if (this.mapping.has(original)) return this.mapping.get(original);
+                const short = this.prefix + (this.counter++).toString(16);
+                this.mapping.set(original, short);
+                return short;
+            }
+
+            minify(html) {
+                const step1 = html.replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+                const step2 = step1.replace(/>\s+</g, '><');         // Remove space between tags
+                return step2.trim();
+            }
+
+            obfuscate(code, options) {
+                let processed = code;
+
+                if (options.renameCss) {
+                    console.log("Renaming CSS/HTML identifiers...");
+                    
+                    // 1. Extract IDs and Classes
+                    const idRegex = /id=["']([^"']+)["']/g;
+                    const classRegex = /class=["']([^"']+)["']/g;
+                    const cssVarRegex = /--([a-zA-Z0-9_-]+)/g;
+
+                    let match;
+                    const identifiers = new Set();
+
+                    // Find all classes
+                    while ((match = classRegex.exec(code)) !== null) {
+                        match[1].split(/\s+/).filter(Boolean).forEach(c => identifiers.add(c));
+                    }
+                    // Find all IDs
+                    while ((match = idRegex.exec(code)) !== null) {
+                        identifiers.add(match[1]);
+                    }
+                    // Find CSS Variables
+                    while ((match = cssVarRegex.exec(code)) !== null) {
+                        identifiers.add('--' + match[1]);
+                    }
+
+                    // 2. Filter out some common names or things that shouldn't be renamed if needed
+                    // (For now we rename everything detected)
+
+                    // 3. Perform Replacement
+                    // Note: We need to be careful with string replacements to not break other things
+                    // A better way is to iterate through the identifiers sorted by length descending
+                    const sortedIds = Array.from(identifiers).sort((a, b) => b.length - a.length);
+
+                    sortedIds.forEach(id => {
+                        const renamed = this.getShortName(id);
+                        
+                        // Replace in class strings specifically to avoid partial matching
+                        const isVar = id.startsWith('--');
+                        
+                        if (isVar) {
+                            // Replace --variable everywhere
+                            processed = processed.split(id).join(renamed);
+                        } else {
+                            // Replace class names in class="abc def"
+                            processed = processed.replace(new RegExp(`(class=["'])([^"']*)(${id})([^"']*)(["'])`, 'g'), `$1$2${renamed}$4$5`);
+                            // Replace IDs specifically
+                            processed = processed.replace(new RegExp(`id=["']${id}["']`, 'g'), `id="${renamed}"`);
+                            // Replace in CSS selectors (complex because it could be .class or #id)
+                            processed = processed.replace(new RegExp(`([.#])${id}(?![a-zA-Z0-9_-])`, 'g'), `$1${renamed}`);
+                            // Replace in JS querySelectors
+                            processed = processed.replace(new RegExp(`(['"])([.#])${id}(['"])`, 'g'), `$1$2${renamed}$3`);
+                        }
+                    });
+                }
+
+                // JS Obfuscation for <script> content
+                const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
+                processed = processed.replace(scriptRegex, (match, scriptContent) => {
+                    if (!scriptContent.trim()) return match;
+                    
+                    try {
+                        const obRes = JavaScriptObfuscator.obfuscate(scriptContent, {
+                            compact: true,
+                            controlFlowFlattening: true,
+                            controlFlowFlatteningThreshold: 0.75,
+                            numbersToExpressions: true,
+                            simplify: true,
+                            stringArray: true,
+                            stringArrayThreshold: 0.75,
+                            unicodeEscapeSequence: options.deepJs
+                        }).getObfuscatedCode();
+                        return `<script>${obRes}<\/script>`;
+                    } catch (e) {
+                        console.error("JS Obfuscation failed for a block", e);
+                        return match;
+                    }
+                });
+
+                return this.minify(processed);
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function simulateUiLag(min = 90, max = 220, withSignalDrop = false) {
+            const delay = randomBetween(min, max);
+            document.body.classList.add('fake-lag');
+            if (withSignalDrop) {
+                document.body.classList.add('signal-drop');
+            }
+            await sleep(delay);
+            document.body.classList.remove('fake-lag');
+            document.body.classList.remove('signal-drop');
+            return delay;
+        }
+
+        async function runObfuscation() {
+            const input = document.getElementById('inputCode').value;
+            if (!input.trim()) return alert("Vui lòng nhập code!");
+
+            await simulateUiLag(180, 360, Math.random() < 0.65);
+
+            const btn = document.getElementById('btnRun');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+            const outputArea = document.getElementById('outputCode');
+            const placeholder = document.getElementById('placeholderStats');
+            const stats = document.getElementById('stats');
+
+            // UI Feedback
+            btn.disabled = true;
+            btnText.innerText = "ĐANG XỬ LÝ...";
+            loader.classList.remove('hidden');
+
+            // Artificial delay for "feel"
+            await new Promise(r => setTimeout(r, 800));
+
+            try {
+                const engine = new ObflEngine();
+                const options = {
+                    renameCss: document.getElementById('renameCss').checked,
+                    deepJs: document.getElementById('deepJs').checked
+                };
+
+                const result = engine.obfuscate(input, options);
+                
+                // Final Wrap (Script Locker)
+                const finalCode = b64Escape(result);
+                const wrapper = `<script>document.write(decodeURIComponent(escape(atob("${finalCode}"))));<\/script>`;
+
+                outputArea.value = wrapper;
+                
+                // Show stats
+                placeholder.classList.add('hidden');
+                stats.classList.remove('hidden');
+                document.getElementById('btnCopy').classList.remove('hidden');
+                document.getElementById('btnDownload').classList.remove('hidden');
+
+                const diff = ((wrapper.length / input.length) * 100 - 100).toFixed(1);
+                document.getElementById('fileDiff').innerText = (diff > 0 ? '+' : '') + diff + '%';
+
+            } catch (e) {
+                console.error(e);
+                alert("Đã xảy ra lỗi khi mã hóa. Kiểm tra Console để biết thêm chi tiết.");
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = "TIẾN HÀNH MÃ HÓA";
+                loader.classList.add('hidden');
+            }
+        }
+
+        function b64Escape(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        async function copyResult() {
+            await simulateUiLag(90, 170, Math.random() < 0.35);
+            const out = document.getElementById('outputCode');
+            out.select();
+            document.execCommand('copy');
+            
+            const btn = document.getElementById('btnCopy');
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            btn.classList.replace('bg-slate-800', 'bg-green-600');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.replace('bg-green-600', 'bg-slate-800');
+            }, 2000);
+        }
+
+        async function downloadResult() {
+            await simulateUiLag(120, 220, Math.random() < 0.4);
+            const code = document.getElementById('outputCode').value;
+            const blob = new Blob([code], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'obfuscated_app.html';
+            a.click();
+        }
+
+        const shell = document.querySelector('.error-shell');
+        const corruptPanels = Array.from(document.querySelectorAll('.corrupt-panel'));
+        const coreRifts = Array.from(document.querySelectorAll('.core-rift'));
+
+        function randomBetween(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function runCatastrophicCorruption() {
+            if (!shell) return;
+
+            document.body.classList.add('core-collapse');
+            shell.classList.add('critical-failure');
+
+            corruptPanels.forEach((panel, index) => {
+                panel.style.setProperty('--corrupt-x', `${randomBetween(-24, 24).toFixed(1)}px`);
+                panel.style.setProperty('--corrupt-y', `${randomBetween(-12, 12).toFixed(1)}px`);
+                panel.style.setProperty('--corrupt-skew', `${randomBetween(-4.5, 4.5).toFixed(2)}deg`);
+                panel.style.setProperty('--corrupt-hue', `${randomBetween(-26, 8).toFixed(1)}deg`);
+                panel.style.setProperty('--ui-shift-x', `${randomBetween(-8, 8).toFixed(1)}px`);
+                panel.style.setProperty('--ui-shift-y', `${randomBetween(-4, 4).toFixed(1)}px`);
+                panel.style.setProperty('--ui-skew', `${randomBetween(-2.4, 2.4).toFixed(2)}deg`);
+                panel.style.zIndex = String(3 + index);
+            });
+
+            coreRifts.forEach((rift, index) => {
+                rift.style.top = `${randomBetween(index === 0 ? 10 : 48, index === 0 ? 28 : 72).toFixed(1)}vh`;
+                rift.style.transform = `translate3d(${randomBetween(-140, 140).toFixed(1)}px, 0, 0) skewX(${randomBetween(-14, 14).toFixed(1)}deg)`;
+                rift.style.clipPath = `polygon(0 ${randomBetween(0, 24).toFixed(1)}%, 100% ${randomBetween(0, 12).toFixed(1)}%, 100% ${randomBetween(56, 100).toFixed(1)}%, 0 ${randomBetween(72, 100).toFixed(1)}%)`;
+            });
+
+            const hold = randomBetween(180, 420);
+            clearTimeout(window.__amcCorruptionTimer);
+            window.__amcCorruptionTimer = setTimeout(() => {
+                document.body.classList.remove('core-collapse');
+                shell.classList.remove('critical-failure');
+                corruptPanels.forEach(panel => {
+                    panel.style.removeProperty('--corrupt-x');
+                    panel.style.removeProperty('--corrupt-y');
+                    panel.style.removeProperty('--corrupt-skew');
+                    panel.style.removeProperty('--corrupt-hue');
+                    panel.style.removeProperty('--ui-shift-x');
+                    panel.style.removeProperty('--ui-shift-y');
+                    panel.style.removeProperty('--ui-skew');
+                    panel.style.removeProperty('z-index');
+                });
+                coreRifts.forEach(rift => {
+                    rift.style.removeProperty('top');
+                    rift.style.removeProperty('transform');
+                    rift.style.removeProperty('clip-path');
+                });
+            }, hold);
+        }
+
+        setInterval(() => {
+            if (Math.random() < 0.72) {
+                runCatastrophicCorruption();
+            }
+        }, 1200);
+
+        setInterval(() => {
+            if (Math.random() < 0.42) {
+                simulateUiLag(70, 160, Math.random() < 0.5);
+            }
+        }, 2600);
+
+        // File handle
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            await simulateUiLag(120, 240, Math.random() < 0.45);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('inputCode').value = e.target.result;
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>

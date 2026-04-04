@@ -1,0 +1,53 @@
+{
+  "env": {
+    "es2022": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": ["error", 4],
+    "linebreak-style": "off",
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": ["warn", { "allow": ["error", "warn", "log"] }],
+    "no-var": "error",
+    "prefer-const": "error",
+    "no-multiple-empty-lines": ["error", { "max": 1 }],
+    "eol-last": ["error", "always"]
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "*.min.js",
+    "album/",
+    "cloud/",
+    "json/",
+    "temp/",
+    "video/",
+    "videofb/",
+    "youtube/",
+    "mp3/",
+    "html/",
+    "p/",
+    "A11/",
+    "photos/",
+    "tools/",
+    "admin/",
+    "backup html/",
+    "auth_data/",
+    "Minecraft/",
+    "python/",
+    "path/",
+    "servers/",
+    "bản chỉnh sửa/",
+    "chỉnh sửa các file html/"
+  ]
+}

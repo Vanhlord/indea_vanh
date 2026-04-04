@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Hướng dẫn Whitelist - VNA Server</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #eff7ff;
+            --bg-2: #e8fff4;
+            --ink: #081223;
+            --muted: #5b6678;
+            --line: #d7e7ff;
+            --card: rgba(255, 255, 255, 0.92);
+            --accent: #22c55e;
+            --accent-2: #0ea5e9;
+            --accent-3: #0f172a;
+            --warm: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top, rgba(255, 255, 255, 0.95) 0%, rgba(239, 247, 255, 0.94) 42%, rgba(232, 255, 244, 0.95) 100%),
+                linear-gradient(180deg, #f8fbff 0%, #eef7ff 100%);
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 34px 20px 70px;
+        }
+
+        .server-wordmark-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.85rem;
+        }
+
+        .server-wordmark-wrap--sidebar {
+            width: 170px;
+            height: 54px;
+        }
+
+        .server-wordmark {
+            display: block;
+            width: 125%;
+            height: 160%;
+            object-fit: cover;
+            filter: drop-shadow(0 6px 14px rgba(0, 123, 255, 0.22));
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+            gap: 26px;
+            align-items: stretch;
+            margin-bottom: 24px;
+        }
+
+        .hero-panel,
+        .hero-visual,
+        .section {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .hero-panel {
+            padding: 34px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-panel::before {
+            content: "";
+            position: absolute;
+            inset: auto -40px -40px auto;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.16), transparent 68%);
+            pointer-events: none;
+        }
+
+        .hero-chip,
+        .mini-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-chip {
+            padding: 8px 16px;
+            font-size: 0.76rem;
+            color: #157f3f;
+            background: rgba(34, 197, 94, 0.14);
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.15rem);
+            line-height: 1.02;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-lead {
+            margin: 0;
+            max-width: 630px;
+            color: var(--muted);
+            font-size: 1.02rem;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            border-radius: 16px;
+            padding: 13px 18px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            box-shadow: 0 16px 30px rgba(34, 197, 94, 0.24);
+        }
+
+        .btn-secondary {
+            color: var(--ink);
+            background: #f5faff;
+            border: 1px solid #dcecff;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .hero-notes {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .hero-note {
+            padding: 16px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(241, 248, 255, 0.95));
+            border: 1px solid #e2ecff;
+        }
+
+        .hero-note strong {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .hero-note span {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .hero-visual {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background:
+                radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), transparent 36%),
+                radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.14), transparent 34%),
+                rgba(255, 255, 255, 0.86);
+        }
+
+        .visual-frame {
+            position: relative;
+            flex: 1;
+            border-radius: 22px;
+            overflow: hidden;
+            min-height: 280px;
+            background: linear-gradient(180deg, #082032 0%, #0f172a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .visual-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .visual-badge {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: rgba(8, 18, 35, 0.72);
+            color: #eef7ff;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 240px;
+        }
+
+        .visual-badge strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .visual-badge span {
+            color: #c7d7e8;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .quick-card {
+            padding: 18px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid #deebff;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+        }
+
+        .quick-card i {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent-2), #38bdf8);
+        }
+
+        .quick-card strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.98rem;
+        }
+
+        .quick-card span {
+            color: var(--muted);
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        .section {
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-head h2 {
+            margin: 0 0 8px;
+            font-size: clamp(1.35rem, 2vw, 1.8rem);
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .mini-chip {
+            padding: 7px 12px;
+            font-size: 0.7rem;
+            color: #0369a1;
+            background: rgba(14, 165, 233, 0.12);
+        }
+
+        .steps-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .step-card {
+            display: grid;
+            grid-template-columns: 78px minmax(0, 1fr) minmax(270px, 0.88fr);
+            gap: 18px;
+            align-items: stretch;
+            padding: 18px;
+            border-radius: 24px;
+            border: 1px solid #e0ebff;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(246, 250, 255, 0.94));
+        }
+
+        .step-index {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            box-shadow: 0 14px 24px rgba(34, 197, 94, 0.18);
+        }
+
+        .step-index span {
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        .step-copy h3 {
+            margin: 0 0 10px;
+            font-size: 1.15rem;
+        }
+
+        .step-copy p {
+            margin: 0 0 14px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .step-points {
+            display: grid;
+            gap: 10px;
+        }
+
+        .step-point {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            color: var(--ink);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .step-point i {
+            color: var(--accent);
+            margin-top: 3px;
+        }
+
+        .step-visual {
+            border-radius: 22px;
+            padding: 16px;
+            color: #e6eff9;
+            background: linear-gradient(180deg, #0f172a 0%, #152238 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-visual::before {
+            content: "";
+            position: absolute;
+            inset: auto auto -36px -36px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.22), transparent 70%);
+        }
+
+        .mock-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mock-head img {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .mock-head strong {
+            display: block;
+            font-size: 0.94rem;
+        }
+
+        .mock-head span {
+            color: #9fb4c8;
+            font-size: 0.8rem;
+        }
+
+        .bubble,
+        .code-card,
+        .form-preview,
+        .result-card,
+        .prep-card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .bubble {
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(148, 163, 184, 0.16);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            margin-bottom: 10px;
+            line-height: 1.55;
+            font-size: 0.9rem;
+        }
+
+        .bubble-accent {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.28);
+        }
+
+        .code-card {
+            border-radius: 18px;
+            padding: 16px;
+            background: rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.24);
+        }
+
+        .code-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.94rem;
+        }
+
+        .code-line {
+            font-family: Consolas, Monaco, monospace;
+            font-size: 0.96rem;
+            color: #f8fbff;
+            background: rgba(8, 18, 35, 0.46);
+            padding: 10px 12px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+        }
+
+        .token-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .token {
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.74rem;
+            font-weight: 800;
+        }
+
+        .token-ok {
+            color: #bbf7d0;
+            background: rgba(34, 197, 94, 0.16);
+        }
+
+        .token-warn {
+            color: #fde68a;
+            background: rgba(245, 158, 11, 0.16);
+        }
+
+        .form-preview {
+            display: grid;
+            gap: 10px;
+        }
+
+        .field-preview {
+            padding: 11px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .field-preview label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #9fb4c8;
+            margin-bottom: 7px;
+        }
+
+        .field-preview span {
+            display: block;
+            font-size: 0.95rem;
+            color: #f8fbff;
+        }
+
+        .result-card {
+            margin-top: 8px;
+            padding: 12px 14px;
+            border-radius: 15px;
+            background: rgba(34, 197, 94, 0.18);
+            border: 1px solid rgba(34, 197, 94, 0.26);
+            color: #d9ffe7;
+            font-size: 0.88rem;
+        }
+
+        .prep-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
+            gap: 18px;
+        }
+
+        .checklist {
+            display: grid;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #f8fbff, #f3fbf7);
+            border: 1px solid #deebff;
+        }
+
+        .check-item i {
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        .check-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .check-item span {
+            color: var(--muted);
+            line-height: 1.55;
+            font-size: 0.92rem;
+        }
+
+        .prep-card {
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f6fbff 0%, #eef7ff 100%);
+            border: 1px solid #deebff;
+        }
+
+        .prep-card img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(180deg, #dff1ff, #eafff2);
+        }
+
+        .prep-copy {
+            padding: 16px 18px 18px;
+        }
+
+        .prep-copy strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .prep-copy p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.92rem;
+        }
+
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .error-card {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid #ffd6d6;
+            background: linear-gradient(180deg, #fff8f8 0%, #fff1f1 100%);
+        }
+
+        .error-card strong {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #b91c1c;
+        }
+
+        .error-card p {
+            margin: 0;
+            color: #7f1d1d;
+            line-height: 1.65;
+            font-size: 0.92rem;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .faq-card {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid #e0ebff;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        }
+
+        .faq-card strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .faq-card p,
+        .faq-card code {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 0.92rem;
+        }
+
+        .faq-card code {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .cta {
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 32%),
+                linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+            color: #fff;
+            box-shadow: 0 22px 44px rgba(14, 165, 233, 0.24);
+        }
+
+        .cta::after {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 65%);
+        }
+
+        .cta-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .cta h2 {
+            margin: 0 0 8px;
+            font-size: clamp(1.4rem, 2.4vw, 2rem);
+        }
+
+        .cta p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.88);
+            line-height: 1.65;
+            max-width: 640px;
+        }
+
+        .cta-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .cta .btn {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .cta .btn-primary {
+            background: #fff;
+            color: #0f172a;
+            border-color: #fff;
+        }
+
+        .copy-status {
+            margin-top: 12px;
+            min-height: 20px;
+            color: rgba(255, 255, 255, 0.94);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1080px) {
+            .hero,
+            .prep-layout,
+            .cta-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-grid,
+            .faq-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .cta-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 860px) {
+            body {
+                height: auto;
+                overflow: auto;
+            }
+
+            .step-card {
+                grid-template-columns: 1fr;
+            }
+
+            .step-index {
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+            }
+
+            .hero-notes,
+            .quick-grid,
+            .error-grid,
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 22px 14px 56px;
+            }
+
+            .hero-panel,
+            .section,
+            .cta {
+                padding: 22px;
+            }
+
+            .visual-frame {
+                min-height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center justify-center p-6 pb-4 border-b border-gray-100">
+            <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                <div class="server-wordmark-wrap server-wordmark-wrap--sidebar">
+                    <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 VNA Server</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-book-open text-sm"></i>
+                </div>
+                <span class="font-bold">Hướng dẫn Whitelist</span>
+            </div>
+            <button onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border" type="button">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto soft-scroll">
+            <div class="page">
+                <section class="hero">
+                    <div class="hero-panel">
+                        <span class="hero-chip"><i class="fa-solid fa-user-check"></i> Vào Server Có Hướng Dẫn</span>
+                        <h1>Hướng dẫn vào whitelist đúng cách, nhanh và ít lỗi nhất</h1>
+                        <p class="hero-lead">
+                            Bạn chỉ cần chuẩn bị đúng <strong>gamertag</strong> và <strong>mã kích hoạt</strong> do admin cấp.
+                            Trang này đi theo đúng flow thật của hệ thống whitelist hiện tại, nên làm theo từng bước là vào được.
+                        </p>
+
+                        <div class="hero-actions">
+                            <a class="btn btn-primary" href="/html/whitelist.html">
+                                <i class="fa-solid fa-door-open"></i> Mở Form Whitelist
+                            </a>
+                            <button class="btn btn-secondary" type="button" onclick="copyIP()">
+                                <i class="fa-solid fa-copy"></i> Copy IP Server
+                            </button>
+                        </div>
+
+                        <div class="hero-notes">
+                            <div class="hero-note">
+                                <strong>Mất khoảng 1 phút</strong>
+                                <span>Nếu đã có sẵn mã và nhập đúng gamertag thì thao tác rất nhanh.</span>
+                            </div>
+                            <div class="hero-note">
+                                <strong>Mã chỉ dùng 1 lần</strong>
+                                <span>Sau khi kích hoạt thành công, mã sẽ chuyển trạng thái đã dùng.</span>
+                            </div>
+                            <div class="hero-note">
+                                <strong>Đừng bấm liên tục</strong>
+                                <span>Hệ thống có trạng thái xử lý. Chờ vài giây là an toàn nhất.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual">
+                        <div class="visual-frame">
+                            <img src="/photos/A1.png" alt="Ảnh minh họa server Minecraft VNA">
+                            <div class="visual-badge">
+                                <strong>Ảnh minh họa cộng đồng VNA</strong>
+                                <span>Whitelist xong là bạn có thể dùng IP bên dưới để vào server ngay.</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="quick-grid">
+                    <div class="quick-card">
+                        <i class="fa-solid fa-id-card"></i>
+                        <strong>Bạn cần gì?</strong>
+                        <span>Mã whitelist do admin gửi và gamertag Bedrock đúng y như đã đăng ký.</span>
+                    </div>
+                    <div class="quick-card">
+                        <i class="fa-brands fa-discord"></i>
+                        <strong>Xin mã ở đâu?</strong>
+                        <span>Liên hệ Discord của server và nhắn admin để được tạo mã riêng cho bạn.</span>
+                    </div>
+                    <div class="quick-card">
+                        <i class="fa-solid fa-key"></i>
+                        <strong>Mã trông như nào?</strong>
+                        <span>Có thể là dạng `ABC-123`, `VNA-2026-001` hoặc 6 số ngẫu nhiên.</span>
+                    </div>
+                    <div class="quick-card">
+                        <i class="fa-solid fa-server"></i>
+                        <strong>Sau khi xong?</strong>
+                        <span>Chờ vài giây để lệnh chạy trên server, rồi vào game bằng IP của VNA.</span>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-head">
+                        <div>
+                            <span class="mini-chip"><i class="fa-solid fa-list-check"></i> Quy Trình Chuẩn</span>
+                            <h2>4 bước vào whitelist đúng flow hiện tại</h2>
+                            <p>Làm lần lượt theo từng bước dưới đây để giảm gần như toàn bộ lỗi nhập sai hoặc dùng sai mã.</p>
+                        </div>
+                    </div>
+
+                    <div class="steps-grid">
+                        <article class="step-card">
+                            <div class="step-index">
+                                <div class="step-number">1</div>
+                                <span>Chuẩn bị</span>
+                            </div>
+                            <div class="step-copy">
+                                <h3>Nhắn admin và gửi đúng gamertag của bạn</h3>
+                                <p>
+                                    Trước khi có mã, admin cần biết chính xác gamertag mà bạn sẽ dùng để vào server.
+                                    Nên copy tên trực tiếp từ Minecraft Bedrock để tránh sai ký tự.
+                                </p>
+                                <div class="step-points">
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Nhắn trên Discord server VNA hoặc kênh hỗ trợ whitelist.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Gửi 1 gamertag duy nhất, đừng đổi qua lại nhiều tên trong cùng lúc.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Nếu tên có dấu cách, hãy gửi y hệt như trong game.</span></div>
+                                </div>
+                            </div>
+                            <div class="step-visual">
+                                <div class="mock-head">
+                                    <img src="/photos/server-icon/icon-server.png" alt="VNA icon">
+                                    <div>
+                                        <strong>Discord VNA</strong>
+                                        <span>Kênh hỗ trợ whitelist</span>
+                                    </div>
+                                </div>
+                                <div class="bubble">Chào admin, mình muốn vào whitelist. Gamertag của mình là <strong>NguyenVanA</strong>.</div>
+                                <div class="bubble bubble-accent">Admin sẽ tạo mã whitelist đúng với gamertag bạn đã gửi.</div>
+                            </div>
+                        </article>
+
+                        <article class="step-card">
+                            <div class="step-index">
+                                <div class="step-number">2</div>
+                                <span>Nhận mã</span>
+                            </div>
+                            <div class="step-copy">
+                                <h3>Lưu lại mã kích hoạt và kiểm tra lại tên</h3>
+                                <p>
+                                    Sau khi admin tạo mã, bạn sẽ nhận được một key dùng để kích hoạt whitelist.
+                                    Mã này gắn với gamertag đã đăng ký và chỉ dùng được một lần.
+                                </p>
+                                <div class="step-points">
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Ví dụ mã có thể là `ABC-123`, `VNA-2026-001` hoặc `381204`.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Đối chiếu lại gamertag admin xác nhận có đúng với tên bạn sẽ dùng không.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Không share mã cho người khác vì mã đã gắn với tên của bạn.</span></div>
+                                </div>
+                            </div>
+                            <div class="step-visual">
+                                <div class="mock-head">
+                                    <img src="/photos/server-icon/icon-server.png" alt="Mã whitelist">
+                                    <div>
+                                        <strong>Thông tin đã cấp</strong>
+                                        <span>Dùng 1 lần duy nhất</span>
+                                    </div>
+                                </div>
+                                <div class="code-card">
+                                    <strong>Mã kích hoạt</strong>
+                                    <div class="code-line">VNA-2026-001</div>
+                                    <div class="token-row">
+                                        <span class="token token-ok">Gamertag: NguyenVanA</span>
+                                        <span class="token token-warn">One-time only</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step-card">
+                            <div class="step-index">
+                                <div class="step-number">3</div>
+                                <span>Kích hoạt</span>
+                            </div>
+                            <div class="step-copy">
+                                <h3>Vào form whitelist và nhập đúng 2 trường</h3>
+                                <p>
+                                    Mở form whitelist, điền <strong>mã định danh</strong> và <strong>gamertag</strong>,
+                                    sau đó bấm gửi một lần rồi chờ phản hồi từ hệ thống.
+                                </p>
+                                <div class="step-points">
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Dùng form tại <a href="/html/whitelist.html" class="text-sky-600 font-bold hover:underline">/html/whitelist.html</a>.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Gamertag phải là tên đã được admin dùng để tạo mã.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Không cần spam nút gửi, hệ thống sẽ tự báo khi đang xử lý.</span></div>
+                                </div>
+                            </div>
+                            <div class="step-visual">
+                                <div class="mock-head">
+                                    <img src="/photos/server-icon/icon-server.png" alt="Whitelist form">
+                                    <div>
+                                        <strong>Form whitelist</strong>
+                                        <span>Nhập đúng mã và tên</span>
+                                    </div>
+                                </div>
+                                <div class="form-preview">
+                                    <div class="field-preview">
+                                        <label>Mã định danh</label>
+                                        <span>VNA-2026-001</span>
+                                    </div>
+                                    <div class="field-preview">
+                                        <label>Gamertag</label>
+                                        <span>NguyenVanA</span>
+                                    </div>
+                                </div>
+                                <div class="result-card">
+                                    <i class="fa-solid fa-circle-check"></i> Thành công! Đã whitelist NguyenVanA
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="step-card">
+                            <div class="step-index">
+                                <div class="step-number">4</div>
+                                <span>Join server</span>
+                            </div>
+                            <div class="step-copy">
+                                <h3>Chờ vài giây rồi vào server bằng IP</h3>
+                                <p>
+                                    Sau khi hệ thống báo thành công, lệnh whitelist sẽ được gửi lên server.
+                                    Thông thường chỉ cần chờ vài giây trước khi vào game.
+                                </p>
+                                <div class="step-points">
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Nếu vừa kích hoạt xong mà chưa vào được, chờ thêm khoảng 10-30 giây.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Nếu hơn 1 phút vẫn lỗi, chụp màn hình thông báo và báo admin kiểm tra.</span></div>
+                                    <div class="step-point"><i class="fa-solid fa-check"></i><span>Dùng đúng IP phía dưới để vào server VNA.</span></div>
+                                </div>
+                            </div>
+                            <div class="step-visual">
+                                <div class="mock-head">
+                                    <img src="/photos/server-icon/icon-server.png" alt="Server VNA">
+                                    <div>
+                                        <strong>Kết nối server</strong>
+                                        <span>Bedrock Edition</span>
+                                    </div>
+                                </div>
+                                <div class="bubble bubble-accent">
+                                    IP: <strong>vanhmcpe.my-land.fun</strong><br>
+                                    Port: <strong>25702</strong>
+                                </div>
+                                <div class="bubble">
+                                    Nếu gặp trạng thái “đang được kích hoạt”, đợi vài giây rồi thử lại. Đừng bấm liên tiếp.
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-head">
+                        <div>
+                            <span class="mini-chip"><i class="fa-solid fa-shield-heart"></i> Trước Khi Bấm</span>
+                            <h2>Checklist nhanh để tránh lỗi nhập sai</h2>
+                            <p>Chỉ cần đúng vài chi tiết nhỏ này là tỉ lệ thành công rất cao.</p>
+                        </div>
+                    </div>
+
+                    <div class="prep-layout">
+                        <div class="checklist">
+                            <div class="check-item">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <div>
+                                    <strong>Đúng gamertag đã đăng ký với admin</strong>
+                                    <span>Không cần phức tạp hóa chuyện hoa thường, nhưng tên phải đúng người, đúng ký tự, đúng dấu cách nếu có.</span>
+                                </div>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <div>
+                                    <strong>Dùng mã chưa từng kích hoạt</strong>
+                                    <span>Nếu mã đã dùng rồi, hệ thống sẽ báo không thể kích hoạt lại.</span>
+                                </div>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <div>
+                                    <strong>Bấm gửi 1 lần rồi chờ phản hồi</strong>
+                                    <span>Trang whitelist hiện đã khóa nút khi đang gửi, nhưng bạn vẫn nên chờ phản hồi rõ ràng trước khi thao tác tiếp.</span>
+                                </div>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <div>
+                                    <strong>Giữ lại ảnh chụp lỗi nếu có</strong>
+                                    <span>Khi báo admin, gửi kèm mã, gamertag và ảnh lỗi sẽ xử lý nhanh hơn nhiều.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="prep-card">
+                            <img src="/photos/mc.png" alt="Nhân vật Minecraft minh họa">
+                            <div class="prep-copy">
+                                <strong>Mẹo nhanh</strong>
+                                <p>
+                                    Nếu bạn hay đổi tên trong game, hãy xác nhận lại tên đang dùng trước khi xin mã.
+                                    Mã whitelist luôn phải khớp với gamertag mà admin đã nhập ở hệ thống.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-head">
+                        <div>
+                            <span class="mini-chip"><i class="fa-solid fa-triangle-exclamation"></i> Xử Lý Lỗi</span>
+                            <h2>Lỗi thường gặp và cách xử lý đúng</h2>
+                            <p>Nội dung dưới đây đã chỉnh lại để khớp với hành vi thật của hệ thống whitelist hiện tại.</p>
+                        </div>
+                    </div>
+
+                    <div class="error-grid">
+                        <div class="error-card">
+                            <strong><i class="fa-solid fa-circle-xmark"></i> “Gamertag không khớp với mã”</strong>
+                            <p>Gamertag bạn nhập không trùng với tên mà admin đã dùng để tạo mã. Hãy nhập lại đúng tên hoặc hỏi admin xác nhận lại gamertag đã được cấp.</p>
+                        </div>
+                        <div class="error-card">
+                            <strong><i class="fa-solid fa-circle-xmark"></i> “Mã không tồn tại”</strong>
+                            <p>Mã có thể đã bị gõ sai, chưa được tạo, hoặc admin gửi nhầm. Copy lại nguyên mã từ Discord để thử lại.</p>
+                        </div>
+                        <div class="error-card">
+                            <strong><i class="fa-solid fa-circle-xmark"></i> “Mã này đã được kích hoạt”</strong>
+                            <p>Mã chỉ dùng một lần. Nếu bạn chưa dùng mà vẫn gặp lỗi này, báo admin kiểm tra xem mã đã bị người khác kích hoạt chưa.</p>
+                        </div>
+                        <div class="error-card">
+                            <strong><i class="fa-solid fa-circle-xmark"></i> “Mã này đang được kích hoạt”</strong>
+                            <p>Thường do vừa bấm gửi hoặc có thao tác trước đó đang chạy. Chờ vài giây rồi thử lại, đừng bấm liên tiếp nhiều lần.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="section-head">
+                        <div>
+                            <span class="mini-chip"><i class="fa-solid fa-circle-info"></i> FAQ</span>
+                            <h2>Thông tin nhanh</h2>
+                            <p>Một số câu hỏi ngắn mà người mới thường hỏi trước khi vào server.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-grid">
+                        <div class="faq-card">
+                            <strong>IP server là gì?</strong>
+                            <p>Kết nối Bedrock bằng địa chỉ sau:</p>
+                            <code>vanhmcpe.my-land.fun:25702</code>
+                        </div>
+                        <div class="faq-card">
+                            <strong>Có mất phí không?</strong>
+                            <p>Whitelist cho player thường là miễn phí, bạn chỉ cần liên hệ admin để được cấp mã.</p>
+                        </div>
+                        <div class="faq-card">
+                            <strong>Không vào được sau khi báo thành công?</strong>
+                            <p>Hãy chờ thêm 10-30 giây để lệnh chạy trên server. Nếu quá 1 phút, chụp màn hình và gửi admin.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cta">
+                    <div class="cta-inner">
+                        <div>
+                            <h2>Sẵn sàng vào server VNA?</h2>
+                            <p>Copy IP để lưu trước, sau đó mở form whitelist và kích hoạt bằng mã mà admin đã cấp cho bạn.</p>
+                            <div id="copyStatus" class="copy-status" aria-live="polite"></div>
+                        </div>
+
+                        <div class="cta-actions">
+                            <button class="btn" type="button" onclick="copyIP()">
+                                <i class="fa-solid fa-copy"></i> Copy IP Server
+                            </button>
+                            <a class="btn btn-primary" href="/html/whitelist.html">
+                                <i class="fa-solid fa-door-open"></i> Vào Whitelist Ngay
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            const isOpen = sidebar.classList.contains('left-0');
+            if (isOpen) {
+                sidebar.classList.remove('left-0');
+                sidebar.classList.add('-left-[260px]');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('left-0');
+                sidebar.classList.remove('-left-[260px]');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        async function copyIP() {
+            const text = 'vanhmcpe.my-land.fun:25702';
+            const copyStatus = document.getElementById('copyStatus');
+
+            try {
+                await navigator.clipboard.writeText(text);
+                if (copyStatus) copyStatus.textContent = `Đã copy IP: ${text}`;
+            } catch (_error) {
+                if (copyStatus) copyStatus.textContent = `Không thể tự động copy. Hãy copy tay: ${text}`;
+            }
+        }
+
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth >= 1024) return;
+            const clickedLink = event.target.closest('nav a');
+            if (!clickedLink) return;
+
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('left-0')) {
+                toggleSidebar();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Kho Cong Cu | MC Note</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #eef6ff;
+            --bg-2: #f9fcff;
+            --card: rgba(255, 255, 255, 0.96);
+            --card-border: rgba(148, 163, 184, 0.32);
+            --text-main: #0f172a;
+            --text-soft: #64748b;
+            --accent-cyan: #22d3ee;
+            --accent-red: #fb7185;
+            --accent-green: #34d399;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Be Vietnam Pro", sans-serif;
+            background:
+                radial-gradient(circle at 8% 10%, rgba(56, 189, 248, 0.16), transparent 32%),
+                radial-gradient(circle at 95% 0%, rgba(14, 165, 233, 0.14), transparent 26%),
+                linear-gradient(130deg, var(--bg-1), var(--bg-2));
+            color: var(--text-main);
+        }
+
+        .panel {
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+        }
+
+        .hero-chip {
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            background: linear-gradient(120deg, rgba(125, 211, 252, 0.34), rgba(186, 230, 253, 0.4));
+            box-shadow: 0 10px 22px rgba(56, 189, 248, 0.14);
+        }
+
+        .search-input {
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        .search-input:focus {
+            border-color: rgba(14, 165, 233, 0.6);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+            outline: none;
+        }
+
+        .tool-card {
+            position: relative;
+            border: 1px solid var(--card-border);
+            background: var(--card);
+            overflow: hidden;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(130deg, rgba(14, 165, 233, 0.08), transparent 44%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-icon {
+            width: 2.8rem;
+            height: 2.8rem;
+            border-radius: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            background: #f8fafc;
+        }
+
+        .tool-tag {
+            font-size: 0.68rem;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 999px;
+            padding: 0.42rem 0.7rem;
+            border: 1px solid rgba(148, 163, 184, 0.42);
+            color: #334155;
+            background: #f1f5f9;
+        }
+
+        .tool-card.cyan:hover {
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 12px 24px rgba(56, 189, 248, 0.16);
+        }
+
+        .tool-card.red:hover {
+            border-color: rgba(251, 113, 133, 0.65);
+            box-shadow: 0 12px 24px rgba(251, 113, 133, 0.14);
+        }
+
+        .tool-card.green:hover {
+            border-color: rgba(52, 211, 153, 0.65);
+            box-shadow: 0 12px 24px rgba(52, 211, 153, 0.14);
+        }
+
+        @keyframes blink-green {
+            0%, 100% { background: rgba(52, 211, 153, 0.12); color: #065f46; border-color: rgba(52, 211, 153, 0.4); }
+            50% { background: #10b981; color: white; border-color: #059669; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+        }
+
+        @keyframes tag-vibrate {
+            0% { transform: translate(0); }
+            25% { transform: translate(0.5px, 0.5px); }
+            50% { transform: translate(-0.5px, -0.5px); }
+            75% { transform: translate(0.5px, -0.5px); }
+            100% { transform: translate(0); }
+        }
+
+        .tag-animate-qr {
+            animation: blink-green 1.2s infinite ease-in-out, tag-vibrate 0.15s infinite linear;
+            font-weight: 800 !important;
+        }
+
+        @keyframes horror-glitch {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                background: rgba(127, 29, 29, 0.12);
+                color: #fecaca;
+                border-color: rgba(248, 113, 113, 0.28);
+                box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+                text-shadow: 0 0 0 rgba(248, 113, 113, 0);
+            }
+            8% {
+                transform: translate3d(-1px, 0, 0) skewX(-6deg);
+            }
+            10% {
+                transform: translate3d(1px, 0, 0) skewX(6deg);
+                background: rgba(153, 27, 27, 0.24);
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.22);
+            }
+            12% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+            }
+            34% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+                background: rgba(127, 29, 29, 0.14);
+                color: #fee2e2;
+            }
+            36% {
+                transform: translate3d(-1.5px, 0, 0) skewX(-10deg);
+                background: rgba(220, 38, 38, 0.32);
+                color: #ffffff;
+                border-color: rgba(248, 113, 113, 0.7);
+                box-shadow: 0 0 18px rgba(239, 68, 68, 0.28);
+                text-shadow: 0 0 8px rgba(254, 202, 202, 0.55);
+            }
+            38% {
+                transform: translate3d(1.5px, 0, 0) skewX(8deg);
+            }
+            40% {
+                transform: translate3d(0, 0, 0) skewX(0deg);
+            }
+            63% {
+                opacity: 0.92;
+            }
+            64% {
+                opacity: 0.5;
+            }
+            66% {
+                opacity: 1;
+            }
+            82% {
+                background: rgba(153, 27, 27, 0.22);
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+            }
+        }
+
+        @keyframes horror-slice-top {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0;
+                clip-path: inset(0 0 58% 0);
+            }
+            9%, 11% {
+                transform: translate(-2px, -1px);
+                opacity: 0.72;
+                clip-path: inset(0 0 62% 0);
+            }
+            36%, 39% {
+                transform: translate(2px, -1px);
+                opacity: 0.78;
+                clip-path: inset(0 0 55% 0);
+            }
+        }
+
+        @keyframes horror-slice-bottom {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0;
+                clip-path: inset(48% 0 0 0);
+            }
+            10%, 12% {
+                transform: translate(2px, 1px);
+                opacity: 0.65;
+                clip-path: inset(52% 0 0 0);
+            }
+            37%, 40% {
+                transform: translate(-2px, 1px);
+                opacity: 0.72;
+                clip-path: inset(45% 0 0 0);
+            }
+        }
+
+        .tag-animate-non {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            animation: horror-glitch 2.2s infinite steps(1, end);
+            font-weight: 800 !important;
+        }
+
+        .tag-animate-non::before,
+        .tag-animate-non::after {
+            content: attr(data-label);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .tag-animate-non::before {
+            color: rgba(255, 180, 180, 0.9);
+            text-shadow: -1px 0 rgba(255, 255, 255, 0.22);
+            animation: horror-slice-top 2.2s infinite steps(1, end);
+        }
+
+        .tag-animate-non::after {
+            color: rgba(248, 113, 113, 0.95);
+            text-shadow: 1px 0 rgba(127, 29, 29, 0.55);
+            animation: horror-slice-bottom 2.2s infinite steps(1, end);
+        }
+
+        .tool-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.42rem;
+            padding: 0.46rem 0.78rem;
+            border-radius: 999px;
+            border: 1px solid rgba(248, 113, 113, 0.28);
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.14), rgba(239, 68, 68, 0.22));
+            color: #991b1b;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 22px rgba(127, 29, 29, 0.12);
+        }
+
+        .tool-alert i {
+            color: #dc2626;
+        }
+
+        .tool-card.is-disabled {
+            border-color: rgba(148, 163, 184, 0.24);
+            background: linear-gradient(180deg, rgba(241, 245, 249, 0.96), rgba(226, 232, 240, 0.94));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .tool-card.is-disabled::before {
+            opacity: 0 !important;
+        }
+
+        .tool-card.is-disabled:hover {
+            transform: none;
+            border-color: rgba(148, 163, 184, 0.24);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .tool-card.is-disabled .disabled-content {
+            filter: grayscale(1);
+            opacity: 0.38;
+        }
+
+        .tool-disabled-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.28), rgba(226, 232, 240, 0.48));
+        }
+
+        .tool-disabled-icon {
+            width: 4.8rem;
+            height: 4.8rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(248, 113, 113, 0.28);
+            color: #dc2626;
+            font-size: 1.75rem;
+            box-shadow: 0 18px 36px rgba(148, 163, 184, 0.2);
+        }
+</style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="flex h-screen overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">VNA</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+            <a href="/" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-home"></i> Trang chủ
+            </a>
+            <button type="button" onclick="copyIP()" class="w-full text-left flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-copy"></i> Copy IP
+            </button>
+            <a href="/html/status-server.html" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-chart-line w-5"></i> Status server
+            </a>
+            <a href="/A11/chat.html" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-comments w-5"></i> Chat
+            </a>
+            <a href="/A11/streak.html" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-fire w-5"></i> Streak
+            </a>
+            <a href="/cloud" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-cloud w-5"></i> Cloud
+            </a>
+            <a href="/leaderboard" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-trophy w-5"></i> Leaderboard
+            </a>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-3">Thư viện</div>
+            <a href="/p/rawphoto.html" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium">
+                <i class="fas fa-expand"></i> Album
+            </a>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+            <div class="tool-grid-sidebar">
+                <a class="tool-tile" href="/p/snapsave.html">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a class="tool-tile" href="/html/tiktok.html">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a class="tool-tile" href="/html/youtube.html">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+                <a class="tool-tile" href="/html/soundcloud.html">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <span>SoundCloud</span>
+                </a>
+                <a class="tool-tile" href="/html/dowloadmc.html">
+                    <i class="fas fa-download"></i>
+                    <span>Minecraft</span>
+                </a>
+                <a class="tool-tile" href="/html/huong-dan-whitelist.html">
+                    <i class="fas fa-user-check"></i>
+                    <span>Whitelist HD</span>
+                </a>
+                <a class="tool-tile" href="/tools/amc.html">
+                    <i class="fas fa-user-secret"></i>
+                    <span>AMC Pro</span>
+                </a>
+            </div>
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-3">Kho rác</div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#007bff] text-white font-medium shadow-lg shadow-blue-100">
+                <i class="fas fa-toolbox"></i> Kho công cụ
+            </div>
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-toolbox text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-700">Kho công cụ</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto">
+            <div class="relative z-[1] mx-auto max-w-6xl px-5 py-8 md:px-8 md:py-12">
+                <header class="mb-8 text-center">
+                    <p class="hero-chip inline-flex items-center gap-2 rounded-full px-4 py-1 text-xs font-semibold uppercase tracking-wider text-sky-700">
+                        <i class="fas fa-toolbox"></i> Tool Hub
+                    </p>
+                    <h1 class="mt-4 text-3xl font-black md:text-5xl">Kho cong cu tong hop</h1>
+                    <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-600 md:text-base">Mot trang duy nhat de vao tat ca cong cu nhanh hon va de quan ly hon.</p>
+                </header>
+
+                <div class="panel mb-8 rounded-2xl p-4">
+                    <label for="toolSearch" class="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">Loc nhanh</label>
+                    <input
+                        id="toolSearch"
+                        type="text"
+                        placeholder="Nhap ten cong cu... (vd: QR, YouTube, Shield)"
+                        class="search-input w-full rounded-xl px-4 py-3 text-sm transition-all"
+                    >
+                </div>
+
+                <section id="toolGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <a data-tool="ma hoa javascript obfuscator" href="/tools/ma-hoa-javascript.html" class="tool-card cyan group rounded-2xl p-6">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-cyan-600"><i class="fas fa-lock"></i></div>
+                            <span class="tool-tag">Secure</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold">Ma hoa JavaScript</h2>
+                        <p class="mt-2 text-sm text-slate-400">Bao mat va obfuscate code JavaScript.</p>
+                    </a>
+
+                    <div data-tool="amc obfuscator pro html css js protection" class="tool-card is-disabled group rounded-2xl p-6" aria-disabled="true">
+                        <div class="disabled-content">
+                            <div class="mb-3 flex items-center justify-between">
+                                <div class="tool-icon text-emerald-600"><i class="fas fa-user-secret"></i></div>
+                                <span class="tool-tag tag-animate-non" data-label="ERROR">ERROR</span>
+                            </div>
+                            <h2 class="text-lg font-extrabold">AMC Obfuscator Pro</h2>
+                            <p class="mt-2 text-sm text-slate-400">Ma hoa HTML, CSS va JS sieu cap voi giao dien Hacker.</p>
+                        </div>
+                        <div class="tool-disabled-overlay">
+                            <span class="tool-disabled-icon">
+                                <i class="fas fa-triangle-exclamation"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <a data-tool="content shield builder anti debug" href="/tools/lock-script.html" class="tool-card red group rounded-2xl p-6">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-rose-600"><i class="fas fa-shield-alt"></i></div>
+                            <span class="tool-tag">Defense</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold">Content Shield Builder</h2>
+                        <p class="mt-2 text-sm text-slate-400">Tao lop bao ve cho trang web.</p>
+                    </a>
+
+                    <a data-tool="qr code scanner creator" href="/tools/qr-code.html" class="tool-card green group rounded-2xl p-6">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-emerald-600"><i class="fas fa-qrcode"></i></div>
+                            <span class="tool-tag tag-animate-qr">Fast</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold">QR Scanner</h2>
+                        <p class="mt-2 text-sm text-slate-400">Quet va tao ma QR ngay tren web.</p>
+                    </a>
+
+                    <a data-tool="bien dich translator binary morse base64 hex octal unicode html" href="/tools/biendich.html" class="tool-card cyan group rounded-2xl p-6">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-cyan-600"><i class="fas fa-exchange-alt"></i></div>
+                            <span class="tool-tag">Convert</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold">Bien dich ma</h2>
+                        <p class="mt-2 text-sm text-slate-400">Chuyen doi van ban qua nhieu dinh dang ma hoa.</p>
+                    </a>
+
+                    <a data-tool="huong dan whitelist minecraft server vna bedrock" href="/html/huong-dan-whitelist.html" class="tool-card green group rounded-2xl p-6">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-emerald-600"><i class="fas fa-user-check"></i></div>
+                            <span class="tool-tag">Guide</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold">Huong dan Whitelist</h2>
+                        <p class="mt-2 text-sm text-slate-400">Xem cac buoc vao whitelist, loi thuong gap va link vao form whitelist.</p>
+                    </a>
+
+                    <a id="adminMinecraftCard" data-tool="admin minecraft download link" href="/admin/p.html" class="tool-card group rounded-2xl p-6 bg-slate-800 border-slate-700 hidden">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="tool-icon text-blue-400"><i class="fas fa-plus-square"></i></div>
+                            <span class="tool-tag bg-blue-500/10 text-blue-400 border-blue-500/20">Admin</span>
+                        </div>
+                        <h2 class="text-lg font-extrabold text-white">Them nut Minecraft</h2>
+                        <p class="mt-2 text-sm text-slate-400">Quan ly link tai Minecraft (p.html).</p>
+                    </a>
+                </section>
+            </div>
+        </main>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function copyIP() {
+            const ip = 'vanhmcpe.my-land.fun:25702';
+            navigator.clipboard.writeText(ip)
+                .then(() => alert('Đã copy IP: ' + ip))
+                .catch(() => alert('Không thể copy IP, hãy thử lại.'));
+        }
+
+        const searchInput = document.getElementById('toolSearch');
+        const cards = Array.from(document.querySelectorAll('#toolGrid a[data-tool]'));
+
+        searchInput.addEventListener('input', () => {
+            const keyword = searchInput.value.trim().toLowerCase();
+            cards.forEach((card) => {
+                const text = card.dataset.tool || '';
+                card.classList.toggle('hidden', keyword && !text.includes(keyword));
+            });
+        });
+
+        document.addEventListener('click', (event) => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const menuBtn = document.querySelector('.hamburger');
+            if (!sidebar || !overlay) return;
+            if (window.innerWidth >= 1024) return;
+
+            const isOpen = sidebar.classList.contains('left-0');
+            const clickedInsideSidebar = sidebar.contains(event.target);
+            const clickedMenu = menuBtn && menuBtn.contains(event.target);
+            if (isOpen && !clickedInsideSidebar && !clickedMenu) {
+                toggleSidebar();
+            }
+        });
+             document.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updatePreview));
+        updatePreview();
+
+        // Show admin card if user is admin
+        (async () => {
+            try {
+                const res = await fetch('/api/user-info');
+                const data = await res.json();
+                if (data.isAdmin) {
+                    document.getElementById('adminMinecraftCard')?.classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error('Failed to fetch user info for admin card:', e);
+            }
+        })();
+    </script>
+</body>
+
+

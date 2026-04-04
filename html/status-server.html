@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Server Monitor | NexusBD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #007bff; }
+        
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid rgba(15, 23, 42, 0.05);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-log { animation: slideIn 0.3s ease-out; }
+    </style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-[#f4f7f6] text-[#333] flex h-screen overflow-hidden">
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col nav-glass">
+        <!-- Header -->
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">MC Note</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header Bar -->
+        <div class="p-4 border-b border-gray-200 bg-white flex justify-between items-center px-6">
+            <button class="hamburger text-2xl text-gray-700 lg:hidden" onclick="toggleSidebarInternal()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hidden lg:flex items-center gap-3">
+                <i class="fas fa-chart-area text-[#007bff]"></i>
+                <span class="font-bold text-gray-700">Server Monitor</span>
+            </div>
+            <div id="userProfile" class="flex items-center gap-3">
+                <div class="bg-white rounded-full px-4 py-2 shadow-sm border border-gray-200 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors" id="userGuest" onclick="window.location.href='/api/auth/discord'">
+                    <div class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium text-gray-700">Login</span>
+                </div>
+                <div class="bg-white rounded-full px-4 py-2 shadow-sm border border-gray-200 flex items-center gap-3 hidden" id="userLogged">
+                    <img src="" id="userAvatar" class="w-7 h-7 rounded-full border border-blue-100" alt="Avatar">
+                    <span class="text-sm font-medium text-gray-700" id="userName">User</span>
+                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 space-y-4 lg:space-y-8">
+            <!-- 1. Resource Overview -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                <div class="stat-card bg-white p-5 lg:p-6 rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3 lg:mb-4">
+                        <p class="text-gray-400 font-bold text-[10px] lg:text-xs uppercase tracking-widest">CPU Usage</p>
+                        <i class="fas fa-microchip text-[#007bff] opacity-20 text-lg lg:text-xl"></i>
+                    </div>
+                    <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-800" id="cpu-text">0%</h2>
+                    <div class="mt-3 lg:mt-4">
+                        <div class="w-full bg-gray-50 h-2 rounded-full overflow-hidden">
+                            <div id="cpu-bar" class="bg-[#007bff] h-full transition-all duration-500 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card bg-white p-5 lg:p-6 rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3 lg:mb-4">
+                        <p class="text-gray-400 font-bold text-[10px] lg:text-xs uppercase tracking-widest">RAM Usage</p>
+                        <i class="fas fa-memory text-purple-500 opacity-20 text-lg lg:text-xl"></i>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-800" id="ram-text">0%</h2>
+                        <span id="ram-usage-text" class="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-tighter">0 / 0 GB</span>
+                    </div>
+                    <div class="mt-3 lg:mt-4">
+                        <div class="w-full bg-gray-50 h-2 rounded-full overflow-hidden">
+                            <div id="ram-bar" class="bg-purple-500 h-full transition-all duration-500 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card bg-white p-5 lg:p-6 rounded-[24px] shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-3 lg:mb-4">
+                        <p class="text-gray-400 font-bold text-[10px] lg:text-xs uppercase tracking-widest">Network Ping</p>
+                        <i class="fas fa-satellite-dish text-green-500 opacity-20 text-lg lg:text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-800" id="currentPing">-- <span class="text-sm font-normal">ms</span></h2>
+                        <div id="pingStatus" class="mt-2 text-[10px] lg:text-xs font-medium text-gray-400 italic">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Charts Section -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-8">
+                <div class="bg-white p-5 lg:p-8 rounded-[24px] shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-4 lg:mb-6">
+                        <h3 class="text-base lg:text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-tachometer-alt text-blue-500"></i> Hiệu năng
+                        </h3>
+                        <span class="text-[9px] lg:text-[10px] bg-blue-50 text-blue-500 px-2 lg:px-3 py-1 rounded-full font-bold tracking-widest uppercase">Live System</span>
+                    </div>
+                    <div class="h-[200px] lg:h-[280px]">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 lg:p-8 rounded-[24px] shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-4 lg:mb-6">
+                        <h3 class="text-base lg:text-lg font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-wifi text-green-500"></i> Tốc độ mạng
+                        </h3>
+                        <span class="text-[9px] lg:text-[10px] bg-green-50 text-green-500 px-2 lg:px-3 py-1 rounded-full font-bold tracking-widest uppercase animate-pulse">Auto-Monitoring</span>
+                    </div>
+                    <div class="h-[200px] lg:h-[280px]">
+                        <canvas id="speedChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Connection & Log -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 lg:pb-8">
+                <div class="lg:col-span-1 bg-white p-6 lg:p-8 rounded-[24px] shadow-sm border border-gray-100 space-y-4 lg:space-y-6">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-800 mb-1">Kết nối</h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">
+                        <div>
+                            <p class="text-gray-400 text-[10px] font-bold uppercase mb-1">IP Address</p>
+                            <p id="ipAddress" class="text-xs lg:text-sm font-mono text-[#007bff] break-all">--</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-[10px] font-bold uppercase mb-1">Network Type</p>
+                            <p id="networkType" class="text-xs lg:text-sm font-medium text-gray-700">--</p>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-gray-50 flex items-center justify-between">
+                        <span class="text-[10px] text-gray-400 uppercase font-bold">ISP / Provider:</span>
+                        <span id="ispInfo" class="text-xs font-bold text-gray-700">--</span>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 lg:p-8 rounded-[24px] shadow-sm border border-gray-100 flex flex-col h-full min-h-[300px] lg:min-h-0">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-800 mb-3 lg:mb-4">Lịch sử mạng (60 điểm)</h3>
+                    <div id="dataLog" class="flex-1 max-h-[300px] lg:max-h-[220px] overflow-y-auto space-y-2 pr-1 custom-scroll">
+                        <p class="text-gray-400 text-xs italic">Đang đồng bộ dữ liệu với server...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        let monitorData = {
+            times: Array(60).fill(''),
+            ping: Array(60).fill(0),
+            download: Array(60).fill(0)
+        };
+        let speedChart;
+
+        function toggleSidebarInternal() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('overlay');
+            if (sb && ov) {
+                sb.classList.toggle('-left-[260px]');
+                sb.classList.toggle('left-0');
+                ov.classList.toggle('hidden');
+            }
+        }
+
+        async function checkLoginStatus() {
+            try {
+                const res = await fetch('/api/user-info');
+                const data = await res.json();
+                if (data.loggedIn) {
+                    document.getElementById('userGuest')?.classList.add('hidden');
+                    document.getElementById('userLogged')?.classList.remove('hidden');
+                    document.getElementById('userName').textContent = data.username;
+                    document.getElementById('userAvatar').src = data.avatar;
+                }
+            } catch (e) {}
+        }
+        checkLoginStatus();
+
+        const commonOptions = {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { 
+                legend: { display: true, position: 'top', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } },
+                tooltip: { backgroundColor: 'rgba(255,255,255,0.9)', titleColor: '#333', bodyColor: '#666', borderColor: '#eee', borderWidth: 1, padding: 12, cornerRadius: 12 }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { font: { size: 10 } } },
+                x: { display: false }
+            }
+        };
+
+        const ctxPerf = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(ctxPerf, {
+            type: 'line',
+            data: {
+                labels: Array(60).fill(''),
+                datasets: [
+                    { label: 'CPU (%)', borderColor: '#007bff', data: Array(60).fill(0), fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                    { label: 'RAM (%)', borderColor: '#8b5cf6', data: Array(60).fill(0), fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
+                ]
+            },
+            options: commonOptions
+        });
+
+        const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+        speedChart = new Chart(ctxSpeed, {
+            type: 'line',
+            data: {
+                labels: monitorData.times,
+                datasets: [
+                    { label: 'Ping (ms)', borderColor: '#10b981', data: monitorData.ping, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                    { label: 'Speed (Mbps)', borderColor: '#f59e0b', data: monitorData.download, tension: 0.4, pointRadius: 0, borderWidth: 2 }
+                ]
+            },
+            options: commonOptions
+        });
+
+        const socket = io();
+        socket.on('statsUpdate', (data) => {
+            if (data.cpu !== undefined) {
+                document.getElementById('cpu-text').innerText = Math.round(data.cpu) + '%';
+                document.getElementById('cpu-bar').style.width = data.cpu + '%';
+            }
+            if (data.ramPercent !== undefined) {
+                const ramPercent = Math.round(data.ramPercent);
+                document.getElementById('ram-text').innerText = ramPercent + '%';
+                document.getElementById('ram-bar').style.width = ramPercent + '%';
+                const ramUsedGb = (data.ramMb / 1024).toFixed(1);
+                const ramTotalGb = (data.maxRamMb / 1024).toFixed(1);
+                document.getElementById('ram-usage-text').innerText = `${ramUsedGb} / ${ramTotalGb} GB`;
+            }
+            if (data.history) {
+                performanceChart.data.datasets[0].data = data.history.cpu;
+                performanceChart.data.datasets[1].data = data.history.ram;
+                performanceChart.update('none');
+            }
+            if (data.network) {
+                updateNetworkUI(data.network);
+            }
+        });
+
+        function updateNetworkUI(net) {
+            document.getElementById('currentPing').innerHTML = `${net.ping} <span class="text-sm font-normal">ms</span>`;
+            const pingStatusEl = document.getElementById('pingStatus');
+            if (net.ping < 50) { pingStatusEl.className = "mt-2 text-[10px] text-green-500 font-bold"; pingStatusEl.innerText = "Kết nối tuyệt vời"; }
+            else if (net.ping < 100) { pingStatusEl.className = "mt-2 text-[10px] text-yellow-500 font-bold"; pingStatusEl.innerText = "Ổn định"; }
+            else { pingStatusEl.className = "mt-2 text-[10px] text-red-500 font-bold"; pingStatusEl.innerText = "Độ trễ cao"; }
+
+            monitorData.times.push(net.time);
+            monitorData.ping.push(net.ping);
+            monitorData.download.push(net.speed);
+
+            if (monitorData.times.length > 60) {
+                monitorData.times.shift(); monitorData.ping.shift(); monitorData.download.shift();
+            }
+            speedChart.update('none');
+            addToLog(net);
+        }
+
+        function addToLog(net) {
+            const log = document.getElementById('dataLog');
+            if (log.innerHTML.includes('Đang đồng bộ')) log.innerHTML = '';
+            const entry = document.createElement('div');
+            entry.className = "animate-log flex justify-between items-center text-[10px] p-2 bg-gray-50 rounded-lg border border-gray-100";
+            entry.innerHTML = `
+                <span class="font-mono text-gray-400">${net.time}</span>
+                <span class="font-bold text-gray-500">PING: <span class="text-green-500">${net.ping}ms</span></span>
+                <span class="font-bold text-gray-500">SPEED: <span class="text-orange-500">${net.speed}Mbps</span></span>
+            `;
+            log.insertBefore(entry, log.firstChild);
+            if (log.children.length > 60) log.removeChild(log.lastChild);
+        }
+
+        async function fetchIpInfo() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                document.getElementById('ipAddress').textContent = data.ip;
+                document.getElementById('ispInfo').textContent = data.org || data.isp;
+                const connection = navigator.connection;
+                if (connection) document.getElementById('networkType').textContent = (connection.effectiveType || 'WIFI').toUpperCase();
+            } catch (e) {}
+        }
+        fetchIpInfo();
+
+        (async () => {
+            try {
+                const res = await fetch('/api/status/stats');
+                const data = await res.json();
+                
+                if (data.networkHistory) {
+                    const log = document.getElementById('dataLog');
+                    log.innerHTML = '';
+                    data.networkHistory.forEach(net => {
+                        monitorData.times.push(net.time);
+                        monitorData.ping.push(net.ping);
+                        monitorData.download.push(net.speed);
+                        addToLog(net);
+                    });
+                    while (monitorData.times.length > 60) {
+                        monitorData.times.shift(); monitorData.ping.shift(); monitorData.download.shift();
+                    }
+                    speedChart.update();
+                }
+
+                if (data.history) {
+                    performanceChart.data.datasets[0].data = data.history.cpu;
+                    performanceChart.data.datasets[1].data = data.history.ram;
+                    performanceChart.update();
+                }
+            } catch (e) {}
+        })();
+    </script>
+</body>
+</html>

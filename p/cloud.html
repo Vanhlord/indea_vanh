@@ -1,0 +1,1334 @@
+﻿
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Cloud VNA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; overflow-x: hidden; }
+        .sidebar-transition { transition: all 0.3s ease-in-out; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    </style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-white border-b border-gray-200 py-3 px-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <button id="menu-toggle" class="p-2 hover:bg-gray-100 rounded-lg transition-colors active:scale-95">
+                <i class="fas fa-bars text-xl text-gray-600"></i>
+            </button>
+            <a href="/" class="flex items-center gap-2">
+                <div class="bg-blue-600 p-2 rounded-lg text-white shadow-sm">
+                    <i class="fas fa-cloud text-lg"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-blue-600 hidden sm:inline">MYCLOUD</span>
+            </a>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="relative hidden md:block">
+                <input id="search-input" type="text" placeholder="Tìm file của bạn..." class="bg-gray-100 border border-transparent rounded-full py-2 px-10 text-sm w-64 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                <i class="fas fa-search absolute left-4 top-3 text-gray-400 text-xs"></i>
+            </div>
+            <div id="user-avatar-wrap" class="relative w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold shadow-md overflow-hidden" title="Tài khoản">
+                <img id="user-avatar-img" class="hidden w-full h-full object-cover" alt="Discord Avatar">
+                <span id="user-avatar-fallback" class="text-xs font-bold">DC</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <aside id="sidebar" class="fixed md:sticky top-[61px] left-0 w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200 p-4 z-40 sidebar-transition -translate-x-full md:translate-x-0 shadow-2xl md:shadow-none">
+            <button id="upload-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl mb-2 shadow-lg shadow-blue-100 transition-all flex items-center justify-center gap-2 active:scale-95">
+                <i class="fas fa-plus"></i> Tải lên mới
+            </button>
+            <input id="upload-input" type="file" multiple class="hidden">
+
+            <div class="grid grid-cols-2 gap-2 mb-6">
+                <button id="create-file-btn" class="bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-600 text-sm font-semibold py-2 rounded-lg transition-all">
+                    <i class="fas fa-file-circle-plus mr-1"></i>Tạo file
+                </button>
+                <button id="create-folder-btn" class="bg-white border border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-600 text-sm font-semibold py-2 rounded-lg transition-all">
+                    <i class="fas fa-folder-plus mr-1"></i>Tạo folder
+                </button>
+            </div>
+
+            <nav class="space-y-1">
+                <a id="all-files-link" href="#" class="flex items-center gap-3 p-3 bg-blue-50 text-blue-600 rounded-xl font-semibold">
+                    <i class="fas fa-folder-open w-5 text-center"></i> Tất cả file
+                </a>
+                <a id="recent-files-link" href="#" class="flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-50 hover:text-blue-500 rounded-xl transition-all">
+                    <i class="fas fa-clock w-5 text-center"></i> Gần đây
+                </a>
+                <a id="trash-files-link" href="#" class="flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition-all">
+                    <i class="fas fa-trash w-5 text-center"></i> Thùng rác
+                </a>
+            </nav>
+
+            <div class="absolute bottom-8 left-4 right-4 p-4 bg-gray-50 rounded-2xl">
+                <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase mb-2">
+                    <span>Dung lượng</span>
+                    <span id="storage-label">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div id="storage-bar" class="bg-blue-500 h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-3 md:p-5 w-full sidebar-transition">
+            <div id="breadcrumb" class="mb-2 px-2 text-xs text-gray-400 truncate">/</div>
+            <div class="flex justify-between items-center mb-4 px-2 gap-3">
+                <h1 id="page-title" class="text-lg font-bold text-gray-700 tracking-tight">Tệp tin của bạn</h1>
+                <div class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-lg">
+                    <button id="view-list-btn" class="px-2 py-1 text-blue-600 bg-white shadow-sm rounded-md transition-all"><i class="fas fa-list text-xs"></i></button>
+                    <button id="view-grid-btn" class="px-2 py-1 text-gray-400 hover:text-blue-500 rounded-md transition-all"><i class="fas fa-th-large text-xs"></i></button>
+                </div>
+            </div>
+
+            <div id="status-line" class="px-3 pb-2 text-xs text-gray-400"></div>
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div id="list-view" class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50/80 border-b border-gray-100 text-gray-400 text-[10px] uppercase font-bold tracking-widest">
+                            <tr>
+                                <th class="px-4 py-2.5">Tên File</th>
+                                <th class="px-4 py-2.5">Ngày sửa</th>
+                                <th class="px-4 py-2.5 text-right">Dung lượng</th>
+                                <th class="px-4 py-2.5 w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="file-list-body" class="divide-y divide-gray-50 text-[13px]"></tbody>
+                    </table>
+                </div>
+                <div id="grid-view" class="hidden p-3 md:p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="row-action-menu" class="hidden fixed z-[70] w-44 rounded-lg border border-gray-200 bg-white shadow-lg p-1">
+        <button id="menu-primary" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-all"></button>
+        <button id="menu-secondary" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-all"></button>
+        <button id="menu-tertiary" class="hidden w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-all"></button>
+        <button id="menu-quaternary" class="hidden w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-all"></button>
+    </div>
+
+    <div id="preview-modal" class="hidden fixed inset-0 z-[80] bg-black/50 p-4">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="w-full max-w-4xl max-h-[90vh] bg-white rounded-xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col">
+                <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
+                    <h2 id="preview-title" class="text-sm md:text-base font-semibold text-gray-700 truncate">Xem trước</h2>
+                    <button id="preview-close-btn" class="text-gray-400 hover:text-gray-700 transition-colors p-1.5 rounded-md hover:bg-gray-100">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="preview-body" class="p-4 md:p-5 overflow-auto flex-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-modal" class="hidden fixed inset-0 z-[85] bg-black/60 p-4">
+        <div class="w-full h-full flex items-center justify-center">
+            <div class="w-full max-w-5xl max-h-[92vh] bg-white rounded-xl border border-gray-200 shadow-2xl overflow-hidden flex flex-col">
+                <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
+                    <h2 id="editor-title" class="text-sm md:text-base font-semibold text-gray-700 truncate">Chỉnh sửa file</h2>
+                    <button id="editor-close-btn" class="text-gray-400 hover:text-gray-700 transition-colors p-1.5 rounded-md hover:bg-gray-100">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="p-4 md:p-5 flex-1 overflow-auto space-y-3">
+                    <div id="editor-status" class="text-xs text-gray-400"></div>
+                    <textarea id="editor-textarea" class="w-full min-h-[45vh] rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent whitespace-pre overflow-x-auto" spellcheck="false" wrap="off"></textarea>
+                    <div id="editor-history" class="rounded-lg border border-gray-200 bg-gray-50 p-3"></div>
+                </div>
+                <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                    <button id="editor-cancel-btn" class="px-3 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">Đóng</button>
+                    <button id="editor-save-btn" class="px-3 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="drop-overlay" class="hidden fixed inset-0 z-[95] bg-blue-600/10 backdrop-blur-[1px]">
+        <div class="absolute inset-0 border-[3px] border-dashed border-blue-500 rounded-2xl m-3 md:m-6"></div>
+        <div class="absolute top-4 left-1/2 -translate-x-1/2 bg-white border border-blue-200 text-blue-700 px-4 py-2 rounded-xl shadow-lg text-sm font-semibold">
+            Thả file vào đây để tải lên Cloud. Trình duyệt sẽ không mở tab mới.
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="bg-white/95 border border-blue-200 rounded-2xl px-6 py-5 shadow-2xl text-center">
+                <div class="text-blue-600 text-3xl mb-2"><i class="fas fa-cloud-arrow-up"></i></div>
+                <div class="text-gray-700 font-bold text-base md:text-lg">Thả để tải file</div>
+                <div class="text-gray-400 text-xs mt-1">Hỗ trợ kéo nhiều file cùng lúc</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload-progress-toast" class="hidden fixed left-1/2 -translate-x-1/2 bottom-4 z-[96] w-[min(92vw,560px)] rounded-2xl border border-blue-200 bg-white/95 backdrop-blur shadow-2xl px-4 py-3">
+        <div class="flex items-center justify-between gap-3 mb-2">
+            <div id="upload-progress-label" class="text-sm font-semibold text-gray-700 truncate">Đang tải lên...</div>
+            <div id="upload-progress-percent" class="text-sm font-bold text-blue-600">0%</div>
+        </div>
+        <div class="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
+            <div id="upload-progress-bar" class="h-2 rounded-full bg-blue-500 transition-all" style="width:0%"></div>
+        </div>
+    </div>
+
+<script>
+const QUOTA_BYTES = 5 * 1024 * 1024 * 1024;
+        const MAX_UPLOAD_FILES_PER_BATCH = 10;
+        const DIRECT_UPLOAD_LIMIT_BYTES = 99 * 1024 * 1024;
+        const CHUNK_SIZE_BYTES = 20 * 1024 * 1024;
+        const CHUNK_UPLOAD_RETRY_LIMIT = 3;
+        const CHUNK_UPLOAD_CONCURRENCY = 3;
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const createFileBtn = document.getElementById('create-file-btn');
+        const createFolderBtn = document.getElementById('create-folder-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const uploadInput = document.getElementById('upload-input');
+        const searchInput = document.getElementById('search-input');
+        const fileListBody = document.getElementById('file-list-body');
+        const gridView = document.getElementById('grid-view');
+        const listView = document.getElementById('list-view');
+        const viewListBtn = document.getElementById('view-list-btn');
+        const viewGridBtn = document.getElementById('view-grid-btn');
+        const allFilesLink = document.getElementById('all-files-link');
+        const recentFilesLink = document.getElementById('recent-files-link');
+        const trashFilesLink = document.getElementById('trash-files-link');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const pageTitle = document.getElementById('page-title');
+        const statusLine = document.getElementById('status-line');
+        const storageLabel = document.getElementById('storage-label');
+        const storageBar = document.getElementById('storage-bar');
+        const rowActionMenu = document.getElementById('row-action-menu');
+        const menuPrimary = document.getElementById('menu-primary');
+        const menuSecondary = document.getElementById('menu-secondary');
+        const menuTertiary = document.getElementById('menu-tertiary');
+        const menuQuaternary = document.getElementById('menu-quaternary');
+        const previewModal = document.getElementById('preview-modal');
+        const previewTitle = document.getElementById('preview-title');
+        const previewBody = document.getElementById('preview-body');
+        const previewCloseBtn = document.getElementById('preview-close-btn');
+        const userAvatarWrap = document.getElementById('user-avatar-wrap');
+        const userAvatarImg = document.getElementById('user-avatar-img');
+        const userAvatarFallback = document.getElementById('user-avatar-fallback');
+        const editorModal = document.getElementById('editor-modal');
+        const editorTitle = document.getElementById('editor-title');
+        const editorStatus = document.getElementById('editor-status');
+        const editorTextarea = document.getElementById('editor-textarea');
+        const editorHistory = document.getElementById('editor-history');
+        const editorCloseBtn = document.getElementById('editor-close-btn');
+        const editorCancelBtn = document.getElementById('editor-cancel-btn');
+        const editorSaveBtn = document.getElementById('editor-save-btn');
+        const dropOverlay = document.getElementById('drop-overlay');
+        const uploadProgressToast = document.getElementById('upload-progress-toast');
+        const uploadProgressLabel = document.getElementById('upload-progress-label');
+        const uploadProgressPercent = document.getElementById('upload-progress-percent');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
+        const state = {
+            currentPath: '/', currentSidebarMode: 'all', currentViewMode: 'list', currentQuery: '',
+            activeItems: [], trashItems: [], menuTargetItem: null, previewUrl: null, editorTargetItem: null, dragDepth: 0,
+            uploadInProgress: false
+        };
+
+        function showStatus(message, isError = false) {
+            statusLine.textContent = message || '';
+            statusLine.className = isError ? 'px-3 pb-2 text-xs text-red-500' : 'px-3 pb-2 text-xs text-gray-400';
+        }
+
+        function normalizeClientPath(input) {
+            const raw = String(input || '/').replace(/\\/g, '/').trim();
+            if (!raw || raw === '/') return '/';
+            return `/${raw.replace(/^\/+/, '').replace(/\/+/g, '/')}`;
+        }
+        function toRelativePath(clientPath) {
+            const clean = normalizeClientPath(clientPath);
+            return clean === '/' ? '' : clean.replace(/^\//, '');
+        }
+        function escapeHtml(value) {
+            return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+        function formatSize(bytes) {
+            if (bytes === null || bytes === undefined) return '--';
+            const n = Number(bytes);
+            if (!Number.isFinite(n) || n <= 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const idx = Math.min(Math.floor(Math.log(n) / Math.log(1024)), units.length - 1);
+            const val = n / Math.pow(1024, idx);
+            return `${val >= 10 || idx === 0 ? val.toFixed(0) : val.toFixed(1)} ${units[idx]}`;
+        }
+        function formatDateLabel(isoDate) {
+            if (!isoDate) return '--';
+            const date = new Date(isoDate);
+            if (Number.isNaN(date.getTime())) return '--';
+            const diffMs = Date.now() - date.getTime();
+            const minute = 60000; const hour = 3600000; const day = 86400000;
+            if (diffMs < minute) return 'Vừa xong';
+            if (diffMs < hour) return `${Math.max(1, Math.floor(diffMs / minute))} phút trước`;
+            if (diffMs < day) return `${Math.max(1, Math.floor(diffMs / hour))} giờ trước`;
+            if (diffMs < 7 * day) return `${Math.max(1, Math.floor(diffMs / day))} ngày trước`;
+            return date.toLocaleDateString('vi-VN');
+        }
+        async function apiRequest(url, options = {}) {
+            const headers = options.headers ? { ...options.headers } : {};
+            const init = { credentials: 'include', ...options, headers };
+            if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+                init.headers['Content-Type'] = 'application/json';
+            }
+            const response = await fetch(url, init);
+            const text = await response.text();
+            let payload = null;
+            try { payload = text ? JSON.parse(text) : null; } catch (_err) { payload = null; }
+            if (!response.ok || (payload && payload.success === false)) {
+                throw new Error(payload?.error || `Lỗi HTTP ${response.status}`);
+            }
+            return payload?.data ?? null;
+        }
+
+        function getCurrentItems() {
+            if (state.currentSidebarMode === 'trash') return state.trashItems;
+            if (state.currentSidebarMode === 'recent') return [...state.activeItems].sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
+            return state.activeItems;
+        }
+
+        function getInitials(name = '') {
+            const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+            if (!words.length) return 'DC';
+            const first = words[0]?.[0] || '';
+            const second = words.length > 1 ? (words[1]?.[0] || '') : '';
+            return `${first}${second}`.toUpperCase() || 'DC';
+        }
+
+        function setUserAvatar(userInfo = {}) {
+            const username = String(userInfo?.username || '').trim();
+            const avatar = String(userInfo?.avatar || '').trim();
+            userAvatarWrap.title = username ? `@${username}` : 'Tài khoản';
+            userAvatarFallback.textContent = getInitials(username);
+            userAvatarImg.classList.add('hidden');
+            userAvatarFallback.classList.remove('hidden');
+            userAvatarImg.removeAttribute('src');
+            if (avatar) {
+                userAvatarImg.src = avatar;
+                userAvatarImg.classList.remove('hidden');
+                userAvatarFallback.classList.add('hidden');
+            }
+        }
+
+        function setActiveSidebarLink(mode) {
+            allFilesLink.className = 'flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition-all';
+            recentFilesLink.className = 'flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-50 hover:text-blue-500 rounded-xl transition-all';
+            trashFilesLink.className = 'flex items-center gap-3 p-3 text-gray-500 hover:bg-gray-50 rounded-xl transition-all';
+            if (mode === 'recent') { recentFilesLink.className = 'flex items-center gap-3 p-3 bg-blue-50 text-blue-600 rounded-xl font-semibold'; return; }
+            if (mode === 'trash') { trashFilesLink.className = 'flex items-center gap-3 p-3 bg-blue-50 text-blue-600 rounded-xl font-semibold'; return; }
+            allFilesLink.className = 'flex items-center gap-3 p-3 bg-blue-50 text-blue-600 rounded-xl font-semibold';
+        }
+
+        function renderHeader() {
+            const cleanPath = normalizeClientPath(state.currentPath);
+            breadcrumb.textContent = cleanPath;
+            if (state.currentSidebarMode === 'trash') pageTitle.textContent = 'Thùng rác';
+            else if (state.currentSidebarMode === 'recent') pageTitle.textContent = 'Tệp gần đây';
+            else pageTitle.textContent = `Tệp tin: ${cleanPath}`;
+        }
+
+        function buildRow(item) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-blue-50/40 transition-all cursor-pointer group';
+            if (item.id) row.dataset.id = item.id;
+            if (item.path) row.dataset.path = item.path;
+            if (item.trashedPath) row.dataset.trashedPath = item.trashedPath;
+            const visual = getItemVisual(item);
+            const dateLabel = formatDateLabel(item.deletedAt || item.modifiedAt);
+            const sizeLabel = formatSize(item.size);
+            row.innerHTML = `
+                <td class="px-4 py-2 flex items-center gap-3"><i class="${visual.iconStyle || 'fas'} ${visual.icon} ${visual.iconColor} ${visual.sizeClass || 'text-base'}"></i><span class="font-medium text-gray-600 truncate max-w-[200px] md:max-w-xs">${escapeHtml(item.name || 'Không tên')}</span></td>
+                <td class="px-4 py-2 text-gray-400 italic">${escapeHtml(dateLabel)}</td>
+                <td class="px-4 py-2 text-gray-400 text-right font-mono text-xs">${escapeHtml(sizeLabel)}</td>
+                <td class="px-4 py-2 text-right"><button class="row-actions-btn text-gray-300 hover:text-blue-600"><i class="fas fa-ellipsis-h"></i></button></td>
+            `;
+            return row;
+        }
+
+        function renderListView(items) {
+            fileListBody.innerHTML = '';
+            if (!items.length) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" class="px-4 py-6 text-center text-gray-400 text-sm">Không có dữ liệu.</td>';
+                fileListBody.appendChild(row);
+                return;
+            }
+            items.forEach((item) => fileListBody.appendChild(buildRow(item)));
+        }
+
+        function renderGridView(items) {
+            gridView.innerHTML = '';
+            if (!items.length) {
+                gridView.innerHTML = '<div class="col-span-full text-center text-gray-400 text-sm py-6">Không có dữ liệu.</div>';
+                return;
+            }
+            items.forEach((item) => {
+                const visual = getItemVisual(item);
+                const dateLabel = formatDateLabel(item.deletedAt || item.modifiedAt);
+                const sizeLabel = formatSize(item.size);
+                const idAttr = item.id ? `data-item-id="${escapeHtml(item.id)}"` : '';
+                const pathAttr = item.path ? `data-item-path="${escapeHtml(item.path)}"` : '';
+                const trashedPathAttr = item.trashedPath ? `data-item-trashed-path="${escapeHtml(item.trashedPath)}"` : '';
+                const card = document.createElement('article');
+                card.className = 'cursor-pointer rounded-lg border border-gray-200 p-3 hover:border-blue-300 hover:bg-blue-50/40 transition-all';
+                if (item.id) card.dataset.itemId = item.id;
+                if (item.path) card.dataset.itemPath = item.path;
+                if (item.trashedPath) card.dataset.itemTrashedPath = item.trashedPath;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2 min-w-0"><div class="${visual.bg} rounded-md p-2"><i class="${visual.iconStyle || 'fas'} ${visual.icon} ${visual.iconColor} ${visual.sizeClass || 'text-base'}"></i></div><p class="font-medium text-gray-700 truncate">${escapeHtml(item.name || 'Không tên')}</p></div>
+                        <button class="grid-actions-btn text-gray-300 hover:text-blue-600" ${idAttr} ${pathAttr} ${trashedPathAttr}><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-400 flex items-center justify-between"><span class="italic">${escapeHtml(dateLabel)}</span><span class="font-mono">${escapeHtml(sizeLabel)}</span></div>
+                `;
+                gridView.appendChild(card);
+            });
+        }
+
+        function setViewMode(mode) {
+            state.currentViewMode = mode;
+            const isGrid = mode === 'grid';
+            listView.classList.toggle('hidden', isGrid);
+            gridView.classList.toggle('hidden', !isGrid);
+            viewListBtn.className = isGrid ? 'px-2 py-1 text-gray-400 hover:text-blue-500 rounded-md transition-all' : 'px-2 py-1 text-blue-600 bg-white shadow-sm rounded-md transition-all';
+            viewGridBtn.className = isGrid ? 'px-2 py-1 text-blue-600 bg-white shadow-sm rounded-md transition-all' : 'px-2 py-1 text-gray-400 hover:text-blue-500 rounded-md transition-all';
+        }
+
+        function closeActionMenu() { rowActionMenu.classList.add('hidden'); state.menuTargetItem = null; }
+        function clearPreviewUrl() {
+            if (state.previewUrl) {
+                URL.revokeObjectURL(state.previewUrl);
+                state.previewUrl = null;
+            }
+        }
+
+        function closePreviewModal() {
+            previewModal.classList.add('hidden');
+            previewBody.innerHTML = '';
+            clearPreviewUrl();
+        }
+
+        function getFileExtension(name = '') {
+            const parts = String(name || '').toLowerCase().split('.');
+            return parts.length > 1 ? parts.pop() : '';
+        }
+
+        function getPreviewKind(item) {
+            const ext = getFileExtension(item?.name || '');
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(ext)) return 'image';
+            if (ext === 'pdf') return 'pdf';
+            if (['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext)) return 'video';
+            if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return 'audio';
+            if (['txt', 'md', 'log', 'json', 'csv', 'xml', 'html', 'css', 'js', 'ts'].includes(ext)) return 'text';
+            return 'none';
+        }
+
+        function getItemVisual(item) {
+            if (item?.type === 'folder') return { icon: 'fa-folder', iconColor: 'text-amber-500', bg: 'bg-amber-50', accent: 'text-amber-600' };
+            const ext = getFileExtension(item?.name || '');
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(ext)) return { icon: 'fa-file-image', iconColor: 'text-emerald-500', bg: 'bg-emerald-50', accent: 'text-emerald-600' };
+            if (['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext)) return { icon: 'fa-file-video', iconColor: 'text-rose-500', bg: 'bg-rose-50', accent: 'text-rose-600' };
+            if (['mp3', 'wav', 'ogg'].includes(ext)) return { icon: 'fa-file-audio', iconColor: 'text-pink-500', bg: 'bg-pink-50', accent: 'text-pink-600' };
+            if (['m4a', 'aac', 'flac'].includes(ext)) return { icon: 'fa-file-audio', iconColor: 'text-fuchsia-500', bg: 'bg-fuchsia-50', accent: 'text-fuchsia-600' };
+            if (ext === 'pdf') return { icon: 'fa-file-pdf', iconColor: 'text-red-500', bg: 'bg-red-50', accent: 'text-red-600' };
+            if (['doc', 'docx', 'rtf', 'odt'].includes(ext)) return { icon: 'fa-file-word', iconColor: 'text-blue-500', bg: 'bg-blue-50', accent: 'text-blue-600' };
+            if (['xls', 'xlsx', 'csv', 'ods'].includes(ext)) return { icon: 'fa-file-excel', iconColor: 'text-green-600', bg: 'bg-green-50', accent: 'text-green-700' };
+            if (['ppt', 'pptx', 'odp'].includes(ext)) return { icon: 'fa-file-powerpoint', iconColor: 'text-orange-500', bg: 'bg-orange-50', accent: 'text-orange-600' };
+            if (['exe', 'msi'].includes(ext)) return { icon: 'fa-window-maximize', iconColor: 'text-gray-700', bg: 'bg-gray-100', accent: 'text-gray-700' };
+            if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return { icon: 'fa-file-zipper', iconColor: 'text-yellow-600', bg: 'bg-yellow-50', accent: 'text-yellow-700' };
+            if (['js', 'ts'].includes(ext)) return { icon: 'fa-file-code', iconColor: 'text-yellow-500', bg: 'bg-yellow-50', accent: 'text-yellow-600' };
+            if (ext === 'html') return { icon: 'fa-code', iconColor: 'text-orange-500', bg: 'bg-orange-50', accent: 'text-orange-600', sizeClass: 'text-sm', previewSizeClass: 'text-base' };
+            if (ext === 'json') return { icon: 'fa-file-code', iconColor: 'text-amber-500', bg: 'bg-amber-50', accent: 'text-amber-600' };
+            if (ext === 'py') return { icon: 'fa-python', iconStyle: 'fab', iconColor: 'text-blue-500', bg: 'bg-blue-50', accent: 'text-blue-600' };
+            if (['css', 'xml'].includes(ext)) return { icon: 'fa-file-code', iconColor: 'text-indigo-500', bg: 'bg-indigo-50', accent: 'text-indigo-600' };
+            if (ext === 'js') return { icon: 'fa-js', iconStyle: 'fab', iconColor: 'text-yellow-400', bg: 'bg-yellow-50', accent: 'text-yellow-500' };
+            if (['ts'].includes(ext)) return { icon: 'fa-file-code', iconColor: 'text-yellow-500', bg: 'bg-yellow-50', accent: 'text-yellow-600' };
+            if (ext === 'txt') return { icon: 'fa-file-alt', iconColor: 'text-gray-400', bg: 'bg-gray-50', accent: 'text-gray-500' };
+            if (['md', 'log'].includes(ext)) return { icon: 'fa-file-lines', iconColor: 'text-slate-500', bg: 'bg-slate-100', accent: 'text-slate-600' };
+            return { icon: 'fa-file-lines', iconColor: 'text-slate-500', bg: 'bg-slate-100', accent: 'text-slate-600', sizeClass: 'text-base', previewSizeClass: 'text-lg' };
+        }
+
+        function isEditableTextFile(item) {
+            return getPreviewKind(item) === 'text';
+        }
+
+        async function loadEditHistory(itemPath) {
+            if (!itemPath) return [];
+            try {
+                const relPath = toRelativePath(itemPath);
+                const data = await apiRequest(`/api/cloud/history?path=${encodeURIComponent(relPath)}`);
+                return data?.items || [];
+            } catch (_error) {
+                return [];
+            }
+        }
+
+        async function loadDownloadStats(itemPath) {
+            if (!itemPath) return null;
+            try {
+                const relPath = toRelativePath(itemPath);
+                const data = await apiRequest(`/api/cloud/download-stats?path=${encodeURIComponent(relPath)}`);
+                return {
+                    count: Number(data?.downloadCount || 0),
+                    shareCount: Number(data?.shareCount || 0),
+                    firstAt: data?.firstDownloadedAt,
+                    lastAt: data?.lastDownloadedAt
+                };
+            } catch (_error) {
+                return null;
+            }
+        }
+
+        function renderHistoryHtml(items = []) {
+            if (!Array.isArray(items) || !items.length) {
+                return '<div class="text-xs text-gray-400">Chưa có lịch sử chỉnh sửa.</div>';
+            }
+            const rows = items.map((entry) => {
+                const editor = escapeHtml(entry?.editor || 'unknown');
+                const at = escapeHtml(formatDateLabel(entry?.editedAt));
+                const size = escapeHtml(formatSize(entry?.size));
+                return `<li class="text-xs text-gray-600 flex items-center justify-between gap-2"><span class="truncate"><i class="fas fa-pen-to-square text-blue-400 mr-1"></i>${editor}</span><span class="text-gray-400 whitespace-nowrap">${at} • ${size}</span></li>`;
+            }).join('');
+            return `<ul class="space-y-1.5">${rows}</ul>`;
+        }
+
+        function buildMetaHtml(item, downloadStats) {
+            const downloadInfo = downloadStats && downloadStats.count > 0
+                ? ` • <i class="fas fa-share-nodes mr-1 text-blue-400"></i><span class="text-gray-600 font-medium">${downloadStats.count}</span> <span class="text-gray-400">lượt tải qua link chia sẻ</span>`
+                : '';
+            return `
+                <div class="text-xs text-gray-400 mt-2">
+                    Dung lượng: ${escapeHtml(formatSize(item.size))} •
+                    Sửa lần cuối: ${escapeHtml(formatDateLabel(item.modifiedAt))}${downloadInfo}
+                </div>
+            `;
+        }
+
+        function getDownloadUrl(item) {
+            const relPath = toRelativePath(item?.path || '');
+            return `/api/cloud/download?path=${encodeURIComponent(relPath)}`;
+        }
+
+        function getPreviewUrl(item) {
+            const relPath = toRelativePath(item?.path || '');
+            return `/api/cloud/preview?path=${encodeURIComponent(relPath)}`;
+        }
+
+        async function openPreviewModal(item) {
+            if (!item || item.type !== 'file' || !item.path) return;
+            closeActionMenu();
+            previewModal.classList.remove('hidden');
+            previewTitle.textContent = item.name || 'Xem trước';
+            previewBody.innerHTML = '<div class="text-sm text-gray-400">Đang tải xem trước...</div>';
+
+            const downloadUrl = getDownloadUrl(item);
+            const previewUrl = getPreviewUrl(item);
+            const visual = getItemVisual(item);
+            const previewKind = getPreviewKind(item);
+            const historyPromise = loadEditHistory(item.path);
+            const downloadStatsPromise = loadDownloadStats(item.path);
+
+            if (previewKind !== 'none') {
+                try {
+                    const [historyItems, downloadStats] = await Promise.all([historyPromise, downloadStatsPromise]);
+                    let historyHtml = renderHistoryHtml(historyItems);
+                    let previewContent = '';
+                    if (previewKind === 'text') {
+                        let content = '';
+                        try {
+                            const relPath = toRelativePath(item.path);
+                            const textData = await apiRequest(`/api/cloud/content?path=${encodeURIComponent(relPath)}`);
+                            content = String(textData?.content ?? '');
+                            historyHtml = renderHistoryHtml(textData?.items || historyItems);
+                        } catch (_contentError) {
+                            // Fallback: preview text directly from download endpoint if content API is unavailable.
+                            const fallbackResponse = await fetch(downloadUrl, { credentials: 'include' });
+                            if (!fallbackResponse.ok) throw new Error(`Lỗi HTTP ${fallbackResponse.status}`);
+                            content = await fallbackResponse.text();
+                        }
+                        previewContent = `
+                            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                                <pre class="text-xs md:text-sm text-gray-700 whitespace-pre max-h-[65vh] overflow-auto font-mono">${escapeHtml(content)}</pre>
+                            </div>
+                        `;
+                    } else {
+                        // Use direct preview URL so browser can stream large media/images faster.
+                        clearPreviewUrl();
+                        if (previewKind === 'image') {
+                            previewContent = `
+                                <div class="max-h-[65vh] overflow-auto rounded-lg border border-gray-200 bg-gray-50 p-2 flex items-center justify-center">
+                                    <img src="${escapeHtml(previewUrl)}" alt="${escapeHtml(item.name || 'Ảnh xem trước')}" class="max-w-full max-h-[62vh] object-contain rounded-md" loading="eager" decoding="async">
+                                </div>
+                            `;
+                        } else if (previewKind === 'pdf') {
+                            previewContent = `
+                                <div class="rounded-lg border border-gray-200 overflow-hidden bg-gray-100">
+                                    <iframe src="${escapeHtml(previewUrl)}" title="${escapeHtml(item.name || 'PDF preview')}" class="w-full h-[65vh]"></iframe>
+                                </div>
+                            `;
+                        } else if (previewKind === 'video') {
+                            previewContent = `
+                                <div class="rounded-lg border border-gray-200 overflow-hidden bg-black">
+                                    <video src="${escapeHtml(previewUrl)}" controls preload="metadata" class="w-full max-h-[65vh] bg-black"></video>
+                                </div>
+                            `;
+                        } else if (previewKind === 'audio') {
+                            previewContent = `
+                                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                                    <div class="text-sm text-gray-500 mb-3">Phát thử audio:</div>
+                                    <audio src="${escapeHtml(previewUrl)}" controls preload="metadata" class="w-full"></audio>
+                                </div>
+                            `;
+                        }
+                    }
+                    const metaHtml = buildMetaHtml(item, downloadStats);
+                    previewBody.innerHTML = `
+                        <div class="space-y-3">
+                            ${previewContent}
+                            ${metaHtml}
+                            <div class="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Nhật ký chỉnh sửa</div>
+                                ${historyHtml}
+                            </div>
+                            <div>
+                                <a href="${escapeHtml(downloadUrl)}" class="inline-flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-download"></i>Tải file
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                } catch (error) {
+                    previewBody.innerHTML = `
+                        <div class="text-sm text-red-500 mb-2">Không thể tải preview file: ${escapeHtml(error.message || 'Lỗi không xác định')}</div>
+                        <a href="${escapeHtml(downloadUrl)}" class="inline-flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-download"></i>Tải file
+                        </a>
+                    `;
+                    return;
+                }
+            }
+
+            const downloadStats = await downloadStatsPromise;
+            const metaHtml = buildMetaHtml(item, downloadStats);
+            previewBody.innerHTML = `
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-lg ${visual.bg} border border-gray-200 flex items-center justify-center ${visual.accent}">
+                            <i class="${visual.iconStyle || 'fas'} ${visual.icon} ${visual.previewSizeClass || 'text-lg'}"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-sm font-semibold text-gray-700 truncate">${escapeHtml(item.name || 'Không tên')}</div>
+                            ${metaHtml}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="${escapeHtml(downloadUrl)}" class="inline-flex items-center gap-2 text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-download"></i>Tải file
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeEditorModal() {
+            editorModal.classList.add('hidden');
+            editorTitle.textContent = 'Chỉnh sửa file';
+            editorStatus.textContent = '';
+            editorStatus.className = 'text-xs text-gray-400';
+            editorTextarea.value = '';
+            editorHistory.innerHTML = '';
+            state.editorTargetItem = null;
+            editorSaveBtn.disabled = false;
+            editorSaveBtn.className = 'px-3 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors';
+        }
+
+        function showDropOverlay() { dropOverlay.classList.remove('hidden'); }
+        function hideDropOverlay() { dropOverlay.classList.add('hidden'); state.dragDepth = 0; }
+
+        function showUploadProgress(label = 'Đang tải lên...', percent = 0) {
+            uploadProgressLabel.textContent = label;
+            const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+            uploadProgressPercent.textContent = `${safePercent.toFixed(0)}%`;
+            uploadProgressBar.style.width = `${safePercent}%`;
+            uploadProgressToast.classList.remove('hidden');
+        }
+
+        function updateUploadProgress(percent, label) {
+            if (label) uploadProgressLabel.textContent = label;
+            const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+            uploadProgressPercent.textContent = `${safePercent.toFixed(0)}%`;
+            uploadProgressBar.style.width = `${safePercent}%`;
+        }
+
+        function hideUploadProgress(delayMs = 900) {
+            setTimeout(() => {
+                uploadProgressToast.classList.add('hidden');
+                uploadProgressBar.style.width = '0%';
+                uploadProgressPercent.textContent = '0%';
+            }, delayMs);
+        }
+
+        function parseXhrPayload(xhr) {
+            let payload = null;
+            try { payload = xhr.responseText ? JSON.parse(xhr.responseText) : null; } catch (_err) { payload = null; }
+            return payload;
+        }
+
+        async function uploadSingleFileDirectWithProgress(file, currentPath, sourceLabel = 'Đang tải lên...') {
+            return await new Promise((resolve, reject) => {
+                const form = new FormData();
+                form.append('path', currentPath);
+                form.append('files', file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/cloud/upload', true);
+                xhr.withCredentials = true;
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (!event.lengthComputable) return;
+                    const percent = (event.loaded / event.total) * 100;
+                    updateUploadProgress(percent, sourceLabel);
+                });
+                xhr.addEventListener('load', () => {
+                    const payload = parseXhrPayload(xhr);
+                    if (xhr.status >= 200 && xhr.status < 300 && (!payload || payload.success !== false)) {
+                        updateUploadProgress(100, 'Đã tải lên xong.');
+                        resolve(payload?.data ?? null);
+                        return;
+                    }
+                    reject(new Error(payload?.error || `Lỗi HTTP ${xhr.status}`));
+                });
+                xhr.addEventListener('error', () => reject(new Error('Lỗi mạng khi tải file lên.')));
+                xhr.addEventListener('abort', () => reject(new Error('Upload đã bị hủy.')));
+                xhr.send(form);
+            });
+        }
+
+        async function uploadChunkWithProgress(uploadId, chunkIndex, chunkBlob, onProgress) {
+            return await new Promise((resolve, reject) => {
+                const form = new FormData();
+                form.append('chunk', chunkBlob, `chunk-${chunkIndex}`);
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', `/api/cloud/upload/chunk/${encodeURIComponent(uploadId)}/${chunkIndex}`, true);
+                xhr.withCredentials = true;
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (!event.lengthComputable || typeof onProgress !== 'function') return;
+                    onProgress(event.loaded, event.total || chunkBlob.size);
+                });
+                xhr.addEventListener('load', () => {
+                    const payload = parseXhrPayload(xhr);
+                    if (xhr.status >= 200 && xhr.status < 300 && (!payload || payload.success !== false)) {
+                        resolve(payload?.data ?? null);
+                        return;
+                    }
+                    reject(new Error(payload?.error || `Lỗi HTTP ${xhr.status}`));
+                });
+                xhr.addEventListener('error', () => reject(new Error('Lỗi mạng khi tải chunk lên.')));
+                xhr.addEventListener('abort', () => reject(new Error('Upload chunk đã bị hủy.')));
+                xhr.send(form);
+            });
+        }
+
+        async function uploadSingleFileByChunks(file, currentPath, sourceLabel = 'Đang tải lên...') {
+            const initData = await apiRequest('/api/cloud/upload/init', {
+                method: 'POST',
+                body: JSON.stringify({
+                    path: currentPath,
+                    fileName: file.name,
+                    totalSize: file.size,
+                    chunkSize: CHUNK_SIZE_BYTES
+                })
+            });
+
+            const uploadId = String(initData?.uploadId || '').trim();
+            const totalChunks = Number(initData?.totalChunks || 0);
+            const chunkSize = Number(initData?.chunkSize || CHUNK_SIZE_BYTES);
+            if (!uploadId || !Number.isInteger(totalChunks) || totalChunks <= 0) {
+                throw new Error('Không khởi tạo được phiên chunk upload.');
+            }
+
+            let uploadedBytes = 0;
+            let completedChunks = 0;
+            const inFlightBytes = new Map();
+            const sumInFlight = () => {
+                let sum = 0;
+                for (const value of inFlightBytes.values()) {
+                    sum += value;
+                }
+                return sum;
+            };
+            const updateOverallProgress = (labelOverride) => {
+                const overallLoaded = uploadedBytes + sumInFlight();
+                const percent = file.size > 0 ? (overallLoaded / file.size) * 100 : 0;
+                const label = labelOverride || `${sourceLabel} [${completedChunks}/${totalChunks} chunks]`;
+                updateUploadProgress(percent, label);
+            };
+            try {
+                const uploadChunkWithRetry = async (chunkIndex) => {
+                    const start = chunkIndex * chunkSize;
+                    const end = Math.min(file.size, start + chunkSize);
+                    const chunkBlob = file.slice(start, end);
+                    const chunkLabel = `${sourceLabel} [${completedChunks}/${totalChunks} chunks]`;
+                    let attempt = 0;
+
+                    while (true) {
+                        attempt += 1;
+                        try {
+                            await uploadChunkWithProgress(uploadId, chunkIndex, chunkBlob, (loaded, total) => {
+                                inFlightBytes.set(chunkIndex, Math.min(total, loaded));
+                                updateOverallProgress(chunkLabel);
+                            });
+                            inFlightBytes.delete(chunkIndex);
+                            uploadedBytes += chunkBlob.size;
+                            completedChunks += 1;
+                            updateOverallProgress(`${sourceLabel} [${completedChunks}/${totalChunks} chunks]`);
+                            return;
+                        } catch (error) {
+                            inFlightBytes.delete(chunkIndex);
+                            updateOverallProgress(`${sourceLabel} [${completedChunks}/${totalChunks} chunks]`);
+                            if (attempt >= CHUNK_UPLOAD_RETRY_LIMIT) {
+                                throw error;
+                            }
+                            await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+                        }
+                    }
+                };
+
+                let nextChunkIndex = 0;
+                const worker = async () => {
+                    while (true) {
+                        const currentIndex = nextChunkIndex;
+                        if (currentIndex >= totalChunks) {
+                            return;
+                        }
+                        nextChunkIndex += 1;
+                        await uploadChunkWithRetry(currentIndex);
+                    }
+                };
+
+                const concurrency = Math.min(
+                    Math.max(Number(CHUNK_UPLOAD_CONCURRENCY) || 1, 1),
+                    totalChunks
+                );
+                const workers = [];
+                for (let i = 0; i < concurrency; i += 1) {
+                    workers.push(worker());
+                }
+                await Promise.all(workers);
+
+                const completeData = await apiRequest(`/api/cloud/upload/complete/${encodeURIComponent(uploadId)}`, {
+                    method: 'POST'
+                });
+                updateUploadProgress(100, 'Đã ghép file trên server.');
+                return completeData;
+            } catch (error) {
+                await apiRequest(`/api/cloud/upload/${encodeURIComponent(uploadId)}`, { method: 'DELETE' }).catch(() => {});
+                throw error;
+            }
+        }
+
+        async function uploadSingleFileWithProgress(file, currentPath, sourceLabel = 'Đang tải lên...') {
+            const fileSize = Number(file?.size || 0);
+            if (fileSize > DIRECT_UPLOAD_LIMIT_BYTES) {
+                return uploadSingleFileByChunks(file, currentPath, sourceLabel);
+            }
+            return uploadSingleFileDirectWithProgress(file, currentPath, sourceLabel);
+        }
+
+        async function uploadFilesSequential(files, currentPath, sourcePrefix = 'Đang tải file') {
+            const total = files.length;
+            const results = [];
+            for (let i = 0; i < total; i += 1) {
+                const file = files[i];
+                const idx = i + 1;
+                const modeLabel = Number(file?.size || 0) > DIRECT_UPLOAD_LIMIT_BYTES ? 'chunk' : 'thường';
+                const label = `${sourcePrefix} ${idx}/${total} (${modeLabel}): ${file.name}`;
+                showUploadProgress(label, 0);
+                const result = await uploadSingleFileWithProgress(file, currentPath, label);
+                results.push(result);
+                updateUploadProgress(100, `${sourcePrefix} ${idx}/${total}: ${file.name}`);
+            }
+            return results;
+        }
+
+        async function uploadDroppedFiles(fileList) {
+            const files = Array.from(fileList || []);
+            if (!files.length) return;
+            if (files.length > MAX_UPLOAD_FILES_PER_BATCH) {
+                showStatus(`Mỗi lần chỉ được tải tối đa ${MAX_UPLOAD_FILES_PER_BATCH} file.`, true);
+                return;
+            }
+            if (state.currentSidebarMode === 'trash') {
+                showStatus('Không thể tải file khi đang ở Thùng rác.', true);
+                return;
+            }
+            if (state.uploadInProgress) {
+                showStatus('Đang có upload khác, vui lòng chờ hoàn tất.');
+                return;
+            }
+            try {
+                state.uploadInProgress = true;
+                await uploadFilesSequential(files, state.currentPath, 'Kéo-thả');
+                await refreshAll();
+                showStatus(`Đã tải lên ${files.length} file.`);
+                hideUploadProgress();
+            } catch (error) {
+                showStatus(error.message || 'Không thể tải file kéo-thả.', true);
+                hideUploadProgress(1400);
+            } finally {
+                state.uploadInProgress = false;
+            }
+        }
+
+        async function openEditorModal(item) {
+            if (!item || item.type !== 'file' || !item.path || !isEditableTextFile(item)) return;
+            closeActionMenu();
+            closePreviewModal();
+            state.editorTargetItem = item;
+            editorModal.classList.remove('hidden');
+            editorTitle.textContent = `Chỉnh sửa: ${item.name || 'Không tên'}`;
+            editorStatus.textContent = 'Đang tải nội dung...';
+            editorHistory.innerHTML = '<div class="text-xs text-gray-400">Đang tải nhật ký...</div>';
+            try {
+                const relPath = toRelativePath(item.path);
+                const data = await apiRequest(`/api/cloud/content?path=${encodeURIComponent(relPath)}`);
+                editorTextarea.value = String(data?.content ?? '');
+                editorHistory.innerHTML = `
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Nhật ký chỉnh sửa</div>
+                    ${renderHistoryHtml(data?.items || [])}
+                `;
+                editorStatus.textContent = 'Sẵn sàng chỉnh sửa.';
+                editorStatus.className = 'text-xs text-gray-400';
+            } catch (error) {
+                editorTextarea.value = '';
+                editorStatus.textContent = error.message || 'Không thể tải nội dung file.';
+                editorStatus.className = 'text-xs text-red-500';
+            }
+        }
+
+        function openActionMenu(item, anchorElement) {
+            state.menuTargetItem = item;
+            const rect = anchorElement.getBoundingClientRect();
+            rowActionMenu.style.left = `${Math.max(8, rect.right - 170)}px`;
+            rowActionMenu.style.top = `${rect.bottom + 6}px`;
+            if (state.currentSidebarMode === 'trash') {
+                menuPrimary.innerHTML = '<i class="fas fa-rotate-left mr-2 text-blue-400"></i>Khôi phục';
+                menuSecondary.innerHTML = '<i class="fas fa-trash-can mr-2 text-red-400"></i>Xóa vĩnh viễn';
+                menuTertiary.classList.add('hidden');
+                menuQuaternary.classList.add('hidden');
+            } else {
+                menuPrimary.innerHTML = '<i class="fas fa-trash mr-2 text-red-400"></i>Bỏ vào thùng rác';
+                menuSecondary.innerHTML = '<i class="fas fa-pen mr-2 text-blue-400"></i>Đổi tên';
+                if (isEditableTextFile(item)) {
+                    menuTertiary.innerHTML = '<i class="fas fa-pen-to-square mr-2 text-emerald-500"></i>Chỉnh sửa file';
+                    menuTertiary.classList.remove('hidden');
+                } else {
+                    menuTertiary.classList.add('hidden');
+                }
+                if (item?.type === 'file') {
+                    menuQuaternary.innerHTML = '<i class="fas fa-link mr-2 text-violet-500"></i>Sao chép link tải';
+                    menuQuaternary.classList.remove('hidden');
+                } else {
+                    menuQuaternary.classList.add('hidden');
+                }
+            }
+            rowActionMenu.classList.remove('hidden');
+        }
+
+        function findItemByIdentity(identity = {}) {
+            const list = getCurrentItems();
+            if (identity.id) return list.find((item) => item.id === identity.id) || null;
+            if (identity.path) return list.find((item) => item.path === identity.path) || null;
+            if (identity.trashedPath) return list.find((item) => item.trashedPath === identity.trashedPath) || null;
+            return null;
+        }
+
+        function renderAll() {
+            renderHeader();
+            const items = getCurrentItems();
+            renderListView(items);
+            renderGridView(items);
+            showStatus(`Hiển thị ${items.length} mục`);
+        }
+
+        async function loadStorage() {
+            try {
+                const data = await apiRequest('/api/cloud/storage');
+                const used = Number(data?.usedBytes || 0);
+                const percent = Math.min(100, Math.max(0, (used / QUOTA_BYTES) * 100));
+                storageLabel.textContent = `${percent.toFixed(1)}%`;
+                storageBar.style.width = `${percent.toFixed(1)}%`;
+            } catch (_error) {
+                storageLabel.textContent = '--';
+                storageBar.style.width = '0%';
+            }
+        }
+        async function loadItems() {
+            closePreviewModal();
+            closeActionMenu();
+            try {
+                showStatus('Đang tải dữ liệu...');
+                if (state.currentSidebarMode === 'trash') {
+                    const trashData = await apiRequest(`/api/cloud/trash?q=${encodeURIComponent(state.currentQuery)}`);
+                    state.trashItems = trashData?.items || [];
+                } else {
+                    const query = new URLSearchParams({ path: state.currentPath, q: state.currentQuery });
+                    const fileData = await apiRequest(`/api/cloud/files?${query.toString()}`);
+                    state.currentPath = normalizeClientPath(fileData?.currentPath || state.currentPath);
+                    state.activeItems = fileData?.items || [];
+                }
+                renderAll();
+            } catch (error) {
+                renderListView([]);
+                renderGridView([]);
+                showStatus(error.message, true);
+                if (String(error.message).toLowerCase().includes('đăng nhập')) {
+                    setTimeout(() => { window.location.href = '/'; }, 800);
+                }
+            }
+        }
+
+        async function refreshAll() {
+            // Prioritize rendering file list first for faster perceived page load.
+            await loadItems();
+            loadStorage().catch(() => {});
+        }
+
+        async function handleOpenItem(item) {
+            if (state.currentSidebarMode === 'trash' || !item) return;
+            if (item.type === 'folder') {
+                state.currentPath = normalizeClientPath(item.path || '/');
+                state.currentSidebarMode = 'all';
+                setActiveSidebarLink('all');
+                await loadItems();
+                return;
+            }
+            await openPreviewModal(item);
+        }
+
+        function extractItemIdentityFromRow(row) {
+            return { id: row?.dataset?.id, path: row?.dataset?.path, trashedPath: row?.dataset?.trashedPath };
+        }
+        function extractItemIdentityFromButton(btn) {
+            return { id: btn?.dataset?.itemId, path: btn?.dataset?.itemPath, trashedPath: btn?.dataset?.itemTrashedPath };
+        }
+
+        menuToggle.addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); });
+        breadcrumb.addEventListener('click', async () => {
+            if (state.currentSidebarMode === 'trash') return;
+            const rel = toRelativePath(state.currentPath);
+            if (!rel) return;
+            const parts = rel.split('/').filter(Boolean);
+            parts.pop();
+            state.currentPath = parts.length ? `/${parts.join('/')}` : '/';
+            state.currentSidebarMode = 'all';
+            setActiveSidebarLink('all');
+            await loadItems();
+        });
+
+        document.addEventListener('click', (event) => {
+            if (window.innerWidth >= 768) return;
+            const clickedInsideSidebar = event.target.closest('#sidebar');
+            const clickedMenuToggle = event.target.closest('#menu-toggle');
+            const isSidebarOpen = !sidebar.classList.contains('-translate-x-full');
+            if (isSidebarOpen && !clickedInsideSidebar && !clickedMenuToggle) sidebar.classList.add('-translate-x-full');
+        });
+
+        allFilesLink.addEventListener('click', async (event) => {
+            event.preventDefault();
+            state.currentSidebarMode = 'all';
+            state.currentQuery = searchInput.value.trim();
+            setActiveSidebarLink('all');
+            await loadItems();
+        });
+
+        recentFilesLink.addEventListener('click', async (event) => {
+            event.preventDefault();
+            state.currentSidebarMode = 'recent';
+            state.currentQuery = searchInput.value.trim();
+            setActiveSidebarLink('recent');
+            await loadItems();
+        });
+
+        trashFilesLink.addEventListener('click', async (event) => {
+            event.preventDefault();
+            state.currentSidebarMode = 'trash';
+            state.currentQuery = searchInput.value.trim();
+            setActiveSidebarLink('trash');
+            await loadItems();
+        });
+
+        viewListBtn.addEventListener('click', () => setViewMode('list'));
+        viewGridBtn.addEventListener('click', () => setViewMode('grid'));
+
+        createFolderBtn.addEventListener('click', async () => {
+            if (state.currentSidebarMode === 'trash') return;
+            const folderName = prompt('Nhập tên folder mới:', 'Folder_moi');
+            if (!folderName || !folderName.trim()) return;
+            try {
+                await apiRequest('/api/cloud/folder', { method: 'POST', body: JSON.stringify({ path: state.currentPath, name: folderName.trim() }) });
+                await refreshAll();
+            } catch (error) { showStatus(error.message, true); }
+        });
+
+        createFileBtn.addEventListener('click', async () => {
+            if (state.currentSidebarMode === 'trash') return;
+            const fileName = prompt('Nhập tên file mới:', 'Tep_moi.txt');
+            if (!fileName || !fileName.trim()) return;
+            try {
+                await apiRequest('/api/cloud/file', { method: 'POST', body: JSON.stringify({ path: state.currentPath, name: fileName.trim() }) });
+                await refreshAll();
+            } catch (error) { showStatus(error.message, true); }
+        });
+
+        uploadBtn.addEventListener('click', () => { if (state.currentSidebarMode !== 'trash') uploadInput.click(); });
+
+        uploadInput.addEventListener('change', async () => {
+            const files = Array.from(uploadInput.files || []);
+            if (!files.length) return;
+            if (files.length > MAX_UPLOAD_FILES_PER_BATCH) {
+                showStatus(`Mỗi lần chỉ được tải tối đa ${MAX_UPLOAD_FILES_PER_BATCH} file.`, true);
+                uploadInput.value = '';
+                return;
+            }
+            if (state.uploadInProgress) {
+                showStatus('Đang có upload khác, vui lòng chờ hoàn tất.');
+                uploadInput.value = '';
+                return;
+            }
+            try {
+                state.uploadInProgress = true;
+                await uploadFilesSequential(files, state.currentPath, 'Upload');
+                await refreshAll();
+                hideUploadProgress();
+            } catch (error) {
+                showStatus(error.message, true);
+                hideUploadProgress(1400);
+            } finally {
+                state.uploadInProgress = false;
+                uploadInput.value = '';
+            }
+        });
+
+        let searchTimer = null;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(async () => {
+                state.currentQuery = searchInput.value.trim();
+                await loadItems();
+            }, 250);
+        });
+        menuPrimary.addEventListener('click', async () => {
+            const item = state.menuTargetItem;
+            if (!item) return;
+            try {
+                if (state.currentSidebarMode === 'trash') {
+                    await apiRequest('/api/cloud/trash/restore', { method: 'POST', body: JSON.stringify({ id: item.id }) });
+                } else {
+                    await apiRequest('/api/cloud/move-to-trash', { method: 'POST', body: JSON.stringify({ path: toRelativePath(item.path) }) });
+                }
+                closeActionMenu();
+                await refreshAll();
+            } catch (error) { showStatus(error.message, true); }
+        });
+
+        menuSecondary.addEventListener('click', async () => {
+            const item = state.menuTargetItem;
+            if (!item) return;
+            try {
+                if (state.currentSidebarMode === 'trash') {
+                    await apiRequest(`/api/cloud/trash/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+                } else {
+                    const nextName = prompt('Nhập tên mới:', item.name || '');
+                    if (!nextName || !nextName.trim()) { closeActionMenu(); return; }
+                    await apiRequest('/api/cloud/rename', { method: 'PATCH', body: JSON.stringify({ path: toRelativePath(item.path), newName: nextName.trim() }) });
+                }
+                closeActionMenu();
+                await refreshAll();
+            } catch (error) { showStatus(error.message, true); }
+        });
+        menuTertiary.addEventListener('click', async () => {
+            const item = state.menuTargetItem;
+            if (!item || state.currentSidebarMode === 'trash') return;
+            await openEditorModal(item);
+        });
+        menuQuaternary.addEventListener('click', async () => {
+            const item = state.menuTargetItem;
+            if (!item || item.type !== 'file' || state.currentSidebarMode === 'trash') return;
+            try {
+                const data = await apiRequest('/api/cloud/share', {
+                    method: 'POST',
+                    body: JSON.stringify({ path: item.path })
+                });
+                const shareUrl = String(data?.shareUrl || '').trim();
+                if (!shareUrl) throw new Error('Không tạo được link chia sẻ.');
+
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    showStatus('Đã sao chép link tải vào clipboard.');
+                } catch (_clipboardError) {
+                    const manual = prompt('Không thể tự copy. Đây là link tải, bạn copy thủ công nhé:', shareUrl);
+                    if (manual !== null) showStatus('Đã tạo link tải công khai.');
+                }
+                closeActionMenu();
+            } catch (error) {
+                showStatus(error.message || 'Không thể tạo link tải.', true);
+            }
+        });
+
+        fileListBody.addEventListener('click', async (event) => {
+            const actionsBtn = event.target.closest('.row-actions-btn');
+            if (actionsBtn) {
+                const row = actionsBtn.closest('tr');
+                const item = findItemByIdentity(extractItemIdentityFromRow(row));
+                if (!item) return;
+                openActionMenu(item, actionsBtn);
+                return;
+            }
+            const row = event.target.closest('tr');
+            if (!row || event.target.closest('button')) return;
+            const item = findItemByIdentity(extractItemIdentityFromRow(row));
+            if (item) await handleOpenItem(item);
+        });
+
+        gridView.addEventListener('click', async (event) => {
+            const actionsBtn = event.target.closest('.grid-actions-btn');
+            if (actionsBtn) {
+                const item = findItemByIdentity(extractItemIdentityFromButton(actionsBtn));
+                if (!item) return;
+                openActionMenu(item, actionsBtn);
+                return;
+            }
+            const card = event.target.closest('article');
+            if (!card || event.target.closest('button')) return;
+            const item = findItemByIdentity({ id: card.dataset.itemId, path: card.dataset.itemPath, trashedPath: card.dataset.itemTrashedPath });
+            if (item) await handleOpenItem(item);
+        });
+
+        document.addEventListener('click', (event) => {
+            const clickedMenu = event.target.closest('#row-action-menu');
+            const clickedActionsBtn = event.target.closest('.row-actions-btn, .grid-actions-btn');
+            if (!clickedMenu && !clickedActionsBtn) closeActionMenu();
+        });
+
+        previewCloseBtn.addEventListener('click', closePreviewModal);
+        previewModal.addEventListener('click', (event) => {
+            if (event.target === previewModal) closePreviewModal();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !previewModal.classList.contains('hidden')) closePreviewModal();
+            if (event.key === 'Escape' && !editorModal.classList.contains('hidden')) closeEditorModal();
+        });
+
+        editorCloseBtn.addEventListener('click', closeEditorModal);
+        editorCancelBtn.addEventListener('click', closeEditorModal);
+        editorModal.addEventListener('click', (event) => {
+            if (event.target === editorModal) closeEditorModal();
+        });
+        editorSaveBtn.addEventListener('click', async () => {
+            const item = state.editorTargetItem;
+            if (!item || !item.path) return;
+            editorSaveBtn.disabled = true;
+            editorSaveBtn.className = 'px-3 py-2 text-sm rounded-lg bg-blue-300 text-white transition-colors cursor-not-allowed';
+            editorStatus.textContent = 'Đang lưu thay đổi...';
+            editorStatus.className = 'text-xs text-gray-400';
+            try {
+                const data = await apiRequest('/api/cloud/content', {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        path: item.path,
+                        content: editorTextarea.value
+                    })
+                });
+                editorStatus.textContent = 'Đã lưu thành công.';
+                editorStatus.className = 'text-xs text-emerald-600';
+                editorHistory.innerHTML = `
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Nhật ký chỉnh sửa</div>
+                    ${renderHistoryHtml(data?.items || [])}
+                `;
+                await refreshAll();
+            } catch (error) {
+                editorStatus.textContent = error.message || 'Không thể lưu file.';
+                editorStatus.className = 'text-xs text-red-500';
+            } finally {
+                editorSaveBtn.disabled = false;
+                editorSaveBtn.className = 'px-3 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors';
+            }
+        });
+
+        document.addEventListener('dragenter', (event) => {
+            if (!event.dataTransfer?.types?.includes('Files')) return;
+            event.preventDefault();
+            state.dragDepth += 1;
+            showDropOverlay();
+        });
+        document.addEventListener('dragover', (event) => {
+            if (!event.dataTransfer?.types?.includes('Files')) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+            showDropOverlay();
+        });
+        document.addEventListener('dragleave', (event) => {
+            if (!event.dataTransfer?.types?.includes('Files')) return;
+            event.preventDefault();
+            state.dragDepth = Math.max(0, state.dragDepth - 1);
+            if (state.dragDepth === 0) hideDropOverlay();
+        });
+        document.addEventListener('drop', async (event) => {
+            if (!event.dataTransfer?.files?.length) return;
+            event.preventDefault();
+            hideDropOverlay();
+            await uploadDroppedFiles(event.dataTransfer.files);
+        });
+        window.addEventListener('dragover', (event) => {
+            if (event.dataTransfer?.types?.includes('Files')) event.preventDefault();
+        });
+        window.addEventListener('drop', (event) => {
+            if (event.dataTransfer?.types?.includes('Files')) event.preventDefault();
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) sidebar.classList.remove('-translate-x-full');
+            else sidebar.classList.add('-translate-x-full');
+            closeActionMenu();
+        });
+
+        async function bootstrap() {
+            setViewMode('list');
+            setActiveSidebarLink('all');
+            try {
+                const userInfo = await fetch('/api/user-info', { credentials: 'include' }).then((res) => res.json());
+                if (!userInfo?.loggedIn) {
+                    showStatus('Bạn chưa đăng nhập. Đang chuyển hướng...', true);
+                    setTimeout(() => { window.location.href = '/'; }, 800);
+                    return;
+                }
+                setUserAvatar(userInfo);
+            } catch (_error) {
+                showStatus('Không kiểm tra được đăng nhập.', true);
+            }
+            await refreshAll();
+        }
+
+        userAvatarImg.addEventListener('error', () => {
+            userAvatarImg.classList.add('hidden');
+            userAvatarFallback.classList.remove('hidden');
+        });
+
+        bootstrap();    </script>
+</body>
+</html>
+

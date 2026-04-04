@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Vào Whitelist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #f1f8ff;
+            --bg-2: #e8f6f0;
+            --ink: #0b1324;
+            --muted: #5d6a7b;
+            --accent: #22c55e;
+            --accent-2: #0ea5e9;
+            --card: #ffffff;
+            --line: #d9e5ff;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, #ffffff 0%, var(--bg-1) 45%, var(--bg-2) 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 36px 20px 64px;
+            width: 100%;
+        }
+
+        .server-wordmark-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.85rem;
+        }
+
+        .server-wordmark-wrap--sidebar {
+            width: 170px;
+            height: 54px;
+        }
+
+        .server-wordmark {
+            display: block;
+            width: 125%;
+            height: 160%;
+            object-fit: cover;
+            filter: drop-shadow(0 6px 14px rgba(0, 123, 255, 0.22));
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #ffffff 0%, #f2fbff 55%, #e8fff4 100%);
+            border-radius: 28px;
+            border: 1px solid var(--line);
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            align-items: center;
+            box-shadow: 0 18px 40px rgba(34, 197, 94, 0.16);
+        }
+
+        .hero h1 {
+            margin: 10px 0 8px;
+            font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .chip {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(34, 197, 94, 0.15);
+            color: #15803d;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-side {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .hero-side strong { font-size: 1rem; }
+        .hero-side span { color: #94a3b8; font-size: 0.88rem; }
+
+        .panel {
+            margin-top: 22px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .field input {
+            border: 1px solid #cbd5f5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            outline: none;
+            background: #f8fbff;
+        }
+
+        .field input:focus {
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+            background: #ffffff;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            color: white;
+            box-shadow: 0 12px 22px rgba(34, 197, 94, 0.28);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 26px rgba(34, 197, 94, 0.32);
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            margin-top: 12px;
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .status.ok { color: #0f9d58; }
+        .status.err { color: #ef4444; }
+
+        .hint {
+            margin-top: 12px;
+            background: #f1f5ff;
+            border-radius: 16px;
+            padding: 12px 14px;
+            color: #4b5563;
+            font-size: 0.88rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center justify-center p-6 pb-4 border-b border-gray-100">
+            <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                <div class="server-wordmark-wrap server-wordmark-wrap--sidebar">
+                    <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-solid fa-user-check text-sm"></i>
+                </div>
+                <span class="font-bold">Whitelist</span>
+            </div>
+            <button onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border" type="button">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-y-auto soft-scroll">
+            <div class="page">
+                <header class="hero">
+                    <div>
+                        <span class="chip"><i class="fa-solid fa-user-check"></i> WHITELIST</span>
+                        <h1>Nhập mã để vào whitelist</h1>
+                        <p>Điền đúng mã + gamertag đã được admin cấp để hệ thống tự whitelist vào server.</p>
+                    </div>
+                    <div class="hero-side">
+                        <strong>Chú ý</strong>
+                        <span>Hãy nhập gamertag đúng như lúc bạn đăng ký. Sai 1 ký tự là không khớp.</span>
+                    </div>
+                </header>
+
+                <section class="panel">
+                    <h2>Kích hoạt whitelist</h2>
+                    <form id="whitelistForm">
+                        <div class="field">
+                            <label for="keyInput">Mã định danh</label>
+                            <input id="keyInput" name="key" type="text" placeholder="VD: ABC-123" maxlength="64" required>
+                        </div>
+                        <div class="field">
+                            <label for="gamertagInput">Gamertag</label>
+                            <input id="gamertagInput" name="gamertag" type="text" placeholder="VD: NguyenVanA" maxlength="32" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fa-solid fa-door-open"></i> Vào whitelist
+                        </button>
+                    </form>
+                    <div id="statusMessage" class="status" aria-live="polite"></div>
+                    <div class="hint">Nếu gặp lỗi, hãy liên hệ admin để kiểm tra mã hoặc trạng thái server.</div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            const isOpen = sidebar.classList.contains('left-0');
+            if (isOpen) {
+                sidebar.classList.remove('left-0');
+                sidebar.classList.add('-left-[260px]');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('left-0');
+                sidebar.classList.remove('-left-[260px]');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        const form = document.getElementById('whitelistForm');
+        const statusEl = document.getElementById('statusMessage');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        function setStatus(text, ok = true) {
+            if (!text) {
+                statusEl.textContent = '';
+                statusEl.className = 'status';
+                return;
+            }
+            statusEl.textContent = text;
+            statusEl.className = `status ${ok ? 'ok' : 'err'}`;
+        }
+
+        function setSubmitting(isSubmitting) {
+            submitBtn.disabled = isSubmitting;
+            submitBtn.innerHTML = isSubmitting
+                ? '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...'
+                : '<i class="fa-solid fa-door-open"></i> Vào whitelist';
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = {
+                key: document.getElementById('keyInput').value.trim(),
+                gamertag: document.getElementById('gamertagInput').value.trim()
+            };
+
+            setSubmitting(true);
+            setStatus('Đang gửi yêu cầu kích hoạt...', true);
+
+            try {
+                const resp = await fetch('/api/whitelist/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.success) {
+                    setStatus(data.error || 'Không thể kích hoạt whitelist.', false);
+                    return;
+                }
+                setStatus(`Thành công! Đã whitelist ${data.gamertag || ''}`.trim(), true);
+                form.reset();
+            } catch (_err) {
+                setStatus('Lỗi kết nối máy chủ.', false);
+            } finally {
+                setSubmitting(false);
+            }
+        });
+    </script>
+</body>
+</html>

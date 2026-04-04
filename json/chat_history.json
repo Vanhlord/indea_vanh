@@ -1,0 +1,702 @@
+[
+  {
+    "id": "mlip35nakrni2d6jd4j",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:02:48.022Z"
+  },
+  {
+    "id": "mlip3l2t8nizsvwugob",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:03:08.021Z"
+  },
+  {
+    "id": "mlip3oxso5x46vve6am",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:03:13.024Z"
+  },
+  {
+    "id": "mlip3ssfqr0zpsb3atd",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  2 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:03:18.015Z"
+  },
+  {
+    "id": "mlipafpanc36x33j6w",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T00:08:27.646Z"
+  },
+  {
+    "id": "mlipg0ocskekt8a2pwb",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:12:48.108Z"
+  },
+  {
+    "id": "mlipgg40qmd1fi16yh",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:13:08.112Z"
+  },
+  {
+    "id": "mlipgjyl0x5vypqxyvhp",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:13:13.101Z"
+  },
+  {
+    "id": "mlipgnt0zg2kixkjqi",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  1 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:13:18.084Z"
+  },
+  {
+    "id": "mlipswx8ewhkbbwmcno",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:22:49.772Z"
+  },
+  {
+    "id": "mliptcckvh1hgfm75ua",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:23:09.764Z"
+  },
+  {
+    "id": "mliptg7xj0iu847038",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:23:14.781Z"
+  },
+  {
+    "id": "mliptk32gz6mt6jhqcp",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  6 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:23:19.790Z"
+  },
+  {
+    "id": "mlipw9zapk07uumgg99",
+    "user": "Hệ thống",
+    "text": "Một người chơi đã rời đi",
+    "source": "game",
+    "timestamp": "2026-02-12T00:25:26.662Z"
+  },
+  {
+    "id": "mliq3vmve3s5kkzhty4",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T00:31:21.319Z"
+  },
+  {
+    "id": "mliq5sa5gk5p5e4vqd",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:32:50.285Z"
+  },
+  {
+    "id": "mliq67pu9uxnhiqfv1n",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:33:10.290Z"
+  },
+  {
+    "id": "mliq6bkgxq7jtehvkyp",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:33:15.280Z"
+  },
+  {
+    "id": "mliq6ff6wrb6a624gqe",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  5 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:33:20.274Z"
+  },
+  {
+    "id": "mliqavynjplxkbo0um",
+    "user": "Hệ thống",
+    "text": "Một người chơi đã rời đi",
+    "source": "game",
+    "timestamp": "2026-02-12T00:36:48.335Z"
+  },
+  {
+    "id": "mliqd7hfp79oy73nn8a",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T00:38:36.579Z"
+  },
+  {
+    "id": "mliqirli1qhns8gh9bb",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:42:55.926Z"
+  },
+  {
+    "id": "mliqj718wbvscnlnxta",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:43:15.932Z"
+  },
+  {
+    "id": "mliqjavtenou8nv9oub",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:43:20.921Z"
+  },
+  {
+    "id": "mliqjequ7lv6gq1s61k",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  100 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:43:25.926Z"
+  },
+  {
+    "id": "mliqvmkibfu406lrd8q",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:52:55.938Z"
+  },
+  {
+    "id": "mliqw1zucn53qqezkg",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:53:15.930Z"
+  },
+  {
+    "id": "mliqw5v0o47blspy8ek",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T00:53:20.940Z"
+  },
+  {
+    "id": "mliqw9pw4np0otxoya9",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  248 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T00:53:25.940Z"
+  },
+  {
+    "id": "mliqzlppivyfx6d6tu",
+    "user": "Hệ thống",
+    "text": "Một người chơi đã rời đi",
+    "source": "game",
+    "timestamp": "2026-02-12T00:56:01.453Z"
+  },
+  {
+    "id": "mlir8hjjqmlamcjym6",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:02:55.951Z"
+  },
+  {
+    "id": "mlir8wywhwd24x8fe3m",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:03:15.944Z"
+  },
+  {
+    "id": "mlir90tfsco85lqyvd",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:03:20.931Z"
+  },
+  {
+    "id": "mlir94oa9c43hxr63w",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  91 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:03:25.930Z"
+  },
+  {
+    "id": "mlirlchj2cbns2v46lm",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:12:55.927Z"
+  },
+  {
+    "id": "mlirlrxhxfc1hx57hs",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:13:15.941Z"
+  },
+  {
+    "id": "mlirlvrx5jhkkg9jnhi",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:13:20.925Z"
+  },
+  {
+    "id": "mlirlzmmwgwa1kxrr3e",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Không có item nào được xóa bỏ!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:13:25.918Z"
+  },
+  {
+    "id": "mliry7g8vmhtlh8e2vb",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:22:55.928Z"
+  },
+  {
+    "id": "mlirymvk1t6w3mhv41dh",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:23:15.920Z"
+  },
+  {
+    "id": "mliryqqdseo83l96jqd",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:23:20.917Z"
+  },
+  {
+    "id": "mliryukvck48ebms6yt",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Không có item nào được xóa bỏ!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:23:25.903Z"
+  },
+  {
+    "id": "mlis0ejkpm4mj3pfwo",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T01:24:38.432Z"
+  },
+  {
+    "id": "mlis1ojzwlvhait04bg",
+    "user": "Hệ thống",
+    "text": "Một người chơi đã rời đi",
+    "source": "game",
+    "timestamp": "2026-02-12T01:25:38.063Z"
+  },
+  {
+    "id": "mlisb2lwx3uwx3sfy0b",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:32:56.180Z"
+  },
+  {
+    "id": "mlisbi1icxf6nknytpq",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:33:16.182Z"
+  },
+  {
+    "id": "mlisblw7xvomtwnxe",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:33:21.175Z"
+  },
+  {
+    "id": "mlisbpr3uowcjsxojm",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Không có item nào được xóa bỏ!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:33:26.175Z"
+  },
+  {
+    "id": "mlisefrn5unpq7y3ogw",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T01:35:33.203Z"
+  },
+  {
+    "id": "mlisnxrfjjhe7204uab",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:42:56.427Z"
+  },
+  {
+    "id": "mlisod785ywg8g24942",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:43:16.436Z"
+  },
+  {
+    "id": "mlisoh21bytxjtda55w",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:43:21.433Z"
+  },
+  {
+    "id": "mlisokx81qtnx698iwe",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  1 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:43:26.444Z"
+  },
+  {
+    "id": "mlit0sq3llf1q35ez6",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:52:56.427Z"
+  },
+  {
+    "id": "mlit185ufonayfwgtms",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:53:16.434Z"
+  },
+  {
+    "id": "mlit1c1db26wzr0ig5g",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T01:53:21.457Z"
+  },
+  {
+    "id": "mlit1fw7yudqj6vfdgo",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  1 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T01:53:26.455Z"
+  },
+  {
+    "id": "mlit73tqglsiddj19cc",
+    "user": "Hệ thống",
+    "text": "Một người chơi đã rời đi",
+    "source": "game",
+    "timestamp": "2026-02-12T01:57:50.750Z"
+  },
+  {
+    "id": "mlitdnpnhypnx0x6dgk",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:02:56.459Z"
+  },
+  {
+    "id": "mlite34vqgaycofc3y",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:03:16.447Z"
+  },
+  {
+    "id": "mlite70y9g083hzm3kb",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:03:21.490Z"
+  },
+  {
+    "id": "mliteavnodnw64rutjr",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  1 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:03:26.483Z"
+  },
+  {
+    "id": "mlitqioig4hi8hnqqq",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:12:56.466Z"
+  },
+  {
+    "id": "mlitqy3zfg3n0aataq",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:13:16.463Z"
+  },
+  {
+    "id": "mlitr1zjqws9fbrwp2b",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:13:21.487Z"
+  },
+  {
+    "id": "mlitr5ttc1k5nhj0ur9",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  3 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:13:26.465Z"
+  },
+  {
+    "id": "mliu3dn3jdhl7sh9o5",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:22:56.463Z"
+  },
+  {
+    "id": "mliu3t2w1gh8odscmf1",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:23:16.472Z"
+  },
+  {
+    "id": "mliu3wyd9pxl9ft66dj",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:23:21.493Z"
+  },
+  {
+    "id": "mliu40u03jns9tkstgl",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  1 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:23:26.520Z"
+  },
+  {
+    "id": "mliud98xj4hl3yw2glb",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T02:30:37.329Z"
+  },
+  {
+    "id": "mliug99l14zquzrxisf",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:32:57.321Z"
+  },
+  {
+    "id": "mliugootj3cw4xvi6zb",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:33:17.309Z"
+  },
+  {
+    "id": "mliugsjgoaf36vfzfln",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:33:22.300Z"
+  },
+  {
+    "id": "mliugwe7q4rcg6parj",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  4 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:33:27.295Z"
+  },
+  {
+    "id": "mliujtjkbcx5l38oci",
+    "user": "Hệ thống",
+    "text": "Có người chơi vừa vào",
+    "source": "game",
+    "timestamp": "2026-02-12T02:35:43.568Z"
+  },
+  {
+    "id": "mliupavsphnvuhjy98",
+    "user": "Hệ thống",
+    "text": "[09:39] [] [None] [MOBILE] MrCreepe5804 >> lapis đau roi ali",
+    "source": "game",
+    "timestamp": "2026-02-12T02:39:59.320Z"
+  },
+  {
+    "id": "mliupo8v255cjxjjnr1j",
+    "user": "Hệ thống",
+    "text": "[09:40] [] [None] [MOBILE] Alicu8386 >> hog bt",
+    "source": "game",
+    "timestamp": "2026-02-12T02:40:16.639Z"
+  },
+  {
+    "id": "mliuqf3gdadxg723atd",
+    "user": "Hệ thống",
+    "text": "[09:40] [] [None] [MOBILE] Alicu8386 >> T phải đi đào đâ này:v",
+    "source": "game",
+    "timestamp": "2026-02-12T02:40:51.436Z"
+  },
+  {
+    "id": "mliutqi6fa70vty04d",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:43:26.190Z"
+  },
+  {
+    "id": "mliuu67rm4lpydjmydm",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:43:46.551Z"
+  },
+  {
+    "id": "mliuua4adk9gmd8ocxj",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:43:51.610Z"
+  },
+  {
+    "id": "mliuue9azkbdh4dd3lg",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Đã càn quét  11 items!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:43:56.974Z"
+  },
+  {
+    "id": "mliuwxthuw5rj52s56l",
+    "user": "Hệ thống",
+    "text": "[09:45] [] [None] [MOBILE] Alicu8386 >> ngủ cái đi hiệu",
+    "source": "game",
+    "timestamp": "2026-02-12T02:45:55.637Z"
+  },
+  {
+    "id": "mliux6p3dveb8kqfx7b",
+    "user": "Hệ thống",
+    "text": "[09:46] [] [None] [MOBILE] MrCreepe5804 >> ko co giuong",
+    "source": "game",
+    "timestamp": "2026-02-12T02:46:07.143Z"
+  },
+  {
+    "id": "mliuzcc82eqmpyum7gr",
+    "user": "Hệ thống",
+    "text": "multiplayer.playersSkippingNight",
+    "source": "game",
+    "timestamp": "2026-02-12T02:47:47.768Z"
+  },
+  {
+    "id": "mliv2rl8x2iidfrcb2",
+    "user": "Hệ thống",
+    "text": "[09:50] [] [None] [MOBILE] Alicu8386 >> cái fam toten bị lỗi này",
+    "source": "game",
+    "timestamp": "2026-02-12T02:50:27.500Z"
+  },
+  {
+    "id": "mliv2z5yenlscjg6ldv",
+    "user": "Hệ thống",
+    "text": "[09:50] [] [None] [MOBILE] MrCreepe5804 >> lỗi gi",
+    "source": "game",
+    "timestamp": "2026-02-12T02:50:37.318Z"
+  },
+  {
+    "id": "mliv31pnhxggohvdjsk",
+    "user": "Hệ thống",
+    "text": "[09:50] [] [None] [MOBILE] Alicu8386 >> nó spaw ở dưới sông",
+    "source": "game",
+    "timestamp": "2026-02-12T02:50:40.619Z"
+  },
+  {
+    "id": "mliv3igf7br0k4ktfot",
+    "user": "Hệ thống",
+    "text": "[09:51] [] [None] [MOBILE] MrCreepe5804 >> đê tí tao sửa",
+    "source": "game",
+    "timestamp": "2026-02-12T02:51:02.319Z"
+  },
+  {
+    "id": "mliv72d89ogdcwkqh8j",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
+    "source": "game",
+    "timestamp": "2026-02-12T02:53:48.092Z"
+  },
+  {
+    "id": "mliv7jci0bq387cc9wwq",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:54:10.098Z"
+  },
+  {
+    "id": "mliv7ngfmqao3vi84bh",
+    "user": "Hệ thống",
+    "text": "[CLEAR LAG] 5 giây nữa vật phẩm sẽ được càn quét",
+    "source": "game",
+    "timestamp": "2026-02-12T02:54:15.423Z"
+  },
+  {
+    "id": "mljc5ew20zo8ehi2eobh",
+    "user": "vanh_68208",
+    "text": "chế độ khó r nhen",
+    "source": "web",
+    "timestamp": "2026-02-12T10:48:24.482Z"
+  },
+  {
+    "id": "mlkv3b1sjrgz2g6gu2",
+    "user": "viet7988",
+    "text": "Ê lô",
+    "source": "web",
+    "timestamp": "2026-02-13T12:26:25.072Z"
+  },
+  {
+    "id": "mlkv3n1a69p0sxlcsk",
+    "user": "viet7988",
+    "text": "929292922922",
+    "source": "web",
+    "timestamp": "2026-02-13T12:26:40.606Z"
+  },
+  {
+    "id": "mllrxlv09oopt20dn0i",
+    "user": "vanh_68208",
+    "text": "lô",
+    "source": "web",
+    "timestamp": "2026-02-14T03:45:46.476Z"
+  },
+  {
+    "id": "mllrxphbsb2jwnsnjel",
+    "user": "vanh_68208",
+    "text": "gì đấy",
+    "source": "web",
+    "timestamp": "2026-02-14T03:45:51.167Z"
+  },
+  {
+    "id": "mloo5u41herd19umek",
+    "user": "vanhrtx5127",
+    "text": "Lô",
+    "source": "web",
+    "timestamp": "2026-02-16T04:23:30.481Z"
+  },
+  {
+    "id": "mlsxphfvwikkz3mkjts",
+    "user": "vanh_68208",
+    "text": "xin chaoaf",
+    "source": "web",
+    "timestamp": "2026-02-19T04:01:48.427Z"
+  }
+]

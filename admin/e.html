@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Điều Khiển Bot - Admin</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .discord-preview { background-color: #313338; }
+        .discord-embed-side { width: 4px; border-radius: 4px 0 0 4px; }
+        
+        /* Render Markdown chuẩn Discord */
+        #previewContent p { margin: 0; }
+        #previewContent strong { font-weight: 700; color: #ffffff; }
+        #previewContent em { font-style: italic; }
+        #previewContent code { 
+            background: #1e1f22; 
+            padding: 2px 4px; 
+            border-radius: 4px; 
+            font-family: Consolas, monospace;
+            font-size: 0.9em;
+        }
+
+        /* Hiệu ứng Spoiler (Ẩn chữ) - Em đã tách riêng ra đây cho chuẩn */
+        .spoiler {
+            background-color: #1e1f22; /* Cục đen xì */
+            color: transparent;
+            border-radius: 3px;
+            padding: 0 2px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .spoiler.revealed {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: inherit;
+        }
+        .spoiler:not(.revealed):hover {
+            background-color: #2b2d31;
+        }
+    </style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="flex h-screen bg-[#1e1f22] text-gray-200 overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/80 z-[1000] hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-[#2b2d31] h-full border-r border-gray-700 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-700">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-white">VNA</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <!-- Sidebar content injected by shared-sidebar.js -->
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-700">
+            <p class="text-xs text-gray-500 text-center font-medium">© 2026 Admin Panel</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-[#2b2d31] border-b border-gray-700 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-bullhorn text-sm"></i>
+                </div>
+                <span class="font-bold text-white">Discord Admin</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-[#1e1f22] rounded-lg border border-gray-700 text-gray-400">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="page-content p-4 md:p-10 w-full">
+            <div class="max-w-5xl mx-auto">
+                <header class="flex items-center justify-between mb-10 border-b border-gray-700 pb-5">
+                    <div>
+                        <h1 class="text-3xl font-black text-white tracking-tight text-blue-400">DISCORD EMBED ADMIN</h1>
+                        <p class="text-gray-400 text-sm">Chỉnh sửa nội dung cực chuẩn cho Admin</p>
+                    </div>
+                    <div id="botStatus" class="bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-full border border-yellow-500/20 text-xs font-bold">
+                        ● Đang kiểm tra trạng thái Bot
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <section class="bg-[#2b2d31] p-6 rounded-2xl shadow-2xl space-y-5 border border-gray-700">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Tiêu đề</label>
+                                <input type="text" id="title" placeholder="Tiêu đề thông báo..." 
+                                    class="w-full bg-[#1e1f22] border border-gray-700 rounded-lg p-3 focus:border-blue-500 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Nội dung (Hỗ trợ Markdown)</label>
+                                <textarea id="content" rows="8" placeholder="Nhập nội dung... dùng || để ẩn chữ nhé!" 
+                                    class="w-full bg-[#1e1f22] border border-gray-700 rounded-lg p-3 focus:border-blue-500 outline-none resize-none"></textarea>
+                                
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    <button onclick="formatText('**')" class="bg-[#383a40] hover:bg-[#4e5058] px-3 py-1.5 rounded text-sm font-bold">B</button>
+                                    <button onclick="formatText('*')" class="bg-[#383a40] hover:bg-[#4e5058] px-3 py-1.5 rounded text-sm italic">I</button>
+                                    <button onclick="formatText('||')" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 px-3 py-1.5 rounded text-sm font-bold">Spoiler</button>
+                                    <button onclick="formatText('`')" class="bg-[#383a40] hover:bg-[#4e5058] px-3 py-1.5 rounded text-sm">Code</button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Màu bên</label>
+                                    <input type="color" id="color" value="#5865f2" class="w-full h-11 bg-[#1e1f22] border-none rounded-lg cursor-pointer">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Link Ảnh</label>
+                                    <input type="text" id="imageUrl" placeholder="https://..." class="w-full bg-[#1e1f22] border border-gray-700 rounded-lg p-2.5 outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Kênh Thông Báo</label>
+                                <select id="channel" class="w-full bg-[#1e1f22] border border-gray-700 rounded-lg p-2.5 outline-none">
+                                    <option value="channel1">Kênh 1 (thông báo cập nhật bot)</option>
+                                    <option value="channel2">Kênh 2 (thông báo Tổng)</option>
+                                </select>
+                            </div>
+
+                            <button onclick="sendEmbed()" id="btnSend" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2">
+                                <i class="fas fa-paper-plane"></i> BẮN EMBED NGAY
+                            </button>
+                        </section>
+                    </div>
+
+                    <div class="lg:sticky lg:top-10 h-fit">
+                        <label class="block text-xs font-bold uppercase text-gray-400 mb-4 tracking-widest">Xem trước giao diện</label>
+                        <div class="discord-preview p-4 rounded-lg flex gap-4 shadow-2xl">
+                            <div id="previewBorder" class="discord-embed-side"></div>
+                            <div class="flex-1 space-y-2">
+                                <div id="previewTitle" class="text-white font-bold text-lg"></div>
+                                <div id="previewContent" class="text-gray-300 text-sm whitespace-pre-wrap"></div>
+                                <img id="previewImage" class="mt-3 rounded-lg hidden max-h-60 w-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function escapeHtmlForMarkdown(input) {
+            return String(input || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatText(symbol) {
+            const textarea = document.getElementById('content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            textarea.value = text.substring(0, start) + symbol + selectedText + symbol + text.substring(end);
+            const newCursorPos = start + symbol.length + selectedText.length;
+            textarea.focus();
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const color = document.getElementById('color').value;
+            const imgUrl = document.getElementById('imageUrl').value;
+
+            document.getElementById('previewTitle').innerText = title || 'Tiêu đề trống';
+            document.getElementById('previewBorder').style.backgroundColor = color;
+            
+            const previewContent = document.getElementById('previewContent');
+            if (content) {
+                marked.setOptions({ breaks: true, gfm: true });
+                const safeMarkdown = escapeHtmlForMarkdown(content);
+                // Render Markdown + Xử lý Spoiler
+                let html = marked.parse(safeMarkdown);
+                html = html.replace(/\|\|([\s\S]+?)\|\|/g, '<span class="spoiler" onclick="this.classList.add(\'revealed\')">$1</span>');
+                previewContent.innerHTML = html;
+            } else {
+                previewContent.innerText = 'Đang chờ nội dung...';
+            }
+
+            const imgPreview = document.getElementById('previewImage');
+            if(imgUrl) {
+                imgPreview.src = imgUrl;
+                imgPreview.classList.remove('hidden');
+            } else {
+                imgPreview.classList.add('hidden');
+            }
+        }
+
+        async function sendEmbed() {
+            const btn = document.getElementById('btnSend');
+            const data = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                color: document.getElementById('color').value,
+                image: document.getElementById('imageUrl').value,
+                channel: document.getElementById('channel').value
+            };
+            if(!data.content) return alert('Vui lòng nhập nội dung.');
+
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'ĐANG GỬI...';
+            try {
+                const res = await fetch('/api/discord/embed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                let body = {};
+                try { body = await res.json(); } catch (e) { /* ignore */ }
+
+                if (res.ok) {
+                    alert('Gửi thành công.');
+                } else {
+                    console.error('Server error sending embed:', body);
+                    alert('Lỗi khi gửi: ' + (body.error || body.message || 'Không rõ'));
+                }
+            } catch (e) {
+                console.error('Network error sending embed:', e);
+                alert('Lỗi mạng khi gửi embed.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        document.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updatePreview));
+        updatePreview(); // Chạy lần đầu
+
+        // Bot status polling
+        async function updateBotStatus() {
+            const el = document.getElementById('botStatus');
+            try {
+                const res = await fetch('/api/bot2/status');
+                const data = await res.json();
+                if (data.ready) {
+                    el.className = 'bg-green-500/10 text-green-500 px-4 py-2 rounded-full border border-green-500/20 text-xs font-bold';
+                    el.innerText = '● BOT READY';
+                } else {
+                    el.className = 'bg-red-500/10 text-red-500 px-4 py-2 rounded-full border border-red-500/20 text-xs font-bold';
+                    el.innerText = '● BOT NOT READY';
+                }
+            } catch (e) {
+                el.className = 'bg-yellow-500/10 text-yellow-500 px-4 py-2 rounded-full border border-yellow-500/20 text-xs font-bold';
+                el.innerText = '● Không thể kiểm tra trạng thái';
+            }
+        }
+        updateBotStatus();
+        setInterval(updateBotStatus, 5000);
+    </script>
+</body>
+</html>

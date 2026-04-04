@@ -1,0 +1,26 @@
+[
+  {
+    "key": "guest:e7ef555c5837225b",
+    "id": null,
+    "username": "User",
+    "avatar": "",
+    "loggedIn": false,
+    "lastSeen": "2026-02-20T08:51:23.021Z"
+  },
+  {
+    "key": "user:999830214198710324",
+    "id": "999830214198710324",
+    "username": "vanh_68208",
+    "avatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
+    "loggedIn": true,
+    "lastSeen": "2026-02-20T07:04:29.559Z"
+  },
+  {
+    "key": "guest:d5c2d38058220942",
+    "id": null,
+    "username": "User",
+    "avatar": "",
+    "loggedIn": false,
+    "lastSeen": "2026-02-20T06:51:23.659Z"
+  }
+]

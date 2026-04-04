@@ -1,0 +1,1183 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Leaderboard Tiện Ích</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-page: #eef5ff;
+            --bg-soft: #f8fbff;
+            --panel: #ffffff;
+            --line: #dbe7ff;
+            --line-soft: #e9efff;
+            --text-main: #0f172a;
+            --text-muted: #60708c;
+            --blue: #2563eb;
+            --cyan: #06b6d4;
+            --green: #059669;
+            --gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --silver: linear-gradient(135deg, #E8E8E8 0%, #9E9E9E 100%);
+            --bronze: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+        }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background:
+                radial-gradient(circle at 8% 4%, rgba(56, 189, 248, 0.22), transparent 28%),
+                radial-gradient(circle at 95% 2%, rgba(59, 130, 246, 0.16), transparent 22%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08), transparent 50%),
+                linear-gradient(180deg, #f7fbff 0%, var(--bg-page) 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        .frost {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: 0 14px 34px rgba(37, 99, 235, 0.08);
+        }
+        .hero-panel {
+            background: linear-gradient(140deg, #ffffff 0%, #f2f8ff 100%);
+            border: 1px solid #cfe0ff;
+            box-shadow: 0 18px 40px rgba(37, 99, 235, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            border: 2px solid transparent;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+        .metric-card .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover .icon-wrapper {
+            transform: rotate(360deg) scale(1.1);
+        }
+        .number-display {
+            animation: countUp 0.8s ease-out;
+        }
+        @keyframes countUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .rank-row {
+            border: 2px solid var(--line-soft);
+            background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .rank-row::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+        .rank-row:hover::before {
+            left: 100%;
+        }
+        .rank-row:hover {
+            transform: translateX(8px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Special styling for top 3 */
+        .rank-row--top3 {
+            padding: 1.5rem;
+            border-width: 3px;
+        }
+        .rank-row--1 {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fbbf24;
+            box-shadow: 0 12px 30px rgba(251, 191, 36, 0.3);
+        }
+        .rank-row--2 {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-color: #94a3b8;
+            box-shadow: 0 12px 30px rgba(148, 163, 184, 0.3);
+        }
+        .rank-row--3 {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-color: #fb923c;
+            box-shadow: 0 12px 30px rgba(251, 146, 60, 0.3);
+        }
+
+        .rank-badge {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .rank-row:hover .rank-badge {
+            transform: scale(1.15) rotate(5deg);
+        }
+        .rank-badge--1 {
+            background: var(--gold);
+            animation: shimmer 2s infinite;
+        }
+        .rank-badge--1::before {
+            content: '👑';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 20px;
+            animation: bounce 1s infinite;
+        }
+        .rank-badge--2 {
+            background: var(--silver);
+        }
+        .rank-badge--2::before {
+            content: '⭐';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 16px;
+        }
+        .rank-badge--3 {
+            background: var(--bronze);
+        }
+        .rank-badge--3::before {
+            content: '🏅';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 16px;
+        }
+        .rank-badge--default {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            width: 3rem;
+            height: 3rem;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 8px rgba(255, 215, 0, 0.5)); }
+            50% { filter: brightness(1.2) drop-shadow(0 0 16px rgba(255, 215, 0, 0.8)); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .chip {
+            border: 1px solid #bfdbfe;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            color: #1d4ed8;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 0.3rem 0.55rem;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+        .chip:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .chip--hot {
+            background: linear-gradient(135deg, #fef3c7, #fbbf24);
+            color: #92400e;
+            border-color: #fbbf24;
+            animation: pulse-glow 2s infinite;
+        }
+        .chip--new {
+            background: linear-gradient(135deg, #dcfce7, #4ade80);
+            color: #166534;
+            border-color: #4ade80;
+        }
+        .chip--rising {
+            background: linear-gradient(135deg, #fce7f3, #ec4899);
+            color: #831843;
+            border-color: #ec4899;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3); }
+            50% { box-shadow: 0 4px 16px rgba(251, 191, 36, 0.6); }
+        }
+        .server-wordmark-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.85rem;
+        }
+        .server-wordmark-wrap--sidebar {
+            width: 170px;
+            height: 54px;
+        }
+        .server-wordmark {
+            display: block;
+            width: 125%;
+            height: 160%;
+            object-fit: cover;
+            filter: drop-shadow(0 6px 14px rgba(0, 123, 255, 0.22));
+        }
+        #sidebar {
+            transition: left 0.3s ease;
+        }
+        .soft-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+        .soft-scroll::-webkit-scrollbar-thumb {
+            background: #bfdbfe;
+            border-radius: 999px;
+            border: 2px solid #f3f8ff;
+        }
+
+        /* Progress bar animations */
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+            background-size: 200% 100%;
+            animation: gradient-shift 3s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shine 2s infinite;
+        }
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Chart container */
+        .chart-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            border: 2px solid var(--line);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            transition: all 0.3s ease;
+        }
+        .chart-container:hover {
+            box-shadow: 0 15px 40px rgba(37, 99, 235, 0.15);
+            transform: translateY(-4px);
+        }
+
+        /* Loading animation */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Slide in animation */
+        .slide-in {
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            opacity: 0;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Trophy icon animation */
+        .trophy-icon {
+            font-size: 4rem;
+            background: var(--gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: trophy-pulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.4));
+        }
+        @keyframes trophy-pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(-5deg); }
+            75% { transform: scale(1.05) rotate(5deg); }
+        }
+</style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-white text-[#333] flex flex-col h-screen overflow-hidden">
+    <!-- Animated particles background -->
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="closeSidebar()"></div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+            <div class="flex items-center justify-center p-6 pb-4 border-b border-gray-100">
+                <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                    <div class="server-wordmark-wrap server-wordmark-wrap--sidebar">
+                        <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/">
+                    <i class="fas fa-home"></i> Trang chủ
+                </a>
+                <button class="w-full text-left flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="copyIP()">
+                    <i class="fas fa-copy"></i> Copy IP
+                </button>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/html/status-server.html">
+                    <i class="fas fa-chart-line w-5"></i> Status server
+                </a>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/chat.html">
+                    <i class="fas fa-comments w-5"></i> Chat
+                </a>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/streak.html">
+                    <i class="fas fa-fire w-5"></i> Streak
+                </a>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
+                    <i class="fas fa-cloud w-5"></i> Cloud
+                </a>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-[#007bff] text-white font-medium shadow-lg shadow-blue-100">
+                    <i class="fas fa-trophy w-5"></i> Leaderboard
+                </div>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Thư viện</div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/rawphoto.html">
+                    <i class="fas fa-expand"></i> Album
+                </a>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+                <div class="tool-grid-sidebar">
+                    <a class="tool-tile" href="/p/snapsave.html">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                    <a class="tool-tile" href="/html/tiktok.html">
+                        <i class="fa-brands fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </a>
+                    <a class="tool-tile" href="/html/youtube.html">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span>YouTube</span>
+                    </a>
+                    <a class="tool-tile" href="/html/soundcloud.html">
+                        <i class="fa-brands fa-soundcloud"></i>
+                        <span>SoundCloud</span>
+                    </a>
+                    <a class="tool-tile" href="/html/dowloadmc.html">
+                        <i class="fas fa-download"></i>
+                        <span>Minecraft</span>
+                    </a>
+                </div>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Kho rác</div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
+                    <i class="fas fa-toolbox"></i> Kho công cụ
+                </a>
+            </nav>
+
+            <div class="p-6 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 text-center font-medium">© 2026</p>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 bg-white flex justify-center items-center relative">
+                <button onclick="toggleSidebar()" class="text-2xl text-gray-700 absolute left-4 lg:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-800">Leaderboard Tiện Ích</h1>
+            </div>
+
+            <main class="flex-1 overflow-y-auto soft-scroll">
+                <div class="max-w-6xl mx-auto px-3 sm:px-5 lg:px-8 py-6 sm:py-8">
+                    <header class="hero-panel rounded-3xl p-6 sm:p-8 relative">
+                        <div class="flex flex-col gap-6 relative z-10">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="trophy-icon hidden sm:block">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <div>
+                                        <p class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] tracking-[0.18em] uppercase text-blue-700 font-bold">
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping absolute"></span>
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full relative"></span>
+                                            Live Statistics
+                                        </p>
+                                        <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 mt-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                            Leaderboard Tiện Ích
+                                        </h1>
+                                        <p class="text-sm sm:text-base text-slate-600 mt-2">
+                                            Theo dõi lượt tải của từng tiện ích theo thời gian thực 📊
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button id="refreshBtn" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Làm mới
+                                    </button>
+                                    <a href="/" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-blue-200 text-blue-700 bg-white hover:bg-blue-50 font-bold transition-all hover:scale-105">
+                                        <i class="fas fa-home"></i>
+                                        Trang chủ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <section class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                        <article class="metric-card p-5 slide-in" style="animation-delay: 0.1s;">
+                            <div class="flex items-start justify-between relative">
+                                <div class="flex-1">
+                                    <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500 font-bold mb-3">Tổng lượt tải</p>
+                                    <p id="totalDownloads" class="text-4xl font-bold text-blue-700 mt-2 number-display">0</p>
+                                    <p class="text-xs text-slate-400 mt-2">📈 Tổng cộng</p>
+                                </div>
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="metric-card p-5 slide-in" style="animation-delay: 0.2s;">
+                            <div class="flex items-start justify-between relative">
+                                <div class="flex-1">
+                                    <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500 font-bold mb-3">Công cụ hoạt động</p>
+                                    <p id="activeTools" class="text-4xl font-bold text-emerald-700 mt-2 number-display">0</p>
+                                    <p class="text-xs text-slate-400 mt-2">✅ Đang sử dụng</p>
+                                </div>
+                                <div class="icon-wrapper" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="metric-card p-5 slide-in" style="animation-delay: 0.3s;">
+                            <div class="flex items-start justify-between relative">
+                                <div class="flex-1">
+                                    <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500 font-bold mb-3">Top tiện ích</p>
+                                    <p id="topTool" class="text-xl font-bold text-slate-800 mt-2 truncate">Chưa có</p>
+                                    <p id="topToolScore" class="text-sm text-slate-500 mt-1">0 lượt tải</p>
+                                </div>
+                                <div class="icon-wrapper" style="background: var(--gold);">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="metric-card p-5 slide-in" style="animation-delay: 0.4s;">
+                            <div class="flex items-start justify-between relative">
+                                <div class="flex-1">
+                                    <p class="text-[11px] uppercase tracking-[0.14em] text-slate-500 font-bold mb-3">Lần cập nhật</p>
+                                    <p id="updatedAtCard" class="text-sm font-bold text-slate-800 mt-2 leading-tight">--</p>
+                                    <p class="text-xs text-slate-400 mt-2">⏱️ Real-time data</p>
+                                </div>
+                                <div class="icon-wrapper" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </article>
+                    </section>
+
+                    <!-- Charts Section -->
+                    <section class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div class="chart-container">
+                            <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <i class="fas fa-chart-pie text-blue-600"></i>
+                                Phân bố lượt tải
+                            </h3>
+                            <div style="position: relative; height: 300px;">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <i class="fas fa-chart-bar text-purple-600"></i>
+                                Top 5 tiện ích
+                            </h3>
+                            <div style="position: relative; height: 300px;">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="mt-6 frost rounded-3xl p-5 sm:p-7">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fas fa-ranking-star text-blue-600"></i>
+                                    Bảng xếp hạng
+                                </h2>
+                                <p id="updatedAtLabel" class="text-xs text-slate-500 mt-1">Cập nhật: --</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="triggerConfetti()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold text-sm hover:scale-105 transition-transform shadow-lg">
+                                    <i class="fas fa-star"></i> Celebrate
+                                </button>
+                            </div>
+                        </div>
+                        <div id="statusBox" class="hidden rounded-xl px-4 py-3 text-sm mb-4 font-medium"></div>
+                        <div id="rankingList" class="space-y-4">
+                            <div class="rank-row text-slate-500 text-sm skeleton" style="height: 120px;">
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            const isOpen = sidebar.classList.contains('left-0');
+            if (isOpen) {
+                sidebar.classList.remove('left-0');
+                sidebar.classList.add('-left-[260px]');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('left-0');
+                sidebar.classList.remove('-left-[260px]');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+            sidebar.classList.remove('left-0');
+            sidebar.classList.add('-left-[260px]');
+            overlay.classList.add('hidden');
+        }
+
+        function showMiniToast(message, isError = false) {
+            let toast = document.getElementById('miniToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'miniToast';
+                toast.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:1200;padding:12px 20px;border-radius:12px;color:#fff;font-weight:700;font-size:14px;opacity:0;transform:translateY(20px) scale(0.9);transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 10px 30px rgba(0,0,0,.2);backdrop-filter:blur(10px);';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = '';
+            const icon = document.createElement('i');
+            icon.className = `fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2`;
+            toast.appendChild(icon);
+            toast.appendChild(document.createTextNode(String(message || '')));
+            toast.style.background = isError
+                ? 'linear-gradient(135deg, #dc2626, #991b1b)'
+                : 'linear-gradient(135deg, #2563eb, #1d4ed8)';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0) scale(1)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px) scale(0.9)';
+            }, 3000);
+        }
+
+        // Confetti celebration
+        function triggerConfetti() {
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                }));
+                confetti(Object.assign({}, defaults, {
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                }));
+            }, 250);
+
+            showMiniToast('🎉 Chúc mừng! Bảng xếp hạng tuyệt vời!');
+        }
+
+        function copyIP() {
+            const value = 'vanhmcpe.my-land.fun:25702';
+            navigator.clipboard.writeText(value)
+                .then(() => showMiniToast(`Đã copy IP: ${value}`))
+                .catch(() => showMiniToast('Không thể copy IP, vui lòng thử lại.', true));
+        }
+
+        const rankingList = document.getElementById('rankingList');
+        const statusBox = document.getElementById('statusBox');
+        const refreshBtn = document.getElementById('refreshBtn');
+        let isLoading = false;
+
+        function formatNum(value) {
+            const n = Number(value || 0);
+            if (!Number.isFinite(n)) return '0';
+            return n.toLocaleString('vi-VN');
+        }
+
+        function formatTime(isoDate) {
+            if (!isoDate) return 'Chưa có';
+            const date = new Date(isoDate);
+            if (Number.isNaN(date.getTime())) return 'Chưa có';
+            return date.toLocaleString('vi-VN');
+        }
+
+        function formatTimeAgo(isoDate) {
+            if (!isoDate) return 'Chưa có hoạt động';
+            const date = new Date(isoDate);
+            if (Number.isNaN(date.getTime())) return 'Chưa có hoạt động';
+            const diff = Date.now() - date.getTime();
+            const minute = 60000;
+            const hour = 3600000;
+            const day = 86400000;
+            if (diff < minute) return 'Vừa xong';
+            if (diff < hour) return `${Math.max(1, Math.floor(diff / minute))} phút trước`;
+            if (diff < day) return `${Math.max(1, Math.floor(diff / hour))} giờ trước`;
+            return `${Math.max(1, Math.floor(diff / day))} ngày trước`;
+        }
+
+        function setStatus(message, isError = false) {
+            if (!message) {
+                statusBox.classList.add('hidden');
+                statusBox.textContent = '';
+                return;
+            }
+            statusBox.className = isError
+                ? 'rounded-xl px-3 py-2 text-sm mb-3 border border-red-200 bg-red-50 text-red-600'
+                : 'rounded-xl px-3 py-2 text-sm mb-3 border border-blue-200 bg-blue-50 text-blue-700';
+            statusBox.textContent = message;
+        }
+
+        // Animated counter
+        function animateCounter(element, target) {
+            const duration = 1000;
+            const start = 0;
+            const startTime = Date.now();
+
+            function update() {
+                const now = Date.now();
+                const progress = Math.min((now - startTime) / duration, 1);
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(start + (target - start) * easeOutQuart);
+
+                element.textContent = formatNum(current);
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = formatNum(target);
+                }
+            }
+
+            update();
+        }
+
+        function renderSummary(data) {
+            const totals = data?.totals || {};
+            const ranking = Array.isArray(data?.ranking) ? data.ranking : [];
+            const top = ranking[0] || null;
+            const activeTools = ranking.filter((item) => Number(item.downloads || 0) > 0).length;
+
+            animateCounter(document.getElementById('totalDownloads'), Number(totals.downloads || 0));
+            animateCounter(document.getElementById('activeTools'), activeTools);
+
+            document.getElementById('updatedAtLabel').textContent = `Cập nhật: ${formatTime(data?.updatedAt)}`;
+            document.getElementById('updatedAtCard').textContent = formatTime(data?.updatedAt);
+
+            if (top) {
+                document.getElementById('topTool').textContent = top.label || 'Chưa có';
+                document.getElementById('topToolScore').textContent = `${formatNum(top.downloads)} lượt tải`;
+            } else {
+                document.getElementById('topTool').textContent = 'Chưa có';
+                document.getElementById('topToolScore').textContent = '0 lượt tải';
+            }
+
+            // Update charts
+            updateCharts(ranking);
+        }
+
+        function createRankBadge(index) {
+            if (index === 0) return '#1';
+            if (index === 1) return '#2';
+            if (index === 2) return '#3';
+            return `#${index + 1}`;
+        }
+        function createRankBadgeClass(index) {
+            if (index === 0) return 'rank-badge rank-badge--1';
+            if (index === 1) return 'rank-badge rank-badge--2';
+            if (index === 2) return 'rank-badge rank-badge--3';
+            return 'rank-badge rank-badge--default';
+        }
+
+        const TOOL_ICON_MAP = {
+            tiktok: 'fa-brands fa-tiktok',
+            youtube: 'fa-brands fa-youtube',
+            x: 'fa-brands fa-twitter',
+            soundcloud: 'fa-brands fa-soundcloud',
+            facebook: 'fa-brands fa-facebook-f'
+        };
+
+        function sanitizeIconClassList(value) {
+            const tokens = String(value || '')
+                .split(/\s+/)
+                .map((token) => token.trim())
+                .filter((token) => /^[a-z0-9_-]+$/i.test(token));
+            return tokens.length ? tokens.join(' ') : 'fa-solid fa-link';
+        }
+
+        function resolveToolIcon(item) {
+            const toolKey = String(item?.tool || '').toLowerCase();
+            const fromMap = TOOL_ICON_MAP[toolKey];
+            if (fromMap) return fromMap;
+
+            const fromApi = String(item?.icon || '').trim();
+            if (fromApi) {
+                return fromApi.replace(/\bfab\b/g, 'fa-brands').replace(/\bfas\b/g, 'fa-solid');
+            }
+            return 'fa-solid fa-link';
+        }
+
+        function renderRanking(ranking) {
+            rankingList.innerHTML = '';
+            if (!Array.isArray(ranking) || ranking.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'rank-row text-slate-500 text-sm';
+                empty.textContent = 'Chưa có dữ liệu sử dụng.';
+                rankingList.appendChild(empty);
+                return;
+            }
+
+            const maxDownloads = Math.max(...ranking.map((item) => Number(item.downloads || 0)), 1);
+
+            ranking.forEach((item, index) => {
+                const row = document.createElement('article');
+                const isTop3 = index < 3;
+                let rowClass = 'rank-row slide-in';
+                if (isTop3) rowClass += ' rank-row--top3';
+                if (index === 0) rowClass += ' rank-row--1';
+                if (index === 1) rowClass += ' rank-row--2';
+                if (index === 2) rowClass += ' rank-row--3';
+                row.className = rowClass;
+                row.style.animationDelay = `${index * 0.05}s`;
+
+                const top = document.createElement('div');
+                top.className = 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between';
+
+                const left = document.createElement('div');
+                left.className = 'flex items-center gap-4 min-w-0';
+
+                const badge = document.createElement('div');
+                badge.className = createRankBadgeClass(index);
+                badge.textContent = createRankBadge(index);
+
+                const meta = document.createElement('div');
+                meta.className = 'min-w-0 flex-1';
+
+                const title = document.createElement('p');
+                title.className = 'text-lg sm:text-xl font-bold text-slate-900 truncate flex items-center gap-2';
+                const iconClass = sanitizeIconClassList(resolveToolIcon(item));
+                const iconColor = index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : index === 2 ? 'text-orange-600' : 'text-blue-600';
+                const titleIcon = document.createElement('i');
+                titleIcon.className = `${iconClass} ${iconColor} text-2xl`;
+                const titleText = document.createElement('span');
+                titleText.textContent = String(item.label || item.tool || 'Unknown');
+                title.append(titleIcon, titleText);
+
+                const sub = document.createElement('p');
+                sub.className = 'text-xs text-slate-500 mt-1 flex items-center gap-2';
+                sub.innerHTML = `<i class="fas fa-clock"></i> Tải gần nhất: ${formatTimeAgo(item.lastDownloadedAt)}`;
+
+                meta.append(title, sub);
+                left.append(badge, meta);
+
+                const right = document.createElement('div');
+                right.className = 'text-left sm:text-right';
+                right.innerHTML = `
+                    <p class="text-sm text-slate-500 font-medium">Lượt tải</p>
+                    <p class="text-3xl font-bold ${index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : index === 2 ? 'text-orange-600' : 'text-slate-900'}">${formatNum(item.downloads)}</p>
+                `;
+
+                top.append(left, right);
+
+                const stats = document.createElement('div');
+                stats.className = 'mt-4 flex items-center justify-between flex-wrap gap-2';
+
+                // Determine chip type
+                const downloads = Number(item.downloads || 0);
+                let chipClass = 'chip';
+                let chipText = `Top ${index + 1}`;
+                if (index === 0) {
+                    chipClass += ' chip--hot';
+                    chipText = '🔥 #1 HOT';
+                } else if (downloads > maxDownloads * 0.5) {
+                    chipClass += ' chip--rising';
+                    chipText = `📈 Top ${index + 1}`;
+                }
+
+                stats.innerHTML = `
+                    <div class="rounded-xl border-2 ${index === 0 ? 'border-yellow-400 bg-yellow-50' : index === 1 ? 'border-gray-300 bg-gray-50' : index === 2 ? 'border-orange-400 bg-orange-50' : 'border-blue-100 bg-blue-50'} px-4 py-2">
+                        <p class="text-[11px] uppercase tracking-[0.12em] ${index === 0 ? 'text-yellow-700' : index === 1 ? 'text-gray-700' : index === 2 ? 'text-orange-700' : 'text-blue-600'} font-bold">Tổng lượt tải</p>
+                        <p class="text-2xl font-bold ${index === 0 ? 'text-yellow-700' : index === 1 ? 'text-gray-700' : index === 2 ? 'text-orange-700' : 'text-blue-700'}">${formatNum(item.downloads)}</p>
+                    </div>
+                    <span class="${chipClass}">${chipText}</span>
+                `;
+
+                const barWrap = document.createElement('div');
+                barWrap.className = 'mt-3 h-3 rounded-full bg-slate-100 overflow-hidden shadow-inner';
+                const bar = document.createElement('div');
+                bar.className = `h-full rounded-full progress-bar ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-600' : index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' : ''}`;
+                const percentage = Math.max(4, Math.round((Number(item.downloads || 0) / maxDownloads) * 100));
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                    bar.style.width = `${percentage}%`;
+                }, 100 + index * 50);
+                barWrap.appendChild(bar);
+
+                row.append(top, stats, barWrap);
+                rankingList.appendChild(row);
+            });
+
+            // Trigger confetti for #1 on first load
+            if (ranking.length > 0 && !window.hasTriggeredInitialConfetti) {
+                setTimeout(() => {
+                    const miniConfetti = () => {
+                        confetti({
+                            particleCount: 30,
+                            spread: 60,
+                            origin: { y: 0.6 },
+                            colors: ['#FFD700', '#FFA500', '#FF6347']
+                        });
+                    };
+                    miniConfetti();
+                    window.hasTriggeredInitialConfetti = true;
+                }, 1500);
+            }
+        }
+
+        // Chart instances
+        let pieChartInstance = null;
+        let barChartInstance = null;
+
+        function updateCharts(ranking) {
+            if (!Array.isArray(ranking) || ranking.length === 0) return;
+
+            const top5 = ranking.slice(0, 5);
+            const labels = top5.map(item => item.label || item.tool || 'Unknown');
+            const data = top5.map(item => Number(item.downloads || 0));
+            const colors = [
+                'rgba(255, 215, 0, 0.8)',
+                'rgba(192, 192, 192, 0.8)',
+                'rgba(205, 127, 50, 0.8)',
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(139, 92, 246, 0.8)'
+            ];
+            const borderColors = [
+                'rgba(255, 215, 0, 1)',
+                'rgba(192, 192, 192, 1)',
+                'rgba(205, 127, 50, 1)',
+                'rgba(59, 130, 246, 1)',
+                'rgba(139, 92, 246, 1)'
+            ];
+
+            // Pie Chart
+            if (pieChartInstance) {
+                pieChartInstance.destroy();
+                pieChartInstance = null;
+            }
+            const pieCtx = document.getElementById('pieChart');
+            if (pieCtx) {
+                pieChartInstance = new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: borderColors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { family: 'Space Grotesk', size: 11, weight: 'bold' },
+                                    padding: 10,
+                                    usePointStyle: true,
+                                    boxWidth: 12
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + formatNum(context.parsed) + ' lượt tải';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Bar Chart
+            if (barChartInstance) {
+                barChartInstance.destroy();
+                barChartInstance = null;
+            }
+            const barCtx = document.getElementById('barChart');
+            if (barCtx) {
+                barChartInstance = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Lượt tải',
+                            data: data,
+                            backgroundColor: colors,
+                            borderColor: borderColors,
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.5,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Lượt tải: ' + formatNum(context.parsed.y);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: { family: 'Space Grotesk', size: 11 }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { family: 'Space Grotesk', weight: 'bold', size: 11 }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function loadLeaderboard(showMessage = false) {
+            if (isLoading) return;
+            isLoading = true;
+            refreshBtn.disabled = true;
+
+            // Add rotation animation to refresh button
+            const refreshIcon = refreshBtn.querySelector('i');
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+
+            if (showMessage) {
+                setStatus('🔄 Đang cập nhật dữ liệu leaderboard...');
+            }
+
+            try {
+                const response = await fetch('/api/leaderboard/tool-usage', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`HTTP_${response.status}`);
+                }
+                const payload = await response.json();
+                const data = payload?.data || {};
+
+                renderSummary(data);
+                renderRanking(Array.isArray(data.ranking) ? data.ranking : []);
+                setStatus('');
+
+                if (showMessage) {
+                    showMiniToast('✨ Dữ liệu đã được cập nhật!');
+                }
+            } catch (error) {
+                console.error('Load leaderboard failed:', error);
+                setStatus('❌ Không thể tải dữ liệu leaderboard. Vui lòng thử lại sau.', true);
+                showMiniToast('Không thể tải dữ liệu', true);
+            } finally {
+                isLoading = false;
+                refreshBtn.disabled = false;
+                refreshIcon.style.animation = '';
+            }
+        }
+
+        // Add spin animation for refresh button
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        refreshBtn.addEventListener('click', () => loadLeaderboard(true));
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('#sidebar a, #sidebar button');
+            sidebarLinks.forEach((item) => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            loadLeaderboard();
+            setInterval(() => loadLeaderboard(false), 30000);
+        });
+    </script>
+</body>
+</html>

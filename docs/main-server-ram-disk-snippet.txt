@@ -1,0 +1,112 @@
+MAIN SERVER RAM + DISK SNIPPET
+Source: PikaMC (server chinh)
+
+==============================
+1) ENV (server chinh)
+==============================
+PIKAMC_PANEL_URL=https://cp.pikamc.vn
+PIKAMC_API_KEY=YOUR_PIKAMC_API_KEY_HERE
+PIKAMC_SERVER_ID=e417ea4b
+
+
+==============================
+2) src/config/index.js
+==============================
+export const PANEL_URL = process.env.PIKAMC_PANEL_URL || 'https://cp.pikamc.vn';
+export const API_KEY = process.env.PIKAMC_API_KEY;
+export const SERVER_ID = process.env.PIKAMC_SERVER_ID || 'e417ea4b';
+
+
+==============================
+3) src/services/pikamcService.js
+==============================
+import axios from 'axios';
+import { PANEL_URL, API_KEY, SERVER_ID } from '../config/index.js';
+
+export async function getServerResources() {
+  const response = await axios.get(
+    `${PANEL_URL}/api/client/servers/${SERVER_ID}/resources`,
+    {
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'Application/vnd.pterodactyl.v1+json'
+      },
+      timeout: 10000
+    }
+  );
+  return response.data;
+}
+
+
+==============================
+4) server.js route
+==============================
+app.get('/api/pikamc/server-resources', async (req, res) => {
+  try {
+    const { getServerResources } = await import('./src/services/pikamcService.js');
+    const { data, cached } = await getServerResources();
+    res.setHeader('X-Cache', cached ? 'HIT' : 'MISS');
+    res.json(data);
+  } catch (err) {
+    console.error('Error fetching PikaMC resources:', err);
+    res.status(500).json({ error: 'fetch_error', detail: err.message });
+  }
+});
+
+
+==============================
+5) html/index.html (parse RAM/Disk server chinh)
+==============================
+async function fetchPrimaryPikaMetrics() {
+  try {
+    const res = await fetch('/api/pikamc/server-resources');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !monitoredServers[0]) return;
+
+    const payload = data?.attributes && typeof data.attributes === 'object' ? data.attributes : data;
+    const resources = payload?.resources && typeof payload.resources === 'object'
+      ? payload.resources
+      : (data?.resources && typeof data.resources === 'object' ? data.resources : {});
+
+    const memoryBytesRaw = Number(resources?.memory_bytes ?? resources?.memory);
+    const memoryLimitBytesRaw = Number(resources?.memory_limit_bytes);
+    const memoryLimitMbRaw = Number(payload?.limits?.memory);
+    const diskBytesRaw = Number(resources?.disk_bytes ?? resources?.disk);
+    const diskLimitBytesRaw = Number(resources?.disk_limit_bytes);
+    const diskLimitMbRaw = Number(payload?.limits?.disk ?? data?.limits?.disk);
+
+    let ramUsedMb = monitoredServers[0].ramUsedMb;
+    let ramLimitMb = monitoredServers[0].ramLimitMb;
+    let diskUsedMb = monitoredServers[0].diskUsedMb;
+    let diskLimitMb = monitoredServers[0].diskLimitMb;
+
+    if (Number.isFinite(memoryBytesRaw) && memoryBytesRaw >= 0) {
+      ramUsedMb = Math.round(memoryBytesRaw / 1048576);
+    }
+    if (Number.isFinite(memoryLimitBytesRaw) && memoryLimitBytesRaw > 0) {
+      ramLimitMb = Math.round(memoryLimitBytesRaw / 1048576);
+    } else if (Number.isFinite(memoryLimitMbRaw) && memoryLimitMbRaw > 0) {
+      ramLimitMb = Math.round(memoryLimitMbRaw);
+    }
+    if (Number.isFinite(diskBytesRaw) && diskBytesRaw >= 0) {
+      diskUsedMb = Math.round(diskBytesRaw / 1048576);
+    }
+    if (Number.isFinite(diskLimitBytesRaw) && diskLimitBytesRaw > 0) {
+      diskLimitMb = Math.round(diskLimitBytesRaw / 1048576);
+    } else if (Number.isFinite(diskLimitMbRaw) && diskLimitMbRaw > 0) {
+      diskLimitMb = Math.round(diskLimitMbRaw);
+    }
+
+    monitoredServers[0] = {
+      ...monitoredServers[0],
+      ramUsedMb,
+      ramLimitMb,
+      diskUsedMb,
+      diskLimitMb,
+      ramIsPercent: false,
+      pikaSyncedAt: Date.now()
+    };
+  } catch (_error) {}
+}
+

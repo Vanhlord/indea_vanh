@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanhmcpe.top/">
+    <meta property="og:title" content="VNA - Server đa năng vanilla chill">
+    <meta property="og:description" content="Cộng đồng Minecraft Bedrock đa năng - Chill cùng VNA Server">
+    <meta property="og:image" content="./photos/raw/anh-nhom/abc.png">
+
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VNA - Server đa năng vanilla chill">
+    <meta name="twitter:description" content="Cộng đồng Minecraft Bedrock đa năng - Chill cùng VNA Server">
+    <meta name="twitter:image" content="./photos/raw/anh-nhom/abc.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://vanhmcpe.top/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="https://vanhmcpe.top/photos/server-icon/icon-server.png">
+
+    <title>VNA - Server đa năng vanilla chill</title>
+
+    <!-- ✅ Tailwind CDN đúng cách (script, không phải link) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
+
+        .server-wordmark-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.85rem;
+        }
+
+        .server-wordmark-wrap--sm {
+            width: 96px;
+            height: 30px;
+        }
+
+        .server-wordmark-wrap--md {
+            width: 130px;
+            height: 40px;
+        }
+
+        .server-wordmark-wrap--sidebar {
+            width: 170px;
+            height: 54px;
+        }
+
+        .server-wordmark-wrap--lg {
+            width: min(72vw, 360px);
+            height: min(22vw, 112px);
+            border-radius: 1rem;
+        }
+
+        .server-wordmark {
+            display: block;
+            width: 125%;
+            height: 160%;
+            object-fit: cover;
+            filter: drop-shadow(0 6px 14px rgba(0, 123, 255, 0.22));
+        }
+        
+        /* Sidebar transition */
+
+        #sidebar {
+            transition: left 0.3s ease;
+        }
+
+        .furina-corner {
+            position: fixed;
+            right: 14px;
+            bottom: 12px;
+            width: clamp(92px, 14vw, 168px);
+            height: auto;
+            z-index: 950;
+            pointer-events: auto;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-drag: none;
+            touch-action: manipulation;
+            filter: drop-shadow(0 10px 18px rgba(20, 55, 120, 0.28));
+            transform-origin: 60% 100%;
+            animation: furinaWobble 3s ease-in-out infinite;
+            transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+        }
+
+        .furina-corner.is-hidden {
+            opacity: 0;
+            animation: none;
+            transform: translateY(20px) scale(0.78);
+            pointer-events: none;
+            filter: drop-shadow(0 4px 8px rgba(20, 55, 120, 0.12));
+        }
+
+        .furina-bubble {
+            position: fixed;
+            right: 14px;
+            bottom: calc(12px + clamp(92px, 14vw, 168px) + 12px);
+            max-width: min(250px, 65vw);
+            background: #ffffff;
+            border: 2px solid #7fb2ff;
+            color: #1f355a;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.35;
+            box-shadow: 0 12px 24px rgba(18, 65, 140, 0.16);
+            z-index: 960;
+            opacity: 0;
+            transform: translateY(8px) scale(0.96);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .furina-bubble.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .furina-bubble::after {
+            content: '';
+            position: absolute;
+            right: 18px;
+            bottom: -10px;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border-right: 2px solid #7fb2ff;
+            border-bottom: 2px solid #7fb2ff;
+            transform: rotate(45deg);
+        }
+
+        @keyframes furinaWobble {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-2px) rotate(-2deg); }
+            50% { transform: translateY(0) rotate(1.5deg); }
+            75% { transform: translateY(-1px) rotate(-1deg); }
+        }
+
+        @keyframes furinaBoing {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            22% { transform: translateY(-5px) rotate(-3deg) scale(1.06); }
+            48% { transform: translateY(1px) rotate(2deg) scale(0.98); }
+            72% { transform: translateY(-2px) rotate(-1deg) scale(1.02); }
+            100% { transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+        .furina-corner.is-boing {
+            animation: furinaBoing 420ms cubic-bezier(0.2, 0.85, 0.25, 1.1);
+        }
+
+        .furina-corner.is-boing-strong {
+            animation: furinaBoing 560ms cubic-bezier(0.18, 0.88, 0.22, 1.15);
+        }
+
+        .ip-locked {
+            background: #e5e7eb !important;
+            color: #9ca3af !important;
+            border: 1px dashed #cbd5e1 !important;
+            box-shadow: none !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+
+        .ip-locked i {
+            color: #9ca3af !important;
+        }
+
+        @media (max-width: 768px) {
+            .furina-corner {
+                animation: furinaWobble 4.2s ease-in-out infinite;
+                filter: drop-shadow(0 6px 10px rgba(20, 55, 120, 0.16));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .furina-corner {
+                width: clamp(78px, 28vw, 120px);
+                right: 8px;
+                bottom: 8px;
+            }
+
+            .furina-bubble {
+                right: 8px;
+                bottom: calc(8px + clamp(78px, 28vw, 120px) + 10px);
+                max-width: min(225px, 78vw);
+                font-size: 12.5px;
+            }
+        }
+</style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+
+<body class="bg-[#f4f7f6] text-[#333] flex h-screen overflow-hidden">
+
+    <!-- OVERLAY -->
+
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="closeSidebar()"></div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- SIDEBAR -->
+        <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-center p-6 pb-4 border-b border-gray-100">
+                <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                    <div class="server-wordmark-wrap server-wordmark-wrap--sidebar">
+                        <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+
+
+            <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+                <!-- Hệ thống -->
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-[#007bff] text-white font-medium shadow-lg shadow-blue-100">
+                    <i class="fas fa-home"></i> Trang chủ
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-xl text-gray-600 font-medium cursor-pointer hover:bg-[#007bff] hover:text-white transition-all" onclick="copyIP()">
+                    <i class="fas fa-copy"></i> Sao chép IP
+                </div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/html/status-server.html">
+                    <i class="fas fa-chart-line w-5"></i> Status server
+                </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/chat.html">
+                <i class="fas fa-comments w-5"></i> Chat
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/streak.html">
+                <i class="fas fa-fire w-5"></i> Streak
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
+                <i class="fas fa-cloud w-5"></i> Cloud
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/leaderboard">
+                <i class="fas fa-trophy w-5"></i> Leaderboard
+            </a>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-pink-500 hover:text-white transition-all text-gray-600 font-medium" href="/A11/donet.html">
+                <i class="fas fa-gem w-5"></i> Donate
+            </a>
+
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Thư viện</div>
+
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/rawphoto.html">
+                    <i class="fas fa-expand"></i> Album
+                </a>
+
+                <!-- Tiện ích -->
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+            <div class="tool-grid-sidebar">
+                <a class="tool-tile" href="/p/snapsave.html">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a class="tool-tile" href="/html/tiktok.html">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a class="tool-tile" href="/html/youtube.html">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+                <a class="tool-tile" href="/html/soundcloud.html">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <span>SoundCloud</span>
+                </a>
+                <a class="tool-tile" href="/html/dowloadmc.html">
+                    <i class="fas fa-download"></i>
+                    <span>Minecraft</span>
+                </a>
+            </div>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Kho rác</div>
+                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
+                    <i class="fas fa-toolbox"></i> Kho công cụ
+                </a>
+
+            </nav>
+
+            <!-- Footer -->
+            <div class="p-6 pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 text-center font-medium">© 2026</p>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- Header -->
+            <div class="pt-4 pb-4 pr-4 pl-4 border-b border-gray-200 bg-white flex justify-center items-center relative">
+                <button onclick="toggleSidebar()" class="hamburger text-2xl text-gray-700 absolute left-4 lg:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div id="userProfile" class="flex items-center gap-3">
+                    <!-- Guest -->
+                    <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors" id="userGuest" onclick="window.location.href='/api/auth/discord'">
+                        <i class="fa-brands fa-discord text-[#5865F2] text-base"></i>
+                        <span class="text-sm font-medium text-gray-700">Đăng nhập</span>
+                    </div>
+                    <!-- Logged In -->
+                    <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-3 hidden" id="userLogged">
+                        <img src="" id="userAvatar" class="w-8 h-8 rounded-full border-2 border-[#007bff]" alt="Avatar">
+                        <span class="text-sm font-medium text-gray-700" id="userName">User</span>
+                        <button onclick="logout()" class="text-red-500 hover:text-red-700 ml-2">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Time -->
+                <div class="flex items-center gap-2 absolute right-4">
+                    <div class="bg-gray-100 px-3 py-1 rounded-lg border border-gray-200 hidden sm:block">
+                        <span class="text-gray-700 font-medium text-sm" id="currentTime"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CONTENT AREA -->
+            <div class="flex-1 overflow-y-auto">
+                
+                <!-- Hero Section -->
+                <div class="relative h-[25vh] bg-cover bg-center bg-no-repeat" style="background-image: url('/photos/art-by-viet.png')">
+                    <div class="absolute bottom-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-sm font-medium">
+                        V26.11
+                    </div>
+                </div>
+
+                <!-- Countdown Section -->
+                <div class="bg-white py-2 px-4 text-center border-b border-gray-200">
+                    <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-gray-700">
+                        <span class="font-medium text-xs sm:text-sm">⏰ Đếm ngược:</span>
+                        <span class="font-bold text-sm sm:text-base font-mono tracking-wider" id="countdown"></span>
+                    </div>
+                </div>
+
+
+                <!-- Main Content -->
+
+                <div class="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6 py-12 space-y-16">
+
+                    <!-- GIỚI THIỆU -->
+                    <section class="text-center">
+                       
+                        <p class="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                            Thế giới Minecraft Bedrock nơi bạn có thể xây dựng, khám phá và khẳng định vị thế của mình.
+                            Server ổn định 24/7 với cộng đồng văn minh, hệ thống bảo mật cao và nhiều tính năng độc đáo.
+                        </p>
+                        <div class="mt-8 flex justify-center">
+                            <div class="text-center bg-gradient-to-b from-white to-blue-50 p-6 rounded-3xl border border-blue-100 shadow-xl shadow-blue-100/60">
+                                <div class="server-wordmark-wrap server-wordmark-wrap--lg mx-auto mb-2">
+                                    <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                                </div>
+                                <p class="text-blue-600 font-bold tracking-[0.2em] uppercase text-xs sm:text-sm mb-5">Server Đa Năng — Vanilla Chill</p>
+                                <div class="flex flex-col gap-4 justify-center">
+                                    <button type="button" onclick="copyIP()" class="bg-[#007bff] text-white px-8 py-4 rounded-xl font-semibold hover:bg-[#0056b3] transition-colors flex items-center gap-2 text-lg">
+                                        <i class="fas fa-copy"></i>
+                                        Sao chép IP
+                                    </button>
+                                    <button onclick="playMinecraft()" class="bg-green-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center gap-2 text-lg">
+                                        <i class="fas fa-play"></i>
+                                        Chơi ngay
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- THÔNG TIN SERVER PIKAMC -->
+                    <section>
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800">Thông tin Server VNA</h2>
+                            <p class="text-gray-500 mt-2">Trạng thái hoạt động và thông số cục bộ máy chủ.</p>
+                        </div>
+                        <div class="rounded-3xl border border-blue-200 bg-gradient-to-br from-white via-blue-50/50 to-indigo-50 p-6 sm:p-8 shadow-lg shadow-blue-100/50 relative overflow-hidden">
+                            <!-- Background Decoration -->
+                            <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-3xl"></div>
+                            <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 rounded-full bg-gradient-to-tr from-cyan-400/20 to-emerald-400/20 blur-3xl"></div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 relative z-10">
+                                <!-- IP Box -->
+                                <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-indigo-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+                                    <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-[1.15] transition-transform duration-300">
+                                        <i class="fas fa-network-wired"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Địa chỉ IP</p>
+                                        <p class="text-lg font-bold text-gray-800" id="pikamc-ip">Đang tải...</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Port Box -->
+                                <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-cyan-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+                                    <div class="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center text-xl group-hover:scale-[1.15] transition-transform duration-300">
+                                        <i class="fas fa-plug"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Port</p>
+                                        <p class="text-lg font-bold text-gray-800" id="pikamc-port">...</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Players Box -->
+                                <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-emerald-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+                                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-[1.15] transition-transform duration-300">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Người chơi</p>
+                                        <p class="text-lg font-bold text-gray-800"><span id="pikamc-players">0</span><span class="text-sm font-medium text-gray-500"> online</span></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- RAM Box -->
+                                <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 border border-purple-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow group">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl group-hover:scale-[1.15] transition-transform duration-300">
+                                        <i class="fas fa-memory"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Dung lượng RAM</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="text-lg font-bold text-gray-800" id="pikamc-ram">-- GB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- NỘI QUY -->
+                    <section>
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800">Nội quy server</h2>
+                            <p class="text-gray-500 mt-2">Giữ server văn minh để ai cũng có trải nghiệm tốt và chơi lâu dài.</p>
+                        </div>
+                        <div class="rounded-3xl border border-gray-200 bg-white p-4 sm:p-6 lg:p-8 shadow-[0_18px_40px_-30px_rgba(15,23,42,0.45)]">
+                            <div class="mb-6 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 text-sm text-amber-800 flex items-start gap-3">
+                                <i class="fas fa-triangle-exclamation mt-0.5"></i>
+                                <span>Vi phạm nhiều lần có thể bị mute, kick hoặc ban tùy mức độ.</span>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <article class="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-5">
+                                    <h3 class="text-xl font-semibold text-emerald-700 mb-4 flex items-center gap-3">
+                                        <span class="w-9 h-9 rounded-xl bg-emerald-500 text-white inline-flex items-center justify-center">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        Những điều được phép
+                                    </h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">1</span>
+                                            <span>Xây dựng và sáng tạo tự do</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">2</span>
+                                            <span>Trao đổi và buôn bán công bằng</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">3</span>
+                                            <span>Hỗ trợ và giúp đỡ người chơi mới</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">4</span>
+                                            <span>Tham gia events và mini-games</span>
+                                        </li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-rose-200 bg-gradient-to-b from-rose-50 to-white p-5">
+                                    <h3 class="text-xl font-semibold text-rose-700 mb-4 flex items-center gap-3">
+                                        <span class="w-9 h-9 rounded-xl bg-rose-500 text-white inline-flex items-center justify-center">
+                                            <i class="fas fa-ban"></i>
+                                        </span>
+                                        Những điều bị cấm
+                                    </h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start gap-3 rounded-xl border border-rose-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">1</span>
+                                            <span>Griefing và phá hoại công trình</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-rose-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">2</span>
+                                            <span>Sử dụng hack/cheat</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-rose-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">3</span>
+                                            <span>Spam chat hoặc quảng cáo</span>
+                                        </li>
+                                        <li class="flex items-start gap-3 rounded-xl border border-rose-100 bg-white/90 px-3 py-2.5 text-gray-700">
+                                            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 text-xs font-bold inline-flex items-center justify-center mt-0.5">4</span>
+                                            <span>Lăng mạ và toxic behavior</span>
+                                        </li>
+                                    </ul>
+                                </article>
+                            </div>
+
+                            <!-- Voting -->
+                            <div id="votingContainer" class="mt-8 p-6 bg-gradient-to-r from-sky-50 via-indigo-50 to-cyan-50 rounded-2xl border border-blue-200 hidden">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center flex items-center justify-center gap-3">
+                                    <i class="fas fa-vote-yea text-blue-500"></i>
+                                    Bình chọn cho Server
+                                </h3>
+                                <p class="text-gray-600 text-center mb-6">Bạn có muốn giữ lại server này không?</p>
+                                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                                    <button onclick="vote('giu_lai')" id="btnGiuLai" class="bg-green-500 hover:bg-green-600 text-white px-4 sm:px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                                        <i class="fas fa-thumbs-up"></i>
+                                        <span class="whitespace-nowrap">Giữ lại (<span id="countGiuLai">0</span>)</span>
+                                    </button>
+                                    <button onclick="vote('loai_bo')" id="btnLoaiBo" class="bg-red-500 hover:bg-red-600 text-white px-4 sm:px-6 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                                        <i class="fas fa-thumbs-down"></i>
+                                        <span class="whitespace-nowrap">Loại bỏ (<span id="countLoaiBo">0</span>)</span>
+                                    </button>
+                                </div>
+                                <div id="voteResult" class="mt-4 text-center text-sm text-gray-500 hidden">
+                                    <p id="voteMessage"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- TÍNH NĂNG -->
+                    <section>
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800">Tính năng nổi bật</h2>
+                            <p class="text-gray-500 mt-2">Không chỉ ổn định, server còn tập trung vào trải nghiệm chơi lâu dài.</p>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+                            <article class="lg:col-span-5 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white p-6 sm:p-7 shadow-lg shadow-emerald-200/60">
+                                <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wide">
+                                    <i class="fas fa-bolt"></i>
+                                    Runtime ổn định
+                                </div>
+                                <div class="mt-5">
+                                    <div class="w-14 h-14 rounded-2xl bg-white/20 border border-white/30 inline-flex items-center justify-center mb-4">
+                                        <i class="fas fa-clock text-2xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold leading-tight">Hoạt động 24/7</h3>
+                                    <p class="mt-3 text-white/90 leading-relaxed">Server luôn online. Chơi bất cứ lúc nào bạn muốn.</p>
+                                </div>
+                                <div class="mt-6 flex flex-wrap gap-2 text-xs">
+                                    <span class="px-3 py-1.5 rounded-full bg-white/20 border border-white/25">Uptime cao</span>
+                                    <span class="px-3 py-1.5 rounded-full bg-white/20 border border-white/25">Kết nối nhanh</span>
+                                    <span class="px-3 py-1.5 rounded-full bg-white/20 border border-white/25">Luôn sẵn sàng</span>
+                                </div>
+                            </article>
+                            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                <article class="rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50 to-white p-5 sm:p-6 shadow-sm">
+                                    <div class="w-11 h-11 rounded-xl bg-amber-400 text-white inline-flex items-center justify-center mb-4">
+                                        <i class="fas fa-users text-lg"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Cộng đồng thân thiện</h3>
+                                    <p class="text-gray-600">Cộng đồng văn minh, hỗ trợ nhau phát triển và xây dựng cùng nhau.</p>
+                                </article>
+                                <article class="rounded-2xl border border-violet-200 bg-gradient-to-b from-violet-50 to-white p-5 sm:p-6 shadow-sm">
+                                    <div class="w-11 h-11 rounded-xl bg-violet-500 text-white inline-flex items-center justify-center mb-4">
+                                        <i class="fas fa-trophy text-lg"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Mini-games</h3>
+                                    <p class="text-gray-600">Nhiều trò chơi nhỏ thú vị, thử thách kỹ năng của bạn.</p>
+                                </article>
+                                <article class="sm:col-span-2 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 via-white to-orange-50 p-5 sm:p-6 shadow-sm">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                        <div>
+                                            <div class="w-11 h-11 rounded-xl bg-orange-500 text-white inline-flex items-center justify-center mb-3">
+                                                <i class="fas fa-store text-lg"></i>
+                                            </div>
+                                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Shop & Economy</h3>
+                                            <p class="text-gray-600">Kinh tế phát triển, mua bán và trao đổi vật phẩm từ các thành viên.</p>
+                                        </div>
+                                        <button type="button" onclick="copyIP()" class="inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-orange-700 transition-colors">
+                                            <i class="fas fa-copy"></i>
+                                            Sao chép IP
+                                        </button>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- HƯỚNG DẪN -->
+                    <section>
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800">Cách tham gia server</h2>
+                            <p class="text-gray-500 mt-2">Chỉ cần 3 bước là vào được server, không cần cài thêm plugin.</p>
+                        </div>
+                        <div class="rounded-3xl border border-blue-200 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-4 sm:p-6 lg:p-8 shadow-[0_22px_40px_-30px_rgba(37,99,235,0.45)]">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                                <div class="lg:col-span-7 space-y-3 sm:space-y-4">
+                                    <article class="bg-white rounded-2xl border border-sky-100 px-4 py-4 sm:px-5 sm:py-5 flex items-start gap-4">
+                                        <div class="w-9 h-9 rounded-xl bg-sky-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">Đăng nhập Discord</h3>
+                                            <p class="text-gray-600 mt-1 text-sm sm:text-base">Kết nối tài khoản để đồng bộ quyền và lưu hoạt động của bạn trên web.</p>
+                                        </div>
+                                    </article>
+                                    <article class="bg-white rounded-2xl border border-cyan-100 px-4 py-4 sm:px-5 sm:py-5 flex items-start gap-4">
+                                        <div class="w-9 h-9 rounded-xl bg-cyan-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">Copy IP và Port</h3>
+                                            <p class="text-gray-600 mt-1 text-sm sm:text-base">Nhấn một nút để sao chép địa chỉ kết nối, tránh sai ký tự khi nhập thủ công.</p>
+                                        </div>
+                                    </article>
+                                    <article class="bg-white rounded-2xl border border-indigo-100 px-4 py-4 sm:px-5 sm:py-5 flex items-start gap-4">
+                                        <div class="w-9 h-9 rounded-xl bg-indigo-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">Mở Minecraft và tham gia</h3>
+                                            <p class="text-gray-600 mt-1 text-sm sm:text-base">Vào mục Servers, thêm server mới rồi kết nối để bắt đầu chơi ngay.</p>
+                                        </div>
+                                    </article>
+                                </div>
+                                <aside class="lg:col-span-5">
+                                    <div class="h-full rounded-2xl border border-indigo-200 bg-gradient-to-b from-indigo-600 to-blue-700 p-5 sm:p-6 text-white flex flex-col">
+                                        <p class="text-xs uppercase tracking-[0.24em] text-white/80 font-semibold">Quick Action</p>
+                                        <h3 class="text-2xl font-bold mt-2">Vào server ngay</h3>
+                                        <p class="text-white/85 mt-2 text-sm sm:text-base">Nếu bạn đã có Minecraft, chỉ cần copy địa chỉ rồi bấm chơi ngay.</p>
+                                        <div class="mt-5 space-y-3">
+                                            <button type="button" onclick="copyIP()" class="w-full inline-flex items-center justify-center gap-2 bg-cyan-500 text-slate-900 px-4 py-3 rounded-xl font-semibold hover:bg-cyan-600 transition-colors">
+                                                <i class="fas fa-copy"></i>
+                                                vna.vanhmcpe.top:25003
+                                            </button>
+                                            <button onclick="playMinecraft()" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-400/95 text-slate-900 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-300 transition-colors">
+                                                <i class="fas fa-play"></i>
+                                                Chơi ngay
+                                            </button>
+                                        </div>
+                                    </div>
+                                </aside>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- LIÊN HỆ -->
+                    <section>
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800">Liên hệ với chúng tôi</h2>
+                            <p class="text-gray-500 mt-2">Cần hỗ trợ nhanh, báo lỗi hoặc góp ý? Chọn kênh phù hợp bên dưới.</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8 shadow-[0_24px_45px_-34px_rgba(30,41,59,0.5)]">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+                                <aside class="lg:col-span-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+                                    <p class="text-[11px] uppercase tracking-[0.24em] text-slate-500 font-semibold">Support Hub</p>
+                                    <h3 class="text-2xl font-bold text-slate-800 mt-2">Kết nối nhanh</h3>
+                                    <p class="text-slate-600 mt-3 text-sm sm:text-base">Ưu tiên Discord cho hỗ trợ, Messenger/Facebook cho trao đổi nhanh và cập nhật thông báo.</p>
+                                    <div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-emerald-700 text-sm font-medium flex items-center gap-2">
+                                        <i class="fas fa-bolt"></i>
+                                        Thời gian phản hồi: 5 - 15 năm
+                                    </div>
+                                </aside>
+                                <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                                    <a href="https://discord.gg/sjSU2McAJM" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-indigo-200 bg-gradient-to-b from-indigo-500 to-indigo-600 text-white p-4 sm:p-5 hover:shadow-lg hover:shadow-indigo-200/60 transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+                                            <i class="fa-brands fa-discord text-lg"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Discord</h4>
+                                        <p class="text-white/85 text-sm mt-1">Hỗ trợ kỹ thuật và trao đổi cộng đồng.</p>
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold mt-3 text-white/90">Vào kênh <i class="fas fa-arrow-right text-[10px]"></i></span>
+                                    </a>
+                                    <a href="https://m.me/j/AbYkrzp3n_y-dEP0/" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-sky-200 bg-gradient-to-b from-sky-500 to-blue-600 text-white p-4 sm:p-5 hover:shadow-lg hover:shadow-sky-200/60 transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+                                            <i class="fa-brands fa-facebook-messenger text-lg"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Messenger</h4>
+                                        <p class="text-white/85 text-sm mt-1">Nhắn tin nhanh khi cần liên hệ gấp.</p>
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold mt-3 text-white/90">Nhắn ngay <i class="fas fa-arrow-right text-[10px]"></i></span>
+                                    </a>
+                                    <a href="https://www.facebook.com/vanh.lord.2024" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-blue-200 bg-gradient-to-b from-blue-600 to-cyan-600 text-white p-4 sm:p-5 hover:shadow-lg hover:shadow-blue-200/60 transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3">
+                                            <i class="fa-brands fa-facebook text-lg"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Facebook</h4>
+                                        <p class="text-white/85 text-sm mt-1">Theo dõi thông báo và cập nhật mới.</p>
+                                        <span class="inline-flex items-center gap-1 text-xs font-semibold mt-3 text-white/90">Xem trang <i class="fas fa-arrow-right text-[10px]"></i></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ĐÁNH GIÁ 5 SAO -->
+                    <section id="ratingSection" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">⭐ Đánh giá Server</h2>
+                        
+                        <!-- Tổng quan đánh giá -->
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+                            <!-- Điểm trung bình -->
+                            <div class="text-center">
+                                <div class="text-6xl font-bold text-gray-800" id="averageRating">4.8</div>
+                                <div class="flex justify-center gap-1 my-2 text-yellow-400 text-2xl" id="averageStars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <p class="text-gray-500"><span id="totalRatings">0</span> đánh giá</p>
+                            </div>
+                            
+                            <!-- Phân bố sao -->
+                            <div class="w-full max-w-md space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium w-8">5 ★</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-400 h-3 rounded-full" style="width: 75%" id="bar5"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-10" id="count5">0</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium w-8">4 ★</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-400 h-3 rounded-full" style="width: 15%" id="bar4"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-10" id="count4">0</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium w-8">3 ★</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-400 h-3 rounded-full" style="width: 5%" id="bar3"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-10" id="count3">0</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium w-8">2 ★</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-400 h-3 rounded-full" style="width: 3%" id="bar2"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-10" id="count2">0</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium w-8">1 ★</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-3">
+                                        <div class="bg-yellow-400 h-3 rounded-full" style="width: 2%" id="bar1"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-500 w-10" id="count1">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form đánh giá (chỉ hiện khi đăng nhập) -->
+                        <div id="ratingFormContainer" class="hidden">
+                            <div class="border-t border-gray-200 pt-8">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Viết đánh giá của bạn</h3>
+                                
+                                <!-- Star Selector -->
+                                <div class="flex justify-center gap-2 mb-4" id="starSelector">
+                                    <button onclick="selectStar(1)" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-all transform hover:scale-110">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button onclick="selectStar(2)" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-all transform hover:scale-110">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button onclick="selectStar(3)" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-all transform hover:scale-110">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button onclick="selectStar(4)" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-all transform hover:scale-110">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button onclick="selectStar(5)" class="star-btn text-3xl text-gray-300 hover:text-yellow-400 transition-all transform hover:scale-110">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Comment -->
+                                <div class="max-w-md mx-auto mb-4">
+                                    <textarea id="ratingComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn..." 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="text-center">
+                                    <button onclick="submitRating()" id="submitRatingBtn" disabled
+                                        class="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 mx-auto">
+                                        <i class="fas fa-paper-plane"></i>
+                                        Gửi đánh giá
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Login Prompt (hiện khi chưa đăng nhập) -->
+                        <div id="ratingLoginPrompt" class="border-t border-gray-200 pt-6 text-center">
+                            <div class="bg-blue-50 rounded-lg p-3 inline-flex items-center gap-3 border border-blue-200">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                                <span class="text-blue-700 text-sm">Đăng nhập để đánh giá</span>
+                                <button onclick="window.location.href='/api/auth/discord'" 
+                                    class="bg-[#5865F2] text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#4752C4] transition-colors flex items-center gap-1.5">
+                                    <i class="fa-brands fa-discord text-xs"></i>
+                                    Đăng nhập
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <!-- Submitted Message (hiện khi đã đánh giá) -->
+                        <div id="ratingSubmitted" class="hidden border-t border-gray-200 pt-8 text-center">
+                            <div class="bg-green-50 rounded-xl p-6 max-w-md mx-auto">
+                                <i class="fas fa-check-circle text-4xl text-green-500 mb-3"></i>
+                                <p class="text-green-700 font-semibold mb-2">Cảm ơn bạn đã đánh giá!</p>
+                                <p class="text-gray-600 text-sm">Đánh giá của bạn đã được ghi nhận.</p>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách bình luận -->
+                        <div class="border-t border-gray-200 pt-8 mt-8">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+                                <i class="fas fa-comments text-blue-500"></i>
+                                Bình luận gần đây
+                                <span class="text-sm font-normal text-gray-500" id="commentsCount">(0)</span>
+                            </h3>
+                            <div id="commentsList" class="space-y-4 max-h-96 overflow-y-auto">
+                                <!-- Comments will be loaded here -->
+                                <div class="text-center text-gray-500 py-8">
+                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                    <p>Đang tải bình luận...</p>
+                                </div>
+                            </div>
+                            <button onclick="loadMoreComments()" id="loadMoreBtn" class="hidden w-full mt-4 py-3 text-blue-600 font-medium hover:bg-blue-50 rounded-xl transition-colors">
+                                <i class="fas fa-chevron-down mr-2"></i>Xem thêm bình luận
+                            </button>
+                        </div>
+                    </section>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WELCOME POPUP - Hiển thị 1 lần mỗi phiên -->
+    <div id="welcomePopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] flex items-center justify-center hidden">
+        <div class="bg-gradient-to-br from-white to-blue-50 rounded-3xl p-8 max-w-md mx-4 shadow-2xl border border-blue-100 transform scale-100 transition-all duration-300" id="welcomePopupContent">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-bell text-white text-3xl animate-bounce"></i>
+                </div>
+                <div class="mb-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+                    <h3 class="text-2xl font-bold text-gray-800">Chào mừng đến</h3>
+                    <div class="server-wordmark-wrap server-wordmark-wrap--sm">
+                        <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                    </div>
+                </div>
+                <div class="w-16 h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto mb-4"></div>
+                <p class="text-gray-600 mb-3 leading-relaxed">
+                    🎮 <strong>Server Minecraft Bedrock</strong> miễn phí, ổn định 24/7
+                </p>
+                <p class="text-gray-600 mb-3 leading-relaxed">
+                    🌟 Tham gia ngay để xây dựng, khám phá và kết bạn!
+                </p>
+                <p class="text-sm text-gray-500 mb-6 bg-gray-100 p-3 rounded-xl">
+                    💡 <em>Mẹo: Đăng nhập Discord để trải nghiệm đầy đủ tính năng</em>
+                </p>
+                
+                <button onclick="closeWelcomePopup()" class="w-full bg-gradient-to-r from-[#007bff] to-[#0056b3] text-white py-3 rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2">
+                    <span>Bắt đầu khám phá</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+    // ===== SIDEBAR =====
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const isOpen = sidebar.classList.contains('left-0');
+        if (isOpen) {
+            sidebar.classList.remove('left-0');
+            sidebar.classList.add('-left-[260px]');
+            overlay.classList.add('hidden');
+        } else {
+            sidebar.classList.add('left-0');
+            sidebar.classList.remove('-left-[260px]');
+            overlay.classList.remove('hidden');
+        }
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('left-0');
+        document.getElementById('sidebar').classList.add('-left-[260px]');
+        document.getElementById('overlay').classList.add('hidden');
+    }
+
+    // ===== TOAST =====
+    function showToast(message, type = 'success') {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.style.cssText = "position:fixed;bottom:20px;right:20px;padding:12px 25px;border-radius:12px;color:white;z-index:10000;transition:0.5s;opacity:0;font-weight:600;box-shadow:0 4px 15px rgba(0,0,0,0.2);";
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; }, 3000);
+    }
+
+    // ===== COPY IP =====
+    function copyIP() {
+        const serverAddress = 'vna.vanhmcpe.top:25003';
+        navigator.clipboard.writeText(serverAddress).then(() => {
+            showToast('✅ Đã sao chép: ' + serverAddress, 'success');
+        }).catch(() => {
+            showToast('❌ Lỗi sao chép. Vui lòng thử lại.', 'error');
+        });
+    }
+
+    // ===== PLAY MINECRAFT =====
+    function playMinecraft() {
+        const serverLink = 'minecraft:///?addServer=VNA Server|vna.vanhmcpe.top:25003';
+        window.location.href = serverLink;
+    }
+
+    // ===== LOGOUT =====
+    async function logout() {
+        if (confirm('Muốn đăng xuất rồi à!')) {
+            window.location.href = '/api/auth/logout';
+        }
+    }
+
+    // ===== AUTH =====
+    // Check localStorage first for quick display, then verify with server
+    function loadUserFromStorage() {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                if (user.id && user.username) {
+                    // Show logged in state immediately from localStorage
+                    document.getElementById('userGuest').classList.add('hidden');
+                    document.getElementById('userLogged').classList.remove('hidden');
+                    document.getElementById('userName').textContent = user.username;
+                    document.getElementById('userAvatar').src = user.avatar || '';
+                    // Set global currentUser for comment ownership check
+                    currentUser = user;
+                    return user;
+                }
+            } catch(e) {
+                localStorage.removeItem('user');
+            }
+        }
+        return null;
+    }
+
+    async function checkLoginStatus() {
+        // First load from storage for immediate display
+        const storedUser = loadUserFromStorage();
+        // If we have a stored user, set currentUser for comment menu display
+        if (storedUser) {
+            currentUser = storedUser;
+        }
+
+        
+        try {
+            const res = await fetch('/api/user-info');
+            const data = await res.json();
+            if (data.loggedIn && data.username) {
+                document.getElementById('userGuest').classList.add('hidden');
+                document.getElementById('userLogged').classList.remove('hidden');
+                document.getElementById('userName').textContent = data.username;
+                document.getElementById('userAvatar').src = data.avatar;
+                localStorage.setItem('user', JSON.stringify({ id: data.id, username: data.username, avatar: data.avatar }));
+            } else {
+                // Server says not logged in, clear storage and show guest
+                localStorage.removeItem('user');
+                document.getElementById('userGuest').classList.remove('hidden');
+                document.getElementById('userLogged').classList.add('hidden');
+            }
+
+        } catch(e) { 
+            console.error(e); 
+            // If server error, keep the localStorage state (already loaded above)
+        }
+    }
+
+    // ===== COUNTDOWN =====
+    let countdownSettings = { eventDate: '19/09/2026', eventTime: '00:00', eventDescription: 'VNA Event' };
+    async function loadCountdownSettings() {
+        try {
+            const res = await fetch('/api/config/countdown-settings?v=' + Date.now());
+            if (!res.ok) return;
+            const json = await res.json();
+            if (json?.eventDate && json?.eventTime) countdownSettings = json;
+        } catch(e) {}
+    }
+    function updateTimeAndCountdown() {
+        const now = new Date();
+        const el = document.getElementById('currentTime');
+        if (el) el.textContent = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const cdEl = document.getElementById('countdown');
+        if (!cdEl || !countdownSettings.eventDate) return;
+        const parts = countdownSettings.eventDate.split('/');
+        if (parts.length !== 3) return;
+        const [day, month, year] = parts;
+        const [hours, minutes] = (countdownSettings.eventTime || '00:00').split(':');
+        const target = new Date(+year, +month - 1, +day, +hours, +minutes, 0);
+        const diff = target - now;
+        if (diff > 0) {
+            const p = n => String(Math.floor(n)).padStart(2, '0');
+            cdEl.textContent = p(diff/864e5)+':'+p((diff%864e5)/36e5)+':'+p((diff%36e5)/6e4)+':'+p((diff%6e4)/1e3)+' | '+countdownSettings.eventDate;
+        } else {
+            cdEl.textContent = '🎉 Event Arrived! | ' + countdownSettings.eventDate;
+        }
+    }
+
+    // ===== VOTING =====
+    async function loadVoteCounts() {
+        try {
+            const d = await (await fetch('/binhchon/counts')).json();
+            document.getElementById('countGiuLai').textContent = d.giu_lai || 0;
+            document.getElementById('countLoaiBo').textContent = d.loai_bo || 0;
+        } catch(e) {}
+    }
+    async function vote(choice) {
+        const userData = JSON.parse(localStorage.getItem('user') || 'null');
+        if (!userData?.id) { alert('Bạn cần đăng nhập để bình chọn!'); return; }
+        document.getElementById('btnGiuLai').disabled = true;
+        document.getElementById('btnLoaiBo').disabled = true;
+        try {
+            const res = await fetch('/binhchon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userData.id, userName: userData.username, choice })
+            });
+            const result = await res.json();
+            document.getElementById('voteResult').classList.remove('hidden');
+            document.getElementById('voteMessage').textContent = result.message;
+            document.getElementById('voteMessage').style.color = res.ok ? '#10b981' : '#ef4444';
+            if (result.counts) {
+                document.getElementById('countGiuLai').textContent = result.counts.giu_lai;
+                document.getElementById('countLoaiBo').textContent = result.counts.loai_bo;
+            }
+            if (!res.ok) { document.getElementById('btnGiuLai').disabled = false; document.getElementById('btnLoaiBo').disabled = false; }
+        } catch(e) {
+            document.getElementById('btnGiuLai').disabled = false;
+            document.getElementById('btnLoaiBo').disabled = false;
+        }
+    }
+    function updateVotingVisibility() {
+        const vc = document.getElementById('votingContainer');
+        if (localStorage.getItem('user')) vc.classList.remove('hidden');
+        else vc.classList.add('hidden');
+    }
+
+    // ===== WELCOME POPUP =====
+
+    function initWelcomePopup() {
+        const popup = document.getElementById('welcomePopup');
+        const popupContent = document.getElementById('welcomePopupContent');
+        
+        popup.onclick = function(e) {
+            if (e.target === popup) closeWelcomePopup();
+        };
+        
+        if (popupContent) {
+            popupContent.style.transform = 'scale(0.9)';
+            popupContent.style.opacity = '0';
+            setTimeout(() => {
+                popupContent.style.transform = 'scale(1)';
+                popupContent.style.opacity = '1';
+            }, 50);
+        }
+    }
+    
+    function closeWelcomePopup() {
+        const popup = document.getElementById('welcomePopup');
+        const popupContent = document.getElementById('welcomePopupContent');
+        
+        if (popupContent) {
+            popupContent.style.transform = 'scale(0.9)';
+            popupContent.style.opacity = '0';
+        }
+        
+        setTimeout(() => {
+            popup.classList.add('hidden');
+            popup.style.display = 'none';
+        }, 200);
+        
+        sessionStorage.setItem('welcomePopupShown', 'true');
+    }
+
+    // ===== RATING SYSTEM =====
+    let selectedRating = 0;
+    let currentUser = null;
+
+    async function initRatingSystem() {
+        // First check actual login status from server
+        try {
+            const res = await fetch('/api/user-info');
+            const data = await res.json();
+            
+            if (data.loggedIn && data.id) {
+                // User is actually logged in, update localStorage
+                currentUser = { id: data.id, username: data.username, avatar: data.avatar };
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                showRatingForm();
+            } else {
+                // Not logged in according to server, but keep localStorage for comment display
+                // Don't clear currentUser here - let checkLoginStatus handle the UI
+                showRatingLoginPrompt();
+            }
+        } catch (e) {
+            // If server check fails, keep existing currentUser from localStorage
+            showRatingLoginPrompt();
+        }
+        
+        loadRatings();
+    }
+
+
+
+    function showRatingForm() {
+        document.getElementById('ratingFormContainer').classList.remove('hidden');
+        document.getElementById('ratingLoginPrompt').classList.add('hidden');
+        document.getElementById('ratingSubmitted').classList.add('hidden');
+        
+        const hasRated = localStorage.getItem(`rated_${currentUser?.id}`);
+        if (hasRated) {
+            showRatingSubmitted();
+        }
+    }
+
+    function showRatingLoginPrompt() {
+        document.getElementById('ratingFormContainer').classList.add('hidden');
+        document.getElementById('ratingLoginPrompt').classList.remove('hidden');
+        document.getElementById('ratingSubmitted').classList.add('hidden');
+    }
+
+    function showRatingSubmitted() {
+        document.getElementById('ratingFormContainer').classList.add('hidden');
+        document.getElementById('ratingLoginPrompt').classList.add('hidden');
+        document.getElementById('ratingSubmitted').classList.remove('hidden');
+    }
+
+    function selectStar(star) {
+        selectedRating = star;
+        const stars = document.querySelectorAll('#starSelector .star-btn');
+        
+        stars.forEach((btn, index) => {
+            if (index < star) {
+                btn.classList.remove('text-gray-300');
+                btn.classList.add('text-yellow-400', 'scale-110');
+            } else {
+                btn.classList.remove('text-yellow-400', 'scale-110');
+                btn.classList.add('text-gray-300');
+            }
+        });
+        
+        document.getElementById('submitRatingBtn').disabled = false;
+        
+        const selectedBtn = stars[star - 1];
+        selectedBtn.style.transform = 'scale(1.3)';
+        setTimeout(() => {
+            selectedBtn.style.transform = 'scale(1.1)';
+        }, 200);
+    }
+
+    async function submitRating() {
+        if (selectedRating === 0) {
+            showToast('Vui lòng chọn số sao!', 'error');
+            return;
+        }
+        
+        // Double-check login status before submitting
+        try {
+            const authCheck = await fetch('/api/user-info');
+            const authData = await authCheck.json();
+            
+            if (!authData.loggedIn || !authData.id) {
+                showToast('Bạn cần đăng nhập để đánh giá!', 'error');
+                currentUser = null;
+                localStorage.removeItem('user');
+                showRatingLoginPrompt();
+                return;
+            }
+            
+            // Update currentUser with fresh data from server
+            currentUser = { id: authData.id, username: authData.username, avatar: authData.avatar };
+        } catch (e) {
+            showToast('Không thể xác thực, vui lòng đăng nhập lại!', 'error');
+            return;
+        }
+        
+        const comment = document.getElementById('ratingComment').value.trim();
+        const submitBtn = document.getElementById('submitRatingBtn');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang gửi...';
+        
+        try {
+            const response = await fetch('/api/ratings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: currentUser.id,
+                    userName: currentUser.username,
+                    userAvatar: currentUser.avatar,
+                    rating: selectedRating,
+                    comment: comment,
+                    timestamp: new Date().toISOString()
+                })
+
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                
+                localStorage.setItem(`rated_${currentUser.id}`, 'true');
+                localStorage.setItem(`rating_${currentUser.id}`, selectedRating);
+                
+                showRatingSubmitted();
+                showToast('Cảm ơn bạn đã đánh giá!', 'success');
+                
+                loadRatings();
+            } else {
+                const error = await response.json();
+                showToast(error.message || 'Có lỗi xảy ra, vui lòng thử lại!', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá';
+            }
+        } catch (e) {
+            console.error('Error submitting rating:', e);
+            showToast('Không thể kết nối đến server!', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Gửi đánh giá';
+        }
+    }
+
+
+    async function loadRatings() {
+        try {
+            const response = await fetch('/api/ratings/stats');
+            if (response.ok) {
+                const data = await response.json();
+                updateRatingDisplay(data);
+            }
+        } catch (e) {
+            console.error('Error loading ratings:', e);
+            updateRatingDisplay({
+                average: 4.8,
+                total: 128,
+                distribution: { 5: 96, 4: 19, 3: 6, 2: 4, 1: 3 }
+            });
+        }
+    }
+
+    // ===== COMMENTS DISPLAY =====
+    let commentsOffset = 0;
+    const COMMENTS_LIMIT = 5;
+    let totalComments = 0;
+    const COMMENTS_FETCH_RETRIES = 2;
+    const COMMENTS_FETCH_TIMEOUT_MS = 10000;
+
+    function waitMs(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function fetchCommentsWithRetry(url, maxRetries = COMMENTS_FETCH_RETRIES) {
+        let lastError = null;
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), COMMENTS_FETCH_TIMEOUT_MS);
+
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/json' },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (response.status === 429) {
+                    if (attempt === maxRetries) {
+                        throw new Error('HTTP_429');
+                    }
+                    const retryAfterHeader = Number(response.headers.get('retry-after') || 0);
+                    const backoffMs = retryAfterHeader > 0 ? retryAfterHeader * 1000 : 700 + (attempt * 900);
+                    await waitMs(backoffMs);
+                    continue;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP_${response.status}`);
+                }
+
+                return response;
+            } catch (error) {
+                clearTimeout(timeoutId);
+                lastError = error;
+
+                if (attempt === maxRetries) {
+                    break;
+                }
+
+                const isAbortError = error?.name === 'AbortError';
+                const retryDelay = isAbortError ? 900 + (attempt * 500) : 450 + (attempt * 700);
+                await waitMs(retryDelay);
+            }
+        }
+
+        throw lastError || new Error('COMMENTS_FETCH_FAILED');
+    }
+
+    async function loadComments(reset = false, requestedOffset = null) {
+        const commentsList = document.getElementById('commentsList');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const commentsCountEl = document.getElementById('commentsCount');
+        if (!commentsList || !loadMoreBtn || !commentsCountEl) {
+            console.warn('Comments UI elements are missing.');
+            return false;
+        }
+
+        const targetOffset = reset ? 0 : (Number.isInteger(requestedOffset) ? requestedOffset : commentsOffset);
+        const previousHtml = reset ? commentsList.innerHTML : '';
+
+        if (reset) {
+            commentsOffset = 0;
+        }
+        
+        try {
+            const response = await fetchCommentsWithRetry(`/api/ratings?limit=${COMMENTS_LIMIT}&offset=${targetOffset}&commentsOnly=1`);
+
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                throw new Error('INVALID_JSON_RESPONSE');
+            }
+
+            const ratings = Array.isArray(data.ratings) ? data.ratings : [];
+            totalComments = Number(data.total || 0);
+            commentsOffset = targetOffset;
+            
+            // Update count
+            commentsCountEl.textContent = `(${totalComments})`;
+            
+            // Render comments
+            if (reset) {
+                commentsList.innerHTML = '';
+            }
+            
+            if (ratings.length === 0 && reset) {
+                commentsList.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-comment-slash text-4xl mb-3 text-gray-300"></i>
+                        <p>Chưa có bình luận nào</p>
+                        <p class="text-sm">Hãy là người đầu tiên đánh giá!</p>
+                    </div>
+                `;
+            } else {
+                // Sort: current user's comment first, then by timestamp (newest first)
+                const sortedRatings = ratings.slice().sort((a, b) => {
+                    const isACurrentUser = currentUser && a.userId === currentUser.id;
+                    const isBCurrentUser = currentUser && b.userId === currentUser.id;
+                    
+                    if (isACurrentUser && !isBCurrentUser) return -1;
+                    if (!isACurrentUser && isBCurrentUser) return 1;
+                    
+                    // Both are current user or both are not - sort by timestamp
+                    return new Date(b.timestamp) - new Date(a.timestamp);
+                });
+                
+                sortedRatings.forEach(rating => {
+                    const commentEl = createCommentElement(rating);
+                    commentsList.appendChild(commentEl);
+                });
+            }
+            
+            // Show/hide load more button
+            if (targetOffset + ratings.length < totalComments) {
+                loadMoreBtn.classList.remove('hidden');
+            } else {
+                loadMoreBtn.classList.add('hidden');
+            }
+
+            return true;
+        } catch (e) {
+            console.error('Error loading comments:', e);
+            const isRateLimited = String(e?.message || '').includes('HTTP_429');
+            const resetErrorTitle = isRateLimited ? 'Server đang bận tạm thời' : 'Không thể tải bình luận';
+            const retryHint = 'Vui lòng thử lại sau vài giây';
+
+            if (reset) {
+                if (previousHtml && previousHtml.trim().length > 0) {
+                    commentsList.innerHTML = previousHtml;
+                    showToast(isRateLimited ? 'Server đang bận, bình luận sẽ tải lại sau.' : 'Lỗi mạng tạm thời khi tải bình luận.', 'error');
+                } else {
+                    commentsList.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-exclamation-circle text-4xl mb-3 text-red-300"></i>
+                            <p>${resetErrorTitle}</p>
+                            <p class="text-sm">${retryHint}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                showToast(isRateLimited ? 'Server đang bận, thử lại sau ít giây.' : 'Không thể tải thêm bình luận.', 'error');
+            }
+            return false;
+        }
+    }
+
+
+    function createCommentElement(rating) {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-50 rounded-xl p-4 border border-gray-100 relative';
+
+        const rawId = String(rating.id || rating.timestamp || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+        const uniqueToken = `${toSafeDomToken(rawId)}-${Math.random().toString(36).slice(2, 7)}`;
+        const commentDomId = `comment-${uniqueToken}`;
+        const menuDomId = `menu-${uniqueToken}`;
+        div.id = commentDomId;
+
+        const userName = String(rating.userName || 'Người dùng');
+        const userInitial = (Array.from(userName)[0] || '?').toUpperCase();
+        const ratingValue = Number(rating.rating || 0);
+        const commentText = String(rating.comment || '');
+        const timestampRaw = String(rating.timestamp || '');
+
+        // Format date
+        const date = new Date(timestampRaw);
+        const timeAgo = Number.isNaN(date.getTime()) ? 'Không rõ thời gian' : getTimeAgo(date);
+        
+        // Generate stars HTML
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= ratingValue) {
+                starsHtml += '<i class="fas fa-star text-yellow-400 text-sm"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star text-gray-300 text-sm"></i>';
+            }
+        }
+        
+        // Avatar: use Discord avatar if available, otherwise use initial
+        let avatarUrl = String(rating.userAvatar || '').trim();
+        
+        // If avatar is a Discord hash (not a full URL), construct the full URL
+        if (avatarUrl && !avatarUrl.startsWith('http')) {
+            avatarUrl = `https://cdn.discordapp.com/avatars/${rating.userId}/${avatarUrl}.png`;
+        }
+
+        const avatarFallbackHtml = `
+            <div class="comment-avatar-fallback w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                ${escapeHtml(userInitial)}
+            </div>
+        `;
+        const avatarHtml = avatarUrl
+            ? `
+                <div class="relative w-10 h-10 flex-shrink-0">
+                    <img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(userName)}" class="comment-avatar-img w-10 h-10 rounded-full border-2 border-blue-200 object-cover">
+                    <div class="comment-avatar-fallback hidden absolute inset-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        ${escapeHtml(userInitial)}
+                    </div>
+                </div>
+            `
+            : avatarFallbackHtml;
+
+        // Check if current user is the comment owner
+        const isOwner = currentUser && currentUser.id === rating.userId;
+        const menuHtml = isOwner ? `
+            <div class="relative ml-2">
+                <button type="button" class="comment-menu-toggle text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-200 transition-colors" data-menu-id="${menuDomId}">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div id="${menuDomId}" class="hidden absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[120px] z-50">
+                    <button type="button" class="comment-delete-btn w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm flex items-center gap-2" data-comment-dom-id="${commentDomId}" data-comment-timestamp="${escapeHtml(timestampRaw)}">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                        Xóa bình luận
+                    </button>
+                </div>
+            </div>
+        ` : '';
+
+        div.innerHTML = `
+            <div class="flex items-start gap-3">
+                ${avatarHtml}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-gray-800 text-sm">${escapeHtml(userName)}</span>
+                            <span class="text-gray-400 text-xs">• ${timeAgo}</span>
+                        </div>
+                        ${menuHtml}
+                    </div>
+                    <div class="flex gap-0.5 mb-2">
+                        ${starsHtml}
+                    </div>
+                    <p class="text-gray-700 text-sm leading-relaxed break-words">${escapeHtml(commentText)}</p>
+                </div>
+            </div>
+        `;
+
+        const avatarImgEl = div.querySelector('.comment-avatar-img');
+        const avatarFallbackEl = div.querySelector('.comment-avatar-fallback.hidden');
+        if (avatarImgEl && avatarFallbackEl) {
+            avatarImgEl.addEventListener('error', () => {
+                avatarImgEl.classList.add('hidden');
+                avatarFallbackEl.classList.remove('hidden');
+            }, { once: true });
+        }
+
+        const toggleBtn = div.querySelector('.comment-menu-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const menuId = toggleBtn.getAttribute('data-menu-id');
+                if (menuId) {
+                    window.toggleCommentMenu(menuId, toggleBtn);
+                }
+            });
+        }
+
+        const deleteBtn = div.querySelector('.comment-delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const ts = deleteBtn.getAttribute('data-comment-timestamp') || '';
+                const domId = deleteBtn.getAttribute('data-comment-dom-id') || '';
+                window.deleteComment(domId, ts);
+            });
+        }
+        
+        return div;
+    }
+
+    // Toggle comment menu dropdown
+    window.toggleCommentMenu = function(menuId, triggerButton = null) {
+        const menu = document.getElementById(String(menuId || ''));
+        if (!menu) return;
+        
+        // Close all other menus
+        document.querySelectorAll('[id^="menu-"]').forEach(m => {
+            if (m.id !== menu.id) m.classList.add('hidden');
+        });
+        
+        menu.classList.toggle('hidden');
+        
+        // Close menu when clicking outside
+        const closeMenu = (e) => {
+            const clickedTrigger = triggerButton && triggerButton.contains(e.target);
+            if (!menu.contains(e.target) && !clickedTrigger) {
+                menu.classList.add('hidden');
+                document.removeEventListener('click', closeMenu);
+            }
+        };
+        
+        if (!menu.classList.contains('hidden')) {
+            setTimeout(() => document.addEventListener('click', closeMenu), 0);
+        }
+    };
+
+    // Delete comment
+    window.deleteComment = async function(commentDomId, timestamp) {
+        if (!currentUser?.id) {
+            showToast('Bạn cần đăng nhập để thao tác bình luận.', 'error');
+            return;
+        }
+        if (!timestamp) {
+            showToast('Không xác định được bình luận cần xóa.', 'error');
+            return;
+        }
+        if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+        
+        try {
+            const response = await fetch(`/api/ratings/${encodeURIComponent(timestamp)}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: currentUser.id
+                })
+            });
+            
+            if (response.ok) {
+                // Remove comment from UI
+                const commentEl = document.getElementById(commentDomId);
+                if (commentEl) {
+                    commentEl.style.opacity = '0';
+                    commentEl.style.transform = 'translateX(-20px)';
+                    setTimeout(() => commentEl.remove(), 300);
+                }
+                
+                // Update local storage
+                localStorage.removeItem(`rated_${currentUser.id}`);
+                localStorage.removeItem(`rating_${currentUser.id}`);
+                
+                // Show rating form again
+                showRatingForm();
+                
+                showToast('Đã xóa bình luận!', 'success');
+                
+                // Reload ratings/comments
+                await loadRatings();
+                await loadComments(true);
+            } else {
+                const error = await response.json();
+                showToast(error.message || 'Không thể xóa bình luận', 'error');
+            }
+        } catch (e) {
+            console.error('Error deleting comment:', e);
+            showToast('Lỗi kết nối server!', 'error');
+        }
+    };
+    function getTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Vừa xong';
+        if (diffMins < 60) return `${diffMins} phút trước`;
+        if (diffHours < 24) return `${diffHours} giờ trước`;
+        if (diffDays < 7) return `${diffDays} ngày trước`;
+        return date.toLocaleDateString('vi-VN');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function toSafeDomToken(value) {
+        const safe = String(value || '')
+            .replace(/[^a-zA-Z0-9_-]/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 80);
+        return safe || `item_${Date.now()}`;
+    }
+
+    async function loadMoreComments() {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn?.disabled) return;
+
+        const nextOffset = commentsOffset + COMMENTS_LIMIT;
+        if (loadMoreBtn) loadMoreBtn.disabled = true;
+        try {
+            await loadComments(false, nextOffset);
+        } finally {
+            if (loadMoreBtn) loadMoreBtn.disabled = false;
+        }
+    }
+
+
+    function updateRatingDisplay(data) {
+        document.getElementById('averageRating').textContent = data.average.toFixed(1);
+        document.getElementById('totalRatings').textContent = data.total;
+        
+        const avgStars = document.getElementById('averageStars');
+        const fullStars = Math.floor(data.average);
+        const hasHalfStar = data.average % 1 >= 0.5;
+        
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= fullStars) {
+                starsHtml += '<i class="fas fa-star"></i>';
+            } else if (i === fullStars + 1 && hasHalfStar) {
+                starsHtml += '<i class="fas fa-star-half-alt"></i>';
+            } else {
+                starsHtml += '<i class="far fa-star text-gray-300"></i>';
+            }
+        }
+        avgStars.innerHTML = starsHtml;
+        
+        const distribution = data.distribution || {};
+        const total = data.total || 1;
+        
+        for (let i = 1; i <= 5; i++) {
+            const count = distribution[i] || 0;
+            const percentage = (count / total) * 100;
+            
+            document.getElementById(`count${i}`).textContent = count;
+            document.getElementById(`bar${i}`).style.width = `${percentage}%`;
+        }
+    }
+
+    function setupFurinaCorner() {
+        const furinaEl = document.getElementById('furinaCornerImage');
+        const bubbleEl = document.getElementById('furinaBubble');
+        if (!furinaEl || !bubbleEl) return;
+
+        const STREAK_GAP_MS = 900;
+        const STREAK_RESET_MS = 1400;
+        const HIDE_DURATION_MS = 10000;
+        const HIDE_PRE_DELAY_MS = 900;
+        const SPEAK_CHANCE = 0.3;
+        const FINAL_HIDE_LINE = 'Ngươi ấn nhanh quá, ta đi trốn đây';
+        let clickStreak = 0;
+        let lastClickAt = 0;
+        let streakResetTimer = null;
+        let bubbleTimer = null;
+        let returnTimer = null;
+        let hideStartTimer = null;
+        let isHidden = false;
+        const DEFAULT_TAP_LINES = [
+            'Ơ kìa, chạm nhẹ thôi.',
+            'Hi hi, ta thấy rồi.',
+            'Lại bấm nữa à?'
+        ];
+        let tapLines = DEFAULT_TAP_LINES.slice();
+        const COMBO_LINES = {
+            3: 'Combo 3 rồi đấy.',
+            5: 'Combo 5, nhanh tay ghê.',
+            10: 'Combo 10! Ta chịu thua.'
+        };
+
+        const loadQuotesFromJson = async () => {
+            try {
+                const res = await fetch('/api/furina/quotes', { cache: 'no-store' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (Array.isArray(data?.quotes) && data.quotes.length > 0) {
+                    tapLines = data.quotes;
+                }
+            } catch (e) {
+                // Keep default local lines when API is unavailable.
+            }
+        };
+
+        const pickRandom = (items) => items[Math.floor(Math.random() * items.length)];
+
+        const resetStreak = () => {
+            clickStreak = 0;
+            lastClickAt = 0;
+        };
+
+        const showBubble = (text, durationMs = 2300) => {
+            bubbleEl.textContent = text;
+            bubbleEl.classList.add('is-visible');
+            clearTimeout(bubbleTimer);
+            bubbleTimer = setTimeout(() => {
+                bubbleEl.classList.remove('is-visible');
+            }, durationMs);
+        };
+
+        const playBoing = (isStrong = false) => {
+            furinaEl.classList.remove('is-boing', 'is-boing-strong');
+            void furinaEl.offsetWidth;
+            furinaEl.classList.add(isStrong ? 'is-boing-strong' : 'is-boing');
+            setTimeout(() => {
+                furinaEl.classList.remove('is-boing', 'is-boing-strong');
+            }, isStrong ? 620 : 460);
+        };
+
+        const hideTemporarily = (beforeHideText = '') => {
+            if (isHidden) return;
+            const startHide = () => {
+                isHidden = true;
+                furinaEl.classList.add('is-hidden');
+                bubbleEl.classList.remove('is-visible');
+                clearTimeout(returnTimer);
+                returnTimer = setTimeout(() => {
+                    isHidden = false;
+                    furinaEl.classList.remove('is-hidden');
+                    showBubble('Ta quay lại rồi đây.', 1700);
+                }, HIDE_DURATION_MS);
+            };
+
+            clearTimeout(hideStartTimer);
+            if (beforeHideText) {
+                showBubble(beforeHideText, 1300);
+                hideStartTimer = setTimeout(startHide, HIDE_PRE_DELAY_MS);
+                return;
+            }
+            startHide();
+        };
+
+        furinaEl.addEventListener('dragstart', (e) => e.preventDefault());
+        furinaEl.addEventListener('contextmenu', (e) => e.preventDefault());
+        loadQuotesFromJson();
+        furinaEl.addEventListener('click', () => {
+            const now = Date.now();
+            if (now - lastClickAt <= STREAK_GAP_MS) {
+                clickStreak += 1;
+            } else {
+                clickStreak = 1;
+            }
+            lastClickAt = now;
+
+            clearTimeout(streakResetTimer);
+            streakResetTimer = setTimeout(() => {
+                resetStreak();
+            }, STREAK_RESET_MS);
+
+            playBoing(clickStreak >= 10);
+            if (clickStreak >= 10) {
+                clearTimeout(streakResetTimer);
+                resetStreak();
+                hideTemporarily(FINAL_HIDE_LINE);
+                return;
+            }
+
+            const shouldSpeak = Math.random() < SPEAK_CHANCE;
+            if (shouldSpeak) {
+                if (COMBO_LINES[clickStreak]) {
+                    showBubble(COMBO_LINES[clickStreak], clickStreak >= 10 ? 2200 : 1800);
+                } else {
+                    showBubble(pickRandom(tapLines), 1200);
+                }
+            }
+        });
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', async () => {
+        setupFurinaCorner();
+
+        if (!sessionStorage.getItem('welcomePopupShown')) {
+
+            const welcomePopup = document.getElementById('welcomePopup');
+            welcomePopup.classList.remove('hidden');
+            welcomePopup.style.display = 'flex';
+            initWelcomePopup();
+        }
+        
+        await checkLoginStatus();
+
+        await initRatingSystem();
+        await loadComments(true); // Load comments on init
+
+        await loadCountdownSettings();
+        updateTimeAndCountdown();
+        updateVotingVisibility();
+        loadVoteCounts();
+
+        setInterval(loadCountdownSettings, 30000);
+        setInterval(updateTimeAndCountdown, 1000);
+    });
+
+    // ===== WEB PUSH NOTIFICATIONS =====
+    const VAPID_PUBLIC_KEY = 'BCIwWTxvXmKzN7Tdg0IiJ0RsASHNVKBKjE3wln2sCSMledAUMc_XrSyZmdmz9ZKUkap4MIlk8cQbmnQwarl2R-Q';
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function registerServiceWorker() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            console.warn('Push notifications are not supported in this browser.');
+            return;
+        }
+
+        try {
+            // Check current permission
+            if (Notification.permission === 'denied') {
+                console.warn('Notifications are blocked by user.');
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.ready;
+            
+            let subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+                const convertedVapidKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedVapidKey
+                });
+                
+                await fetch('/api/notifications/subscribe', {
+                    method: 'POST',
+                    body: JSON.stringify(subscription),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                console.log('Successfully subscribed to notifications');
+            }
+        } catch (error) {
+            console.error('Service Worker registration/subscription failed:', error);
+        }
+    }
+
+    // Register when page loads
+    window.addEventListener('load', registerServiceWorker);
+
+    // ===== PIKAMC SERVER STATUS =====
+    function renderPikaMCStatus(data) {
+        document.getElementById('pikamc-ip').textContent = data.ip || '...';
+        document.getElementById('pikamc-port').textContent = data.port || '...';
+
+        if (data.online) {
+            document.getElementById('pikamc-players').textContent = data.players.online + '/' + data.players.max;
+            if (data.ram) document.getElementById('pikamc-ram').textContent = `${data.ram.usage} / ${data.ram.total}`;
+        } else {
+            document.getElementById('pikamc-players').textContent = data.apiError ? 'Lỗi API' : 'Offline';
+            document.getElementById('pikamc-ram').textContent = '0 MB';
+        }
+    }
+
+    async function fetchPikaMCStatus(force = false) {
+        try {
+            const CACHE_KEY = 'pikamc_status_cache';
+            const CACHE_TIME = 10 * 1000; // 10 giây
+
+            // Tránh spam API khi người dùng reload trang (F5) liên tục
+            if (!force) {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    // Nếu dữ liệu cũ dưới 10 giây, dùng luôn không cần gọi API
+                    if (Date.now() - parsed.timestamp < CACHE_TIME) {
+                        renderPikaMCStatus(parsed.data);
+                        return;
+                    }
+                }
+            }
+
+            // Gọi backend để lấy cấu hình IP, Port, RAM
+            const response = await fetch('/api/pikamc/status');
+            const data = await response.json();
+            
+            if (data.success) {
+                try {
+                    // Gọi mcsrvstat để lấy số lượng người chơi
+                    const mcRes = await fetch(`https://api.mcsrvstat.us/bedrock/3/${data.ip}:${data.port}`);
+                    const mcData = await mcRes.json();
+                    
+                    data.online = mcData.online;
+                    data.players = mcData.players || { online: 0, max: 0 };
+                } catch (apiError) {
+                    console.error('Lỗi API ngoài mcsrvstat:', apiError);
+                    data.apiError = true;
+                    data.online = false;
+                }
+
+                // Lưu lại cache
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    timestamp: Date.now(),
+                    data: data
+                }));
+
+                renderPikaMCStatus(data);
+            } else {
+                document.getElementById('pikamc-players').textContent = 'Lỗi Config';
+            }
+        } catch (error) {
+            console.error('Lỗi khi kết nối lấy cấu hình PikaMC:', error);
+            document.getElementById('pikamc-players').textContent = 'Lỗi kết nối';
+        }
+    }
+
+    // Gọi lần đầu (có check cache) và tự động gọi lại ép buộc (force) mỗi 10 giây
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchPikaMCStatus();
+        setInterval(() => fetchPikaMCStatus(true), 10 * 1000); // 10000 ms = 10 giây
+    });
+    </script>
+    <div id="furinaBubble" class="furina-bubble" aria-live="polite"></div>
+    <img id="furinaCornerImage" src="/photos/anh-dowload/furina.png" alt="Furina" class="furina-corner" loading="lazy">
+</body>
+</html>

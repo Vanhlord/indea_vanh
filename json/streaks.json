@@ -1,0 +1,72 @@
+{
+  "streaks": [
+    {
+      "userId": "999830214198710324",
+      "username": "vanh_68208",
+      "avatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
+      "currentStreak": 1,
+      "maxStreak": 2,
+      "lastCheckIn": "2026-03-27T10:23:38.599Z",
+      "totalCheckIns": 8,
+      "history": [
+        "2026-02-19",
+        "2026-02-20",
+        "2026-02-23",
+        "2026-03-01",
+        "2026-03-10",
+        "2026-03-15",
+        "2026-03-18",
+        "2026-03-27"
+      ],
+      "banner": null
+    },
+    {
+      "userId": "1028186408919257090",
+      "username": "vanhrtx5127",
+      "avatar": "https://cdn.discordapp.com/avatars/1028186408919257090/4fcf84cab72f5a480eb16a418d9f501c.png",
+      "currentStreak": 1,
+      "maxStreak": 2,
+      "lastCheckIn": "2026-03-23T07:08:53.939Z",
+      "totalCheckIns": 6,
+      "history": [
+        "2026-02-19",
+        "2026-02-26",
+        "2026-02-28",
+        "2026-03-11",
+        "2026-03-20",
+        "2026-03-23"
+      ],
+      "banner": null
+    },
+    {
+      "userId": "976028853346652161",
+      "username": "gartv",
+      "avatar": "https://cdn.discordapp.com/avatars/976028853346652161/3c30b65b10bffa79c18da34b5ce89fd3.png",
+      "currentStreak": 3,
+      "maxStreak": 4,
+      "lastCheckIn": "2026-03-17T08:27:06.329Z",
+      "totalCheckIns": 8,
+      "history": [
+        "2026-02-19",
+        "2026-02-20",
+        "2026-02-21",
+        "2026-02-23",
+        "2026-02-25",
+        "2026-03-15",
+        "2026-03-16",
+        "2026-03-17"
+      ],
+      "banner": null
+    },
+    {
+      "userId": "838985064951971891",
+      "username": "hanwolfer",
+      "avatar": "https://cdn.discordapp.com/avatars/838985064951971891/5011c67986c39ef436ce67808f4b3411.png",
+      "currentStreak": 0,
+      "maxStreak": 0,
+      "lastCheckIn": null,
+      "totalCheckIns": 0,
+      "history": []
+    }
+  ]
+}

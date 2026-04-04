@@ -1,0 +1,55 @@
+{
+  "ratings": [
+    {
+      "userId": "1028186408919257090",
+      "userName": "vanhrtx5127",
+      "userAvatar": "https://cdn.discordapp.com/avatars/1028186408919257090/4fcf84cab72f5a480eb16a418d9f501c.png",
+      "rating": 5,
+      "comment": "Admin đẹp trai",
+      "timestamp": "2026-02-18T12:16:12.008Z"
+    },
+    {
+      "userId": "1271665880690065420",
+      "userName": "zunn0209_55760",
+      "userAvatar": "https://cdn.discordapp.com/avatars/1271665880690065420/c0a5f7619c9c474b722742660b3d4d74.png",
+      "rating": 4,
+      "comment": "chơi dui, sv thân thiện trừ một số ng=)",
+      "timestamp": "2026-02-18T14:16:26.801Z"
+    },
+    {
+      "userId": "999830214198710324",
+      "userName": "vanh_68208",
+      "userAvatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
+      "rating": 5,
+      "comment": "át min siêu nhân gồng gánh hết mọi thứ",
+      "timestamp": "2026-02-18T14:20:42.175Z"
+    },
+    {
+      "userId": "976028853346652161",
+      "userName": "gartv",
+      "userAvatar": "https://cdn.discordapp.com/avatars/976028853346652161/3c30b65b10bffa79c18da34b5ce89fd3.png",
+      "rating": 4,
+      "comment": "Ko biết vì sao nhưng 4 sao thôi 🐧",
+      "timestamp": "2026-02-18T14:47:12.682Z"
+    },
+    {
+      "userId": "1031573618397806662",
+      "userName": "viet7988",
+      "userAvatar": "https://cdn.discordapp.com/avatars/1031573618397806662/3299360a3e84dfa180c76144d0f2f8d9.png",
+      "rating": 5,
+      "comment": "Ảnh bìa đệp voãi á á á",
+      "timestamp": "2026-02-18T14:48:25.974Z"
+    }
+  ],
+  "stats": {
+    "average": 4.6,
+    "total": 5,
+    "distribution": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 2,
+      "5": 3
+    }
+  }
+}

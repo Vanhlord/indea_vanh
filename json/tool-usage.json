@@ -1,0 +1,25 @@
+{
+  "updatedAt": "2026-04-04T05:26:16.212Z",
+  "tools": {
+    "tiktok": {
+      "downloads": 15,
+      "lastDownloadedAt": "2026-04-04T05:26:16.212Z"
+    },
+    "youtube": {
+      "downloads": 9,
+      "lastDownloadedAt": "2026-03-15T12:05:38.224Z"
+    },
+    "x": {
+      "downloads": 2,
+      "lastDownloadedAt": "2026-03-29T11:05:47.604Z"
+    },
+    "soundcloud": {
+      "downloads": 0,
+      "lastDownloadedAt": null
+    },
+    "facebook": {
+      "downloads": 4,
+      "lastDownloadedAt": "2026-03-29T12:41:16.109Z"
+    }
+  }
+}

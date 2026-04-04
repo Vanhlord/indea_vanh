@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Admin - Thêm nút tải Minecraft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="flex h-screen bg-[#f4f7f6] text-[#333] overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">VNA</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <!-- Sidebar content injected by shared-sidebar.js -->
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-download text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-700">Admin - Minecraft</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="page-content px-4 py-10 w-full">
+        <div class="bg-white border border-gray-200 rounded-3xl shadow-sm p-6 sm:p-8">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-11 h-11 rounded-2xl bg-[#007bff] text-white flex items-center justify-center shadow-lg shadow-blue-100">
+                    <i class="fas fa-download text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-gray-900">Thêm nút tải Minecraft</h1>
+                    <p class="text-sm text-gray-500">Dữ liệu sẽ được chèn vào danh sách tải trong `html/dowloadmc.html`.</p>
+                </div>
+            </div>
+
+            <form id="downloadForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tiêu đề nút</label>
+                    <input id="title" type="text" required maxlength="120"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        placeholder="Ví dụ: Minecraft PE v26.0">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Phiên bản / mô tả</label>
+                    <input id="version" type="text" maxlength="140"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        placeholder="Ví dụ: Version 1.21.132 (datnight)">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Link tải</label>
+                    <input id="url" type="text" required maxlength="500"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        placeholder="Ví dụ: https://example.com/minecraft.apk hoặc ../Minecraft/file.apk">
+                    <p class="text-xs text-gray-500 mt-2">Hỗ trợ link http/https hoặc đường dẫn tương đối trong máy chủ.</p>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-semibold text-gray-700">Chọn file trong thư mục Minecraft</label>
+                        <button type="button" id="refreshFiles" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
+                            Làm mới
+                        </button>
+                    </div>
+                    <select id="filePicker"
+                        class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200">
+                        <option value="">-- Chọn file có sẵn --</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-2">Chọn file để tự điền link tải.</p>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-[#007bff] hover:bg-[#0062cc] text-white font-semibold rounded-xl py-3 transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-upload"></i>
+                    Tải lên
+                </button>
+            </form>
+
+            <div id="statusMessage" class="mt-4 text-sm font-medium hidden"></div>
+
+            <div class="mt-8 border-t border-gray-100 pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Danh sách nút tải</h2>
+                    <button type="button" id="refreshList"
+                        class="text-sm font-semibold text-blue-600 hover:text-blue-800">
+                        Làm mới
+                    </button>
+                </div>
+                <div id="downloadList" class="space-y-3 text-sm text-gray-500">
+                    Đang tải danh sách...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const statusMessage = document.getElementById('statusMessage');
+        const downloadList = document.getElementById('downloadList');
+        const refreshListBtn = document.getElementById('refreshList');
+        const filePicker = document.getElementById('filePicker');
+        const refreshFilesBtn = document.getElementById('refreshFiles');
+        const urlInput = document.getElementById('url');
+
+        function setStatus(text, ok = true) {
+            statusMessage.textContent = text;
+            statusMessage.className = 'mt-4 text-sm font-medium ' + (ok ? 'text-emerald-600' : 'text-red-600');
+            statusMessage.classList.remove('hidden');
+        }
+
+        async function loadDownloads() {
+            if (!downloadList) return;
+            downloadList.textContent = 'Đang tải danh sách...';
+            try {
+                const res = await fetch('/api/admin/minecraft-downloads');
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    downloadList.textContent = data.error || 'Không thể tải danh sách.';
+                    return;
+                }
+
+                if (!data.items || data.items.length === 0) {
+                    downloadList.textContent = 'Chưa có nút tải nào.';
+                    return;
+                }
+
+                downloadList.innerHTML = '';
+                data.items.forEach((item) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-2xl border border-gray-200 p-4 bg-gray-50';
+
+                    const info = document.createElement('div');
+                    info.className = 'min-w-0';
+                    const title = document.createElement('div');
+                    title.className = 'font-semibold text-gray-900 truncate';
+                    title.textContent = item.title || 'Không có tiêu đề';
+                    const meta = document.createElement('div');
+                    meta.className = 'text-xs text-gray-500 mt-1 break-all';
+                    meta.textContent = `${item.version || 'Không có mô tả'} • ${item.url || ''}`;
+                    info.appendChild(title);
+                    info.appendChild(meta);
+
+                    const actions = document.createElement('div');
+                    actions.className = 'flex items-center gap-2';
+                    const delBtn = document.createElement('button');
+                    delBtn.type = 'button';
+                    delBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500 text-white hover:bg-red-600';
+                    delBtn.textContent = 'Xóa';
+                    delBtn.addEventListener('click', async () => {
+                        if (!confirm('Xóa nút tải này?')) return;
+                        try {
+                            const resp = await fetch(`/api/admin/minecraft-downloads/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+                            const respData = await resp.json().catch(() => ({}));
+                            if (!resp.ok || !respData.success) {
+                                setStatus(respData.error || 'Không thể xóa.', false);
+                                return;
+                            }
+                            setStatus('Đã xóa nút tải.');
+                            loadDownloads();
+                        } catch (_err) {
+                            setStatus('Lỗi kết nối máy chủ.', false);
+                        }
+                    });
+
+                    actions.appendChild(delBtn);
+                    row.appendChild(info);
+                    row.appendChild(actions);
+                    downloadList.appendChild(row);
+                });
+            } catch (_error) {
+                downloadList.textContent = 'Lỗi kết nối máy chủ.';
+            }
+        }
+
+        function formatBytes(bytes) {
+            const value = Number(bytes || 0);
+            if (!Number.isFinite(value) || value <= 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let idx = 0;
+            let num = value;
+            while (num >= 1024 && idx < units.length - 1) {
+                num /= 1024;
+                idx += 1;
+            }
+            return `${num.toFixed(idx === 0 ? 0 : 2)} ${units[idx]}`;
+        }
+
+        async function loadMinecraftFiles() {
+            if (!filePicker) return;
+            filePicker.innerHTML = '<option value="">-- Chọn file có sẵn --</option>';
+            try {
+                const res = await fetch('/api/admin/minecraft-files');
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = data.error || 'Không thể tải danh sách file.';
+                    opt.disabled = true;
+                    filePicker.appendChild(opt);
+                    return;
+                }
+
+                if (!data.items || data.items.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'Thư mục Minecraft chưa có file.';
+                    opt.disabled = true;
+                    filePicker.appendChild(opt);
+                    return;
+                }
+
+                data.items.forEach((item) => {
+                    const opt = document.createElement('option');
+                    opt.value = item.url || '';
+                    const sizeLabel = formatBytes(item.size);
+                    opt.textContent = `${item.name} (${sizeLabel})`;
+                    filePicker.appendChild(opt);
+                });
+            } catch (_error) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Lỗi kết nối máy chủ.';
+                opt.disabled = true;
+                filePicker.appendChild(opt);
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('title').value.trim(),
+                version: document.getElementById('version').value.trim(),
+                url: document.getElementById('url').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/admin/minecraft-downloads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    setStatus(data.error || 'Không thể thêm nút tải.', false);
+                    return;
+                }
+                setStatus('Đã thêm nút tải thành công!');
+                form.reset();
+                loadDownloads();
+            } catch (err) {
+                setStatus('Lỗi kết nối máy chủ.', false);
+            }
+        });
+
+        if (refreshListBtn) {
+            refreshListBtn.addEventListener('click', () => loadDownloads());
+        }
+        loadDownloads();
+
+        if (filePicker && urlInput) {
+            filePicker.addEventListener('change', () => {
+                if (filePicker.value) {
+                    urlInput.value = filePicker.value;
+                }
+            });
+        }
+        if (refreshFilesBtn) {
+            refreshFilesBtn.addEventListener('click', () => loadMinecraftFiles());
+        }
+        loadMinecraftFiles();
+    </script>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }

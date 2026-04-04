@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f1419">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>X Downloader | MC Note</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <style>
+        :root {
+            --x-bg: #0f1419;
+            --x-panel: rgba(255, 255, 255, 0.92);
+            --x-line: rgba(15, 20, 25, 0.08);
+            --x-blue: #1d9bf0;
+            --x-blue-soft: rgba(29, 155, 240, 0.16);
+            --x-dark: #0f1419;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(29, 155, 240, 0.16), transparent 24%),
+                radial-gradient(circle at 90% 0%, rgba(29, 155, 240, 0.12), transparent 20%),
+                linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+        }
+
+        .x-gradient {
+            background: linear-gradient(135deg, #0f1419 0%, #1f2937 100%);
+        }
+
+        .x-gradient-text {
+            background: linear-gradient(135deg, #0f1419 0%, #1d9bf0 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: var(--x-panel);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 18px 45px rgba(15, 20, 25, 0.08);
+        }
+
+        .x-input:focus {
+            border-color: var(--x-blue);
+            box-shadow: 0 0 0 4px var(--x-blue-soft);
+        }
+
+        .x-btn {
+            background: linear-gradient(135deg, var(--x-blue) 0%, #0a84ff 100%);
+            transition: all 0.25s ease;
+        }
+
+        .x-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 28px rgba(29, 155, 240, 0.25);
+        }
+
+        .x-btn:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        .preview-shell {
+            background: linear-gradient(180deg, rgba(15, 20, 25, 0.96) 0%, rgba(31, 41, 55, 0.96) 100%);
+        }
+
+        .soft-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .soft-scroll::-webkit-scrollbar-thumb {
+            background: #c9d8ea;
+            border-radius: 999px;
+            border: 2px solid #f4f7fb;
+        }
+
+        .floating-badge {
+            animation: floatBadge 3.5s ease-in-out infinite;
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex h-screen overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">MC Note</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col min-h-0">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 x-gradient rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-brands fa-twitter text-sm"></i>
+                </div>
+                <span class="font-bold x-gradient-text">X Downloader</span>
+            </div>
+            <button onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="p-4 border-b border-gray-200 bg-white hidden lg:flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 x-gradient rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-brands fa-twitter text-sm"></i>
+                </div>
+                <span class="font-semibold text-gray-700">X Downloader</span>
+            </div>
+            <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-2">
+                <i class="fas fa-clock text-gray-500"></i>
+                <span class="text-sm font-medium text-gray-700" id="currentTime">--:--:--</span>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 pb-16 lg:p-10 soft-scroll">
+            <div class="max-w-[980px] mx-auto space-y-6">
+                <section class="glass-card rounded-[28px] p-6 lg:p-8 overflow-hidden relative">
+                    <div class="absolute inset-x-0 top-0 h-1 x-gradient"></div>
+                    <div class="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 items-stretch">
+                        <div class="space-y-5">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold tracking-[0.18em] uppercase floating-badge">
+                                <i class="fa-brands fa-twitter"></i>
+                                X / Twitter
+                            </div>
+
+                            <div>
+                                <h1 class="text-3xl lg:text-5xl font-extrabold leading-tight x-gradient-text">Tải video từ X</h1>
+                                <p class="mt-3 text-slate-500 text-sm lg:text-base max-w-xl">
+                                    Dán link bài đăng X/Twitter, xem nhanh thông tin và tải video về máy bằng một nút bấm.
+                                </p>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="relative">
+                                    <input id="videoUrl" type="text" placeholder="https://x.com/username/status/..."
+                                        class="x-input w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-4 pl-12 text-base outline-none transition-all">
+                                    <i class="fa-brands fa-twitter absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button onclick="handleAnalyze()" class="x-btn flex-1 text-white rounded-2xl py-3.5 font-bold flex items-center justify-center gap-2">
+                                        <i class="fas fa-wand-magic-sparkles"></i>
+                                        Phân tích link
+                                    </button>
+                                    <button onclick="clearInput()" class="px-5 py-3.5 rounded-2xl border-2 border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all" title="Xóa">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-3 text-xs font-semibold text-slate-600">
+                                <span class="px-3 py-2 rounded-full bg-slate-100 border border-slate-200">Hỗ trợ `x.com`</span>
+                                <span class="px-3 py-2 rounded-full bg-slate-100 border border-slate-200">Hỗ trợ `twitter.com`</span>
+                                <span class="px-3 py-2 rounded-full bg-slate-100 border border-slate-200">Hỗ trợ `t.co`</span>
+                            </div>
+
+                            <div id="statusBox" class="hidden rounded-2xl px-4 py-3 text-sm font-medium"></div>
+                        </div>
+
+                        <div class="preview-shell rounded-[24px] p-4 lg:p-5 text-white min-h-[320px] flex flex-col justify-between">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-xs uppercase tracking-[0.2em] text-slate-300 font-semibold">Preview</p>
+                                    <h2 class="text-lg font-bold mt-1">Thông tin bài đăng</h2>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">
+                                    <i class="fa-brands fa-twitter"></i>
+                                </div>
+                            </div>
+
+                            <div id="resultBox" class="mt-4 hidden flex-1">
+                                <div class="flex flex-col h-full gap-4">
+                                    <div id="mediaPreview" class="rounded-2xl overflow-hidden bg-black/30 border border-white/10 min-h-[200px] flex items-center justify-center"></div>
+                                    <div id="metaCard" class="rounded-2xl bg-white/10 border border-white/10 p-4"></div>
+                                    <button id="downloadBtn" onclick="startDownload()" class="x-btn rounded-2xl py-3.5 font-bold flex items-center justify-center gap-2">
+                                        <i class="fas fa-download"></i>
+                                        Tải xuống MP4
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="emptyPreview" class="flex-1 flex items-center justify-center text-center text-slate-300 px-4">
+                                <div>
+                                    <div class="w-16 h-16 rounded-2xl bg-white/10 mx-auto flex items-center justify-center text-2xl mb-3">
+                                        <i class="fa-brands fa-twitter"></i>
+                                    </div>
+                                    <p class="font-semibold">Chưa có dữ liệu</p>
+                                    <p class="text-sm mt-1 text-slate-400">Nhập link X rồi bấm “Phân tích link”.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid md:grid-cols-3 gap-4">
+                    <div class="glass-card rounded-[22px] p-5">
+                        <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-3">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <p class="font-bold text-slate-900">Nhanh</p>
+                        <p class="text-sm text-slate-500 mt-1">Backend dùng `yt-dlp` để lấy video trực tiếp từ bài đăng.</p>
+                    </div>
+                    <div class="glass-card rounded-[22px] p-5">
+                        <div class="w-11 h-11 rounded-2xl bg-sky-500 text-white flex items-center justify-center mb-3">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <p class="font-bold text-slate-900">Gọn</p>
+                        <p class="text-sm text-slate-500 mt-1">Chỉ cần dán link, hệ thống tự nhận diện và tải file MP4.</p>
+                    </div>
+                    <div class="glass-card rounded-[22px] p-5">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-3">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <p class="font-bold text-slate-900">Ổn định</p>
+                        <p class="text-sm text-slate-500 mt-1">Hỗ trợ link `x.com`, `twitter.com` và `t.co` phổ biến.</p>
+                    </div>
+                </section>
+
+                <section class="glass-card rounded-[24px] p-6 lg:p-7">
+                    <h3 class="text-lg font-bold x-gradient-text mb-4">Cách dùng</h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-600">
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                            <p class="font-semibold text-slate-800 mb-1">1. Copy link bài đăng</p>
+                            <p>Mở X/Twitter và sao chép link của bài đăng có video.</p>
+                        </div>
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                            <p class="font-semibold text-slate-800 mb-1">2. Phân tích</p>
+                            <p>Dán link vào ô nhập và bấm “Phân tích link” để tải metadata.</p>
+                        </div>
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                            <p class="font-semibold text-slate-800 mb-1">3. Xem preview</p>
+                            <p>Kiểm tra thumbnail hoặc video preview trước khi tải xuống.</p>
+                        </div>
+                        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                            <p class="font-semibold text-slate-800 mb-1">4. Tải về</p>
+                            <p>Bấm nút tải xuống để lưu file MP4 vào máy bạn.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div id="progressModal" class="fixed inset-0 bg-black/60 z-[2000] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-[24px] w-full max-w-[420px] text-center shadow-2xl">
+            <div class="mb-5">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, rgba(29,155,240,0.1), rgba(15,20,25,0.08));">
+                    <i id="progressIcon" class="fas fa-cloud-download-alt text-2xl" style="color: var(--x-blue);"></i>
+                </div>
+                <h3 id="progressTitle" class="font-bold text-lg mb-1">Đang tải video...</h3>
+                <p id="progressFilename" class="text-sm text-gray-500 truncate"></p>
+            </div>
+            <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden mb-4">
+                <div id="progressBar" class="w-0 h-full rounded-full" style="background: linear-gradient(90deg, #1d9bf0, #0a84ff); transition: width 0.3s ease;"></div>
+            </div>
+            <div class="flex justify-between text-sm mb-3">
+                <span id="progressPercent" class="font-semibold" style="color: var(--x-blue);">0%</span>
+                <span id="progressSize" class="text-gray-500">0 MB / 0 MB</span>
+            </div>
+            <p id="statusText" class="text-sm text-gray-500">Đang kết nối server...</p>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        let currentXData = null;
+
+        function isValidHttpUrl(value) {
+            try {
+                const url = new URL(String(value || ''));
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+
+        function formatDuration(seconds) {
+            const total = Math.max(0, Math.floor(Number(seconds || 0)));
+            if (!total) return 'Không rõ';
+            const hours = Math.floor(total / 3600);
+            const minutes = Math.floor((total % 3600) / 60);
+            const secs = total % 60;
+            if (hours > 0) {
+                return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+            return `${minutes}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function formatBytes(bytes) {
+            const size = Number(bytes || 0);
+            if (!size || size < 0) return '0 MB';
+            const mb = size / (1024 * 1024);
+            return `${mb.toFixed(mb >= 100 ? 0 : 2)} MB`;
+        }
+
+        function setStatus(message, isError = false) {
+            const box = document.getElementById('statusBox');
+            if (!message) {
+                box.classList.add('hidden');
+                box.textContent = '';
+                return;
+            }
+            box.classList.remove('hidden');
+            box.className = isError
+                ? 'rounded-2xl px-4 py-3 text-sm font-medium bg-red-50 text-red-700 border border-red-200'
+                : 'rounded-2xl px-4 py-3 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200';
+            box.textContent = message;
+        }
+
+        function sanitizeFileBaseName(input, fallback = 'x_video') {
+            const text = String(input || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+            return text || fallback;
+        }
+
+        function normalizeXData(raw) {
+            const data = raw && typeof raw === 'object' ? raw : {};
+            return {
+                title: String(data.title || 'X video'),
+                author: String(data.author || ''),
+                thumbnail: String(data.thumbnail || ''),
+                duration: Number(data.duration || 0),
+                previewUrl: String(data.previewUrl || '')
+            };
+        }
+
+        function setProgressMode(mode) {
+            const progressIcon = document.getElementById('progressIcon');
+            const progressTitle = document.getElementById('progressTitle');
+            const progressFilename = document.getElementById('progressFilename');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressSize = document.getElementById('progressSize');
+            const statusText = document.getElementById('statusText');
+
+            if (mode === 'search') {
+                progressIcon.className = 'fas fa-magnifying-glass text-2xl';
+                progressTitle.textContent = 'Đang tìm kiếm...';
+                progressFilename.textContent = 'Đang quét link từ X/Twitter';
+                progressPercent.textContent = '0%';
+                progressSize.textContent = '-- / --';
+                statusText.textContent = 'Đang tìm kiếm...';
+                return;
+            }
+
+            progressIcon.className = 'fas fa-cloud-download-alt text-2xl';
+            progressTitle.textContent = 'Đang tải video...';
+            progressPercent.textContent = '0%';
+            progressSize.textContent = '0 MB / 0 MB';
+            statusText.textContent = 'Đang kết nối server...';
+        }
+
+        function renderPreview() {
+            const preview = document.getElementById('mediaPreview');
+            const metaCard = document.getElementById('metaCard');
+            const resultBox = document.getElementById('resultBox');
+            const emptyPreview = document.getElementById('emptyPreview');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            preview.replaceChildren();
+            metaCard.replaceChildren();
+
+            if (!currentXData) {
+                resultBox.classList.add('hidden');
+                emptyPreview.classList.remove('hidden');
+                downloadBtn.disabled = true;
+                downloadBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                return;
+            }
+
+            emptyPreview.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+
+            const hasPreview = isValidHttpUrl(currentXData.previewUrl);
+            const hasThumbnail = isValidHttpUrl(currentXData.thumbnail);
+
+            if (hasPreview) {
+                const video = document.createElement('video');
+                video.className = 'w-full h-full max-h-[320px] object-cover';
+                video.controls = true;
+                video.preload = 'metadata';
+                video.src = currentXData.previewUrl;
+                preview.appendChild(video);
+            } else if (hasThumbnail) {
+                const img = document.createElement('img');
+                img.className = 'w-full h-full max-h-[320px] object-cover';
+                img.src = currentXData.thumbnail;
+                img.alt = currentXData.title || 'X preview';
+                preview.appendChild(img);
+            } else {
+                preview.innerHTML = `
+                    <div class="text-center p-6 text-slate-300">
+                        <div class="w-16 h-16 rounded-2xl bg-white/10 mx-auto flex items-center justify-center text-2xl mb-3">
+                            <i class="fa-brands fa-twitter"></i>
+                        </div>
+                        <p class="font-semibold">Không có preview</p>
+                    </div>
+                `;
+            }
+
+            const titleWrap = document.createElement('div');
+            titleWrap.className = 'flex items-start justify-between gap-3';
+
+            const titleBlock = document.createElement('div');
+            titleBlock.className = 'min-w-0';
+
+            const titleLabel = document.createElement('p');
+            titleLabel.className = 'text-xs uppercase tracking-[0.18em] text-slate-300 font-semibold';
+            titleLabel.textContent = 'Bài đăng';
+
+            const titleText = document.createElement('h3');
+            titleText.className = 'text-lg font-bold text-white break-words';
+            titleText.textContent = currentXData.title || 'X video';
+
+            const badge = document.createElement('span');
+            badge.className = 'shrink-0 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold border border-white/10';
+            badge.textContent = 'MP4';
+
+            titleBlock.append(titleLabel, titleText);
+            titleWrap.append(titleBlock, badge);
+
+            const infoGrid = document.createElement('div');
+            infoGrid.className = 'mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm';
+
+            const authorCard = document.createElement('div');
+            authorCard.className = 'rounded-2xl bg-white/10 border border-white/10 px-3 py-2';
+            authorCard.innerHTML = '<p class="text-slate-400 text-xs uppercase tracking-wider">Tác giả</p>';
+            const authorText = document.createElement('p');
+            authorText.className = 'text-white font-semibold truncate';
+            authorText.textContent = currentXData.author || 'Không rõ';
+            authorCard.appendChild(authorText);
+
+            const durationCard = document.createElement('div');
+            durationCard.className = 'rounded-2xl bg-white/10 border border-white/10 px-3 py-2';
+            durationCard.innerHTML = '<p class="text-slate-400 text-xs uppercase tracking-wider">Thời lượng</p>';
+            const durationText = document.createElement('p');
+            durationText.className = 'text-white font-semibold';
+            durationText.textContent = formatDuration(currentXData.duration);
+            durationCard.appendChild(durationText);
+
+            infoGrid.append(authorCard, durationCard);
+            metaCard.append(titleWrap, infoGrid);
+        }
+
+        async function handleAnalyze() {
+            const input = document.getElementById('videoUrl');
+            const url = input.value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const progressModal = document.getElementById('progressModal');
+            const loaderText = document.getElementById('statusText');
+
+            if (!url) {
+                setStatus('Vui lòng dán link X/Twitter vào ô nhập.', true);
+                return;
+            }
+            if (!isValidHttpUrl(url)) {
+                setStatus('Link không hợp lệ. Hãy dán URL đầy đủ.', true);
+                return;
+            }
+
+            setStatus('');
+            resultBox.classList.add('hidden');
+            setProgressMode('search');
+            progressModal.classList.remove('hidden');
+            progressModal.style.display = 'flex';
+            loaderText.textContent = 'Đang tìm kiếm...';
+
+            try {
+                const response = await fetch(`/api/download/info?platform=x&url=${encodeURIComponent(url)}`, {
+                    headers: { Accept: 'application/json' }
+                });
+                const payload = await response.json().catch(() => null);
+                if (!response.ok || !payload?.success) {
+                    throw new Error(payload?.error || payload?.message || 'Không thể lấy thông tin bài đăng.');
+                }
+
+                currentXData = normalizeXData(payload?.data?.raw || payload?.data || {});
+                renderPreview();
+                setStatus('Đã lấy thông tin thành công. Bấm “Tải xuống MP4” để lưu file.');
+            } catch (error) {
+                currentXData = null;
+                renderPreview();
+                setStatus(error.message || 'Không thể lấy dữ liệu từ X.', true);
+            } finally {
+                progressModal.style.display = 'none';
+                progressModal.classList.add('hidden');
+            }
+        }
+
+        async function startDownload() {
+            if (!currentXData) {
+                setStatus('Bạn cần phân tích link trước khi tải.', true);
+                return;
+            }
+
+            const input = document.getElementById('videoUrl');
+            const url = input.value.trim();
+            const modal = document.getElementById('progressModal');
+            const bar = document.getElementById('progressBar');
+            const status = document.getElementById('statusText');
+            const progressFilename = document.getElementById('progressFilename');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressSize = document.getElementById('progressSize');
+
+            if (!isValidHttpUrl(url)) {
+                setStatus('URL tải xuống không hợp lệ.', true);
+                return;
+            }
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            setProgressMode('download');
+            bar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressSize.textContent = '0 MB / 0 MB';
+            progressFilename.textContent = sanitizeFileBaseName(currentXData.title || 'x_video');
+            status.textContent = 'Đang kết nối server...';
+
+            let progress = 0;
+            let intervalId = null;
+
+            try {
+                intervalId = setInterval(() => {
+                    if (progress < 86) {
+                        progress += 4;
+                        bar.style.width = `${progress}%`;
+                        progressPercent.textContent = `${progress}%`;
+                    }
+                }, 220);
+
+                const response = await fetch('/api/download/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/octet-stream'
+                    },
+                    body: JSON.stringify({
+                        platform: 'x',
+                        url,
+                        type: 'mp4',
+                        fileName: sanitizeFileBaseName(currentXData.title || 'x_video')
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Lỗi không xác định' }));
+                    throw new Error(errorData.error || errorData.message || 'Không tải được file từ server.');
+                }
+
+                progress = 94;
+                bar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                status.textContent = 'Đang đóng gói file...';
+
+                const blob = await response.blob();
+                const disposition = response.headers.get('Content-Disposition');
+                let finalFileName = `${sanitizeFileBaseName(currentXData.title || 'x_video')}.mp4`;
+
+                if (disposition && disposition.includes('filename=')) {
+                    const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (matches && matches[1]) {
+                        finalFileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+                    }
+                }
+
+                const contentLength = Number(response.headers.get('Content-Length') || 0);
+                progressSize.textContent = contentLength > 0
+                    ? `${formatBytes(blob.size)} / ${formatBytes(contentLength)}`
+                    : `${formatBytes(blob.size)} / ${formatBytes(blob.size)}`;
+
+                progress = 100;
+                bar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                status.textContent = 'Đang tải về máy...';
+
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = finalFileName;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+                    status.textContent = 'Hoàn tất!';
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        modal.classList.add('hidden');
+                    }, 900);
+                }, 100);
+            } catch (error) {
+                console.error('X download failed:', error);
+                status.textContent = `Lỗi: ${error.message || 'Không thể tải file'}`;
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modal.classList.add('hidden');
+                }, 2200);
+            } finally {
+                if (intervalId) clearInterval(intervalId);
+            }
+        }
+
+        function clearInput() {
+            document.getElementById('videoUrl').value = '';
+            currentXData = null;
+            renderPreview();
+            setStatus('');
+        }
+
+        function updateTime() {
+            const el = document.getElementById('currentTime');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('videoUrl')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                handleAnalyze();
+            }
+        });
+
+        updateTime();
+        setInterval(updateTime, 1000);
+        renderPreview();
+    </script>
+</body>
+</html>

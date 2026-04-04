@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Siêu Zoom Tranh Vẽ | NexusBD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .openseadragon-container { background-color: transparent !important; }
+        
+        /* Album styles */
+        .album-card {
+            transition: all 0.3s ease;
+        }
+        .album-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* Drag drop zone */
+        .drag-zone {
+            border: 3px dashed #ccc;
+            transition: all 0.3s ease;
+        }
+        .drag-zone.dragover {
+            border-color: #007bff;
+            background: rgba(0,123,255,0.1);
+        }
+        
+        /* Modal animations */
+        .modal-enter {
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Gallery grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        /* Login Gate */
+        #loginGate {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-gate-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: gateIn 0.5s ease;
+        }
+        
+        @keyframes gateIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-gate-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 48px;
+            color: white;
+        }
+        
+        .login-gate-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a202c;
+            margin-bottom: 12px;
+        }
+        
+        .login-gate-desc {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .login-gate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #5865F2;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .login-gate-btn:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
+        }
+        
+        .login-gate-footer {
+            margin-top: 24px;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+        
+        .page-content {
+            display: none;
+        }
+        
+        .page-content.logged-in {
+            display: flex;
+        }
+</style>
+
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-[#f4f7f6] text-[#333] h-screen overflow-hidden">
+
+    <!-- Login Gate - Hiện khi chưa đăng nhập -->
+    <div id="loginGate">
+        <div class="login-gate-content">
+            <div class="login-gate-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1 class="login-gate-title">Thông báo nhỏ!</h1>
+            <p class="login-gate-desc">
+                Đây là trang Raw Art Server dành cho thành viên.<br>
+                Vui lòng đăng nhập bằng Discord để tiếp tục xem nội dung!<br>
+                Trang album không thể tạo nếu chưa đang nhập!
+            </p>
+            <a href="/api/auth/discord" class="login-gate-btn">
+                <i class="fa-brands fa-discord"></i>
+                Đăng nhập với Discord
+            </a>
+            <p class="login-gate-footer">
+                <i class="fas fa-shield-alt mr-1"></i>
+                Server Bedrock Dedicated (Vanh Lord)
+            </p>
+        </div>
+    </div>
+
+    <!-- Page Content - Chỉ hiện khi đã đăng nhập -->
+    <div id="pageContent" class="page-content h-full">
+
+
+        <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">NexusBD</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='/'">
+                <i class="fas fa-home"></i> Trang chủ
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="copyIP()">
+                <i class="fas fa-copy"></i> Copy IP
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../html/status-server.html'">
+                <i class="fas fa-chart-line w-5"></i> Status server
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../A11/chat.html'">
+                <i class="fas fa-comments w-5"></i> Chat
+            </div>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/streak.html">
+                <i class="fas fa-fire w-5"></i> Streak
+            </a>
+<a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
+                <i class="fas fa-cloud w-5"></i> Cloud</a>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Thư viện</div>
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#007bff] text-white font-medium shadow-lg shadow-blue-100 cursor-pointer">
+                <i class="fas fa-expand"></i> Album
+            </div>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
+            <div class="tool-grid-sidebar">
+                <a class="tool-tile" href="/p/snapsave.html">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <span>Facebook</span>
+                </a>
+                <a class="tool-tile" href="/html/tiktok.html">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a class="tool-tile" href="/html/youtube.html">
+                    <i class="fa-brands fa-youtube"></i>
+                    <span>YouTube</span>
+                </a>
+                <a class="tool-tile" href="/html/soundcloud.html">
+                    <i class="fa-brands fa-soundcloud"></i>
+                    <span>SoundCloud</span>
+                </a>
+                <a class="tool-tile" href="/html/dowloadmc.html">
+                    <i class="fas fa-download"></i>
+                    <span>Minecraft</span>
+                </a>
+            </div>
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">kho rác</div>
+            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
+                <i class="fas fa-toolbox"></i> Kho công cụ
+            </a>
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 NexusBD</p>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="p-4 border-b border-gray-200 bg-white flex justify-center items-center relative">
+            <button onclick="toggleSidebar()" class="hamburger text-2xl text-gray-700 absolute left-4 lg:hidden">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="userProfile" class="flex items-center gap-3">
+                <!-- Guest State -->
+                <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors" id="userGuest" onclick="window.location.href='/api/auth/discord'">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-700">Đăng nhập</span>
+                </div>
+                <!-- Logged In State -->
+                <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-3 hidden" id="userLogged">
+                    <img src="" id="userAvatar" class="w-8 h-8 rounded-full border-2 border-[#007bff]" alt="Avatar">
+                    <span class="text-sm font-medium text-gray-700" id="userName">User</span>
+                    <button onclick="logout()" class="text-red-500 hover:text-red-700 ml-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col">
+
+            <!-- Disk Usage Widget -->
+            <div class="flex justify-end mb-2">
+                <div class="bg-white rounded-xl p-2 md:p-3 shadow-md border border-gray-200 flex items-center gap-2 md:gap-4">
+                    <div class="flex items-center gap-1 md:gap-2">
+                        <i class="fas fa-hdd text-blue-500 text-[10px] md:text-xs"></i>
+                        <span class="text-[10px] md:text-xs font-medium text-gray-600">Use</span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                        <span id="diskPercent" class="text-sm md:text-xl font-bold text-gray-400">0%</span>
+                        <span class="text-[10px] md:text-xs text-gray-500">đã dùng</span>
+                    </div>
+                    <div class="w-16 md:w-24 h-1.5 md:h-2 bg-gray-200 rounded-full overflow-hidden relative">
+                        <div id="diskBar" class="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                    <div class="text-[8px] md:text-[10px] text-gray-500">
+                        <span id="diskUsed">--</span> / <span id="diskFree">--</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Main Image Viewer -->
+            <div class="relative w-full bg-white shadow-sm border border-gray-100 overflow-hidden shadow-inner mb-4 md:mb-6 flex-shrink-0" style="aspect-ratio: 16/9; max-height: 50vh;">
+
+                <img src="../photos/raw/anh-nhom/raw-2026-tiny.jpg"
+
+
+                    id="img-placeholder"
+                    class="absolute inset-0 w-full h-full object-contain blur-3xl scale-110 z-0 transition-opacity duration-1000"
+                    alt="Loading...">
+
+                <div id="loading-spinner" class="absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-500 bg-white/10 backdrop-blur-sm">
+                    <div class="relative flex items-center justify-center">
+                        <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                        <i class="fas fa-image absolute text-blue-600 animate-pulse"></i>
+                    </div>
+                </div>
+
+                <div id="osd-viewer" class="w-full h-full opacity-0 transition-opacity duration-1000 z-10"></div>
+            </div>
+
+
+            <!-- Add Album Button -->
+            <div class="flex justify-center mb-4 md:mb-6">
+                <button onclick="openUploadModal()" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 md:py-3 px-6 md:px-8 rounded-full shadow-lg transform transition hover:scale-105 flex items-center gap-2 text-sm md:text-base">
+                    <i class="fas fa-plus-circle"></i>
+                    Thêm Album
+                </button>
+            </div>
+
+            <!-- Albums Section -->
+            <div id="albumsSection" class="mb-4 md:mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 md:mb-4 flex items-center gap-2">
+                    <i class="fas fa-images text-blue-500"></i>
+                    Album Ảnh
+                </h2>
+                <div id="albumsGrid" class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+
+                    <!-- Albums will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="fixed inset-0 bg-black/60 z-[2000] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full modal-enter overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800">Tạo Album Mới</h3>
+                <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div id="dragZone" class="drag-zone rounded-xl p-8 text-center cursor-pointer mb-4">
+                    <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 font-medium mb-2">Kéo thả ảnh vào đây</p>
+                    <p class="text-gray-400 text-sm">hoặc click để chọn file</p>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*" multiple>
+                </div>
+                
+                <div id="selectedFiles" class="mb-4 hidden">
+                    <p class="text-sm text-gray-600 mb-2">Đã chọn <span id="fileCount">0</span> ảnh</p>
+                    <div id="previewList" class="flex gap-2 overflow-x-auto pb-2"></div>
+                </div>
+                
+                <button onclick="uploadFiles()" id="uploadBtn" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 rounded-xl shadow-lg opacity-50 cursor-not-allowed" disabled>
+                    <i class="fas fa-upload mr-2"></i>
+                    Gửi Album
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="fixed inset-0 bg-black/40 z-[2000] hidden flex items-center justify-center p-2 md:p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden modal-enter border border-gray-100 flex flex-col">
+            <!-- Header -->
+            <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50/50 to-purple-50/50">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+                        <i class="fas fa-images text-white text-lg md:text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 id="galleryTitle" class="text-lg md:text-2xl font-bold text-gray-800 tracking-tight">Album của User</h3>
+                        <p class="text-gray-500 text-xs md:text-sm mt-0.5">Thư viện ảnh siêu zoom</p>
+                    </div>
+                </div>
+                <button onclick="closeGalleryModal()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-all">
+                    <i class="fas fa-times text-base md:text-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Gallery Content -->
+            <div class="p-2 md:p-6 overflow-y-auto flex-1 bg-gray-50">
+                <div id="galleryGrid" class="grid grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1 md:gap-4">
+                    <!-- Images will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-3 md:p-4 border-t border-gray-100 bg-white flex justify-center">
+                <button onclick="closeGalleryModal()" class="px-6 py-2 md:py-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all text-sm flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i>Quay lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Login Required Modal -->
+    <div id="loginRequiredModal" class="fixed inset-0 bg-black/60 z-[2000] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full modal-enter p-6 text-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-lock text-3xl text-red-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Yêu cầu đăng nhập</h3>
+            <p class="text-gray-600 mb-6">Bạn cần đăng nhập bằng Discord để tạo album và thêm ảnh!</p>
+            <div class="flex gap-3">
+                <button onclick="closeLoginRequiredModal()" class="flex-1 py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition">
+                    Để sau
+                </button>
+                <button onclick="window.location.href='/api/auth/discord'" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:opacity-90 transition">
+                    <i class="fa-brands fa-discord mr-2"></i>
+                    Đăng nhập
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Image Preview Modal -->
+        <div id="imagePreviewModal" class="fixed inset-0 bg-black/95 z-[3000] hidden flex-col items-center justify-center p-4" onclick="closeImagePreview()">
+            <button onclick="closeImagePreview()" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-50">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="relative w-full h-full max-h-[85vh] flex items-center justify-center my-auto" onclick="event.stopPropagation()">
+                <img id="previewImage" src="" class="max-w-full max-h-full rounded-lg shadow-2xl object-contain select-none">
+            </div>
+            <!-- Action Buttons -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 md:gap-4 z-50 w-max" onclick="event.stopPropagation()">
+                <button onclick="downloadPreviewImage()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-4 md:px-6 py-2.5 rounded-full text-sm md:text-base font-medium transition-all shadow-lg border border-white/20">
+                    <i class="fas fa-download"></i> <span class="hidden md:inline">Tải xuống</span><span class="md:hidden">Tải</span>
+                </button>
+                <button onclick="copyPreviewImage()" class="flex items-center gap-2 bg-blue-500/80 hover:bg-blue-600/80 backdrop-blur-md text-white px-4 md:px-6 py-2.5 rounded-full text-sm md:text-base font-medium transition-all shadow-lg border border-blue-400/30">
+                    <i class="fas fa-copy"></i> <span class="hidden md:inline">Sao chép ảnh</span><span class="md:hidden">Copy ảnh</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <script src="/html/shared-sidebar.js"></script>
+<script>
+// Global variables
+        let selectedFiles = [];
+        let currentUsername = null;
+
+        // Điều khiển Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('-left-[260px]');
+            sidebar.classList.toggle('left-0');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Copy IP
+        function copyIP() {
+            const text = 'vanhmcpe.my-land.fun:25702';
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã copy IP: ' + text);
+            });
+        }
+
+        // ========== AUTHENTICATION ==========
+        async function checkLoginStatus() {
+            try {
+                const res = await fetch('/api/user-info');
+                const data = await res.json();
+                console.log("Login status response:", data);
+
+                if (data.loggedIn && data.username) {
+                    currentUsername = data.username;
+                    // Ẩn login gate, hiện page content
+                    document.getElementById('loginGate').style.display = 'none';
+                    document.getElementById('pageContent').classList.add('logged-in');
+                    applyLoginUI(data);
+                } else {
+                    // Giữ login gate, ẩn page content
+                    document.getElementById('loginGate').style.display = 'flex';
+                    document.getElementById('pageContent').classList.remove('logged-in');
+                }
+            } catch (e) {
+                console.error("Error checking login status:", e);
+                document.getElementById('loginGate').style.display = 'flex';
+                document.getElementById('pageContent').classList.remove('logged-in');
+            }
+        }
+
+
+
+
+        function applyLoginUI(data) {
+            const userGuest = document.getElementById('userGuest');
+            const userLogged = document.getElementById('userLogged');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+
+            if (userGuest) userGuest.classList.add('hidden');
+            if (userLogged) userLogged.classList.remove('hidden');
+            if (userName) userName.textContent = data.username;
+            if (userAvatar) userAvatar.src = data.avatar;
+
+            const userData = {
+                id: data.id,
+                username: data.username,
+                avatar: data.avatar
+            };
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            console.log("✅ Đã đăng nhập:", data.username, data.avatar);
+            
+            // Load albums after login
+            loadAlbums();
+        }
+
+        function setGuestUI() {
+            const userGuest = document.getElementById('userGuest');
+            const userLogged = document.getElementById('userLogged');
+
+            if (userGuest) userGuest.classList.remove('hidden');
+            if (userLogged) userLogged.classList.add('hidden');
+
+            console.log("👤 Chưa đăng nhập - hiển thị trạng thái guest");
+            
+            // Still load albums for guests to view
+            loadAlbums();
+        }
+
+
+
+        async function logout() {
+            if (confirm('Muốn đăng xuất rồi à!')) {
+                window.location.href = '/api/auth/logout';
+            }
+        }
+
+        // ========== ALBUM FUNCTIONS ==========
+        function openUploadModal() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.username) {
+                document.getElementById('loginRequiredModal').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('uploadModal').classList.remove('hidden');
+            selectedFiles = [];
+            updateFilePreview();
+        }
+
+        function closeLoginRequiredModal() {
+            document.getElementById('loginRequiredModal').classList.add('hidden');
+        }
+
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            selectedFiles = [];
+            updateFilePreview();
+        }
+
+        // Drag and drop handling
+        const dragZone = document.getElementById('dragZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dragZone.addEventListener('click', () => fileInput.click());
+        
+        dragZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragZone.classList.add('dragover');
+        });
+
+        dragZone.addEventListener('dragleave', () => {
+            dragZone.classList.remove('dragover');
+        });
+
+        dragZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            // Add size check property to each file
+            imageFiles.forEach(file => {
+                file.isOversized = file.size > 10 * 1024 * 1024; // 10MB
+            });
+            selectedFiles = [...selectedFiles, ...imageFiles];
+            updateFilePreview();
+        }
+
+
+        function updateFilePreview() {
+            const selectedFilesDiv = document.getElementById('selectedFiles');
+            const fileCount = document.getElementById('fileCount');
+            const previewList = document.getElementById('previewList');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            if (selectedFiles.length === 0) {
+                selectedFilesDiv.classList.add('hidden');
+                uploadBtn.disabled = true;
+                uploadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            selectedFilesDiv.classList.remove('hidden');
+            fileCount.textContent = selectedFiles.length;
+            uploadBtn.disabled = false;
+            uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            previewList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    const isOversized = file.isOversized;
+                    const borderClass = isOversized ? 'border-red-500 border-4' : 'border-gray-200 border-2';
+                    const warningIcon = isOversized ? `<div class="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs" title="Ảnh > 10MB"><i class="fas fa-exclamation-triangle"></i></div>` : '';
+                    
+                    div.className = 'relative flex-shrink-0';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="w-20 h-20 object-cover rounded-lg ${borderClass}">
+                        ${warningIcon}
+                        <button onclick="removeFile(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    previewList.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+
+        async function uploadFiles() {
+            if (selectedFiles.length === 0) return;
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Đang upload...';
+            uploadBtn.disabled = true;
+
+            try {
+                let totalOriginal = 0;
+                let totalFinal = 0;
+                let compressedCount = 0;
+
+                for (const file of selectedFiles) {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('username', user.username);
+
+                    const response = await fetch('/api/album/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Upload failed');
+                    }
+
+                    const result = await response.json();
+                    if (result.compression) {
+                        totalOriginal += result.compression.originalSize;
+                        totalFinal += result.compression.finalSize;
+                        if (result.compression.compressed) compressedCount++;
+                    }
+                }
+
+                // Show compression info
+                const savedMB = ((totalOriginal - totalFinal) / 1024 / 1024).toFixed(2);
+                let msg = 'Upload album thành công! 🎉';
+                if (compressedCount > 0) {
+                    msg += `\n\nĐã nén ${compressedCount} ảnh`;
+                    msg += `\nTiết kiệm: ${savedMB} MB`;
+                }
+                alert(msg);
+                closeUploadModal();
+                loadAlbums(); // Refresh albums
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Có lỗi khi upload. Vui lòng thử lại!');
+            } finally {
+                uploadBtn.innerHTML = '<i class="fas fa-upload mr-2"></i> Gửi Album';
+                uploadBtn.disabled = false;
+            }
+        }
+
+
+        async function loadAlbums() {
+            try {
+                const response = await fetch('/api/album/list');
+                const data = await response.json();
+                
+                const albumsGrid = document.getElementById('albumsGrid');
+                albumsGrid.innerHTML = '';
+
+                if (data.albums.length === 0) {
+                    albumsGrid.innerHTML = `
+                        <div class="col-span-full text-center py-8 text-gray-400">
+                            <i class="fas fa-images text-4xl mb-2"></i>
+                            <p>Chưa có album nào. Hãy tạo album đầu tiên!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                data.albums.forEach(album => {
+                    const card = document.createElement('div');
+                    card.className = 'album-card bg-white rounded-lg md:rounded-xl shadow-md overflow-hidden cursor-pointer';
+                    card.onclick = () => openGallery(album.username);
+                    
+                    card.innerHTML = `
+                        <div class="relative h-24 md:h-40 overflow-hidden">
+                            <img src="${album.firstImage}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute bottom-1 md:bottom-2 left-1 md:left-2 right-1 md:right-2">
+                                <p class="text-white font-bold truncate text-xs md:text-base">${album.username}</p>
+                                <p class="text-white/80 text-xs">${album.imageCount} ảnh</p>
+                            </div>
+                        </div>
+                    `;
+
+                    
+                    albumsGrid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Load albums error:', error);
+            }
+        }
+
+        let currentGalleryLoadId = 0;
+
+        async function openGallery(username) {
+            currentGalleryLoadId++;
+            const myLoadId = currentGalleryLoadId;
+
+            try {
+                const response = await fetch(`/api/album/${username}`);
+                const data = await response.json();
+                
+                document.getElementById('galleryTitle').textContent = `Album của ${username}`;
+                const galleryGrid = document.getElementById('galleryGrid');
+                galleryGrid.innerHTML = '';
+
+                const imgElementsToLoad = [];
+
+                data.images.forEach((img, index) => {
+                    const div = document.createElement('div');
+                    // Giao diện grid 5 ảnh ngang cần góc bo nhỏ lại trên điện thoại để hợp lý, góc to trên tablet/desktop
+                    div.className = 'group relative aspect-square rounded-md md:rounded-2xl overflow-hidden cursor-pointer bg-gray-200 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 flex items-center justify-center';
+                    div.onclick = () => openImagePreview(img.path);
+                    
+                    div.innerHTML = `
+                        <i id="loader-${index}" class="fas fa-spinner fa-spin text-gray-400 text-xl md:text-2xl absolute"></i>
+                        <img id="img-${index}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-0 z-0">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 hidden md:block z-10"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-1 md:p-4 translate-y-full md:group-hover:translate-y-0 transition-transform duration-300 hidden md:block z-20">
+                            <p class="text-white text-[9px] md:text-sm font-semibold truncate drop-shadow-md">Ảnh ${index + 1}</p>
+                        </div>
+                        <div class="absolute top-1 md:top-3 right-1 md:right-3 w-4 h-4 md:w-8 md:h-8 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <i class="fas fa-expand text-[8px] md:text-xs"></i>
+                        </div>
+                    `;
+                    
+                    galleryGrid.appendChild(div);
+                    imgElementsToLoad.push({ id: `img-${index}`, loaderId: `loader-${index}`, src: img.path });
+                });
+
+                document.getElementById('galleryModal').classList.remove('hidden');
+
+                // Vòng lặp tải ảnh tuần tự từng cái một (đợi file trước load xong mới gọi file sau)
+                for (const imgInfo of imgElementsToLoad) {
+                    if (myLoadId !== currentGalleryLoadId) break;
+
+                    await new Promise((resolve) => {
+                        const imgEl = document.getElementById(imgInfo.id);
+                        const loaderEl = document.getElementById(imgInfo.loaderId);
+                        
+                        imgEl.onload = () => {
+                            imgEl.classList.remove('opacity-0');
+                            if (loaderEl) loaderEl.remove();
+                            resolve(); 
+                        };
+                        
+                        imgEl.onerror = () => {
+                            if (loaderEl) {
+                                loaderEl.classList.remove('fa-spinner', 'fa-spin');
+                                loaderEl.classList.add('fa-exclamation-triangle', 'text-red-400');
+                            }
+                            resolve(); 
+                        };
+                        
+                        imgEl.src = imgInfo.src;
+                    });
+                }
+            } catch (error) {
+                console.error('Open gallery error:', error);
+                alert('Không thể mở album!');
+            } 
+        }
+
+        function closeGalleryModal() {
+            currentGalleryLoadId++; // Đóng modal sẽ hủy lập tức tải ngầm các ảnh kế
+            document.getElementById('galleryModal').classList.add('hidden');
+        }
+
+        function openImagePreview(src) {
+            document.getElementById('previewImage').src = src;
+            document.getElementById('imagePreviewModal').classList.remove('hidden');
+        }
+
+        function closeImagePreview() {
+            document.getElementById('imagePreviewModal').classList.add('hidden');
+        }
+
+        function downloadPreviewImage() {
+            const src = document.getElementById('previewImage').src;
+            const a = document.createElement('a');
+            a.href = src;
+            a.download = src.split('/').pop() || 'image.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        async function copyPreviewImage() {
+            const src = document.getElementById('previewImage').src;
+            try {
+                // Tải ảnh dưới dạng Blob để copy thẳng vào Clipboard
+                const response = await fetch(src);
+                const blob = await response.blob();
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob
+                    })
+                ]);
+                alert('Đã sao chép ảnh vào bộ nhớ tạm!');
+            } catch (err) {
+                console.error('Lỗi khi sao chép ảnh:', err);
+                alert('Trình duyệt của bạn có thể không hỗ trợ chép trực tiếp ảnh. Vui lòng tải xuống!');
+            }
+        }
+
+        // ========== OPENSEADRAGON VIEWER ==========
+        const placeholder = document.getElementById('img-placeholder');
+        const spinner = document.getElementById('loading-spinner');
+        const viewerDiv = document.getElementById('osd-viewer');
+
+        const viewer = OpenSeadragon({
+            id: "osd-viewer",
+            prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
+            tileSources: {
+                type: 'image',
+                url: '../photos/raw/anh-nhom/raw-2026.png',
+                buildPyramid: true
+            },
+            animationTime: 0.8,
+            springStiffness: 10,
+            showNavigationControl: false,
+            maxZoomPixelRatio: 100,
+            minZoomLevel: 1,
+            visibilityRatio: 1,
+            constrainDuringPan: true,
+            gestureSettingsMouse: {
+                scrollToZoom: true,
+                clickToZoom: true,
+                dragToPan: true
+            },
+            gestureSettingsTouch: {
+                scrollToZoom: true,
+                clickToZoom: true,
+                dragToPan: true,
+                pinchToZoom: true
+            }
+        });
+
+
+        viewer.addHandler('tile-loaded', function() {
+            viewerDiv.style.opacity = '1';
+            spinner.style.opacity = '0';
+            
+            setTimeout(() => {
+                spinner.style.display = 'none';
+                placeholder.style.opacity = '0';
+                setTimeout(() => { placeholder.style.display = 'none'; }, 1000);
+            }, 500);
+        });
+
+        // ========== DISK USAGE ==========
+        async function loadDiskUsage() {
+            try {
+                const res = await fetch('/api/disk-usage');
+                const data = await res.json();
+                
+                if (data.success) {
+                    const usedGB = (data.used / 1024 / 1024 / 1024).toFixed(2);
+                    const totalGB = (data.total / 1024 / 1024 / 1024).toFixed(2);
+                    const freeGB = (data.free / 1024 / 1024 / 1024).toFixed(2);
+                    const percent = Math.min(((data.used / data.total) * 100).toFixed(1), 100);
+                    
+                    document.getElementById('diskPercent').textContent = percent + '%';
+                    document.getElementById('diskBar').style.width = percent + '%';
+                    document.getElementById('diskUsed').textContent = usedGB + ' GB';
+                    document.getElementById('diskFree').textContent = freeGB + ' GB';
+                    
+                    // Change color based on usage
+                    const bar = document.getElementById('diskBar');
+                    const percentText = document.getElementById('diskPercent');
+                    if (percent > 90) {
+                        bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-1000';
+                        percentText.className = 'text-sm md:text-xl font-bold text-red-600';
+                    } else if (percent > 70) {
+                        bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-1000';
+                        percentText.className = 'text-sm md:text-xl font-bold text-orange-500';
+                    } else {
+                        bar.className = 'absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000';
+                        percentText.className = 'text-sm md:text-xl font-bold text-gray-800';
+                    }
+
+                }
+            } catch (e) {
+                console.error('Error loading disk usage:', e);
+                document.getElementById('diskUsed').textContent = '--';
+                document.getElementById('diskFree').textContent = '--';
+                document.getElementById('diskPercent').textContent = 'N/A';
+            }
+        }
+
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadDiskUsage();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('galleryModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeGalleryModal();
+            }
+        });
+        </script>
+</body>
+</html>
+
+
+
+
+
+

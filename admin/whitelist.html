@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Whitelist Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #e7f2ff;
+            --bg-2: #f7fbff;
+            --ink: #0b1324;
+            --muted: #5b6b82;
+            --accent: #0ea5e9;
+            --accent-2: #14b8a6;
+            --danger: #ef4444;
+            --card: #ffffff;
+            --line: #dbe7ff;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, #ffffff 0%, var(--bg-1) 40%, #e9f6ff 100%);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        .page-content {
+            width: 100%;
+            padding: 24px 16px 56px;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            align-items: center;
+            background: linear-gradient(135deg, #ffffff 0%, #eef6ff 60%, #e4fbf8 100%);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 18px 40px rgba(14, 165, 233, 0.12);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(14, 165, 233, 0.12);
+            color: #0369a1;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 12px 0 8px;
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+            line-height: 1.1;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .hero-card {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 22px;
+            padding: 20px;
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .hero-card strong {
+            font-size: 1.05rem;
+        }
+
+        .hero-card span {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .field input {
+            border: 1px solid #cbd5f5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            outline: none;
+            background: #f8fbff;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
+            background: #ffffff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #38bdf8);
+            color: white;
+            box-shadow: 0 12px 22px rgba(14, 165, 233, 0.28);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 26px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn:disabled,
+        .btn-delete:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-ghost {
+            background: #eef6ff;
+            color: #0f172a;
+        }
+
+        .status {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status.ok { color: #0f9d58; }
+        .status.err { color: #ef4444; }
+
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-card {
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            background: #f8fbff;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .list-card h3 {
+            margin: 0 0 6px;
+            font-size: 1rem;
+        }
+
+        .meta {
+            font-size: 0.82rem;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .badge.pending { background: rgba(20, 184, 166, 0.12); color: #0f766e; }
+        .badge.processing { background: rgba(59, 130, 246, 0.14); color: #1d4ed8; }
+        .badge.used { background: rgba(245, 158, 11, 0.14); color: #b45309; }
+
+        .btn-delete {
+            border: none;
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .empty {
+            color: var(--muted);
+            font-size: 0.92rem;
+            padding: 12px 4px;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .suggestion-chip {
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #0f172a;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .suggestion-chip:hover {
+            transform: translateY(-1px);
+            border-color: #38bdf8;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.16);
+        }
+
+        .suggestion-chip.active {
+            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            color: #ffffff;
+            border-color: #0ea5e9;
+            box-shadow: 0 10px 22px rgba(14, 165, 233, 0.26);
+        }
+
+        @media (min-width: 768px) {
+            .page-content {
+                padding: 32px 24px 64px;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen bg-[#f3f4f6] overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100 font-sans">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">VNA</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2 font-sans text-sm">
+            <!-- Sidebar content injected by shared-sidebar.js -->
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100 font-sans">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 Admin Panel</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden font-sans">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-user-shield text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-700">Whitelist Admin</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+        <div class="page-content">
+            <div class="page">
+                <header class="hero">
+                    <div>
+                        <span class="chip"><i class="fa-solid fa-shield"></i> WHITELIST ADMIN</span>
+                        <h1>Quản lý mã whitelist nhanh gọn</h1>
+                        <p>Thêm mã + gamertag, theo dõi trạng thái kích hoạt, xóa khi cần.</p>
+                    </div>
+                    <div class="hero-card">
+                        <strong>Tip nhanh</strong>
+                        <span>Đặt mã dạng: ABC-123 hoặc VNA-2026-001 để dễ gửi cho người chơi.</span>
+                    </div>
+                </header>
+
+                <main class="grid">
+                    <section class="panel">
+                        <h2>Thêm mã mới</h2>
+                        <form id="whitelistForm">
+                            <div class="field">
+                                <label for="keyInput">Mã định danh</label>
+                                <input id="keyInput" name="key" type="text" placeholder="VD: ABC-123" maxlength="64" required>
+                                <div class="hint">
+                                    <button id="generateKeyBtn" type="button" style="border:none;background:none;padding:0;color:#0369a1;font-weight:700;cursor:pointer;">
+                                        Mã ngẫu nhiên
+                                    </button>
+                                    <span> để tạo 6 mã số ngẫu nhiên chưa bị trùng trong danh sách.</span>
+                                </div>
+                                <div id="suggestedKeys" class="suggestions" hidden></div>
+                            </div>
+                            <div class="field">
+                                <label for="gamertagInput">Gamertag</label>
+                                <input id="gamertagInput" name="gamertag" type="text" placeholder="VD: NguyenVanA" maxlength="32" required>
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-plus"></i> Thêm whitelist
+                                </button>
+                                <button class="btn btn-ghost" type="button" id="refreshBtn">
+                                    <i class="fa-solid fa-rotate"></i> Làm mới danh sách
+                                </button>
+                            </div>
+                        </form>
+                        <div id="statusMessage" class="status" aria-live="polite"></div>
+                    </section>
+
+                    <section class="panel">
+                        <h2>Cấu hình PikaMC</h2>
+                        <form id="configForm">
+                            <div class="field">
+                                <label for="panelUrlInput">Link panel</label>
+                                <input id="panelUrlInput" name="panelUrl" type="url" placeholder="VD: https://cp.pikamc.vn" maxlength="500" required>
+                            </div>
+                            <div class="field">
+                                <label for="serverIdInput">Server ID</label>
+                                <input id="serverIdInput" name="serverId" type="text" placeholder="VD: e417ea4b" maxlength="80" required>
+                            </div>
+                            <div class="field">
+                                <label for="apiKeyInput">API Key</label>
+                                <input id="apiKeyInput" name="apiKey" type="password" placeholder="Nhập API key" maxlength="200">
+                                <div class="hint">Để trống nếu giữ API key hiện tại.</div>
+                            </div>
+                            <div class="field">
+                                <label for="commandInput">Lệnh whitelist</label>
+                                <input id="commandInput" name="whitelistCommandTemplate" type="text" placeholder='VD: whitelist add "{gamertag}"' maxlength="160">
+                                <div class="hint">Có thể dùng biến <strong>{gamertag}</strong> trong lệnh.</div>
+                            </div>
+                            <div class="field">
+                                <label for="removeCommandInput">Lệnh gỡ whitelist</label>
+                                <input id="removeCommandInput" name="whitelistRemoveCommandTemplate" type="text" placeholder='VD: whitelist remove "{gamertag}"' maxlength="160">
+                                <div class="hint">Nên cấu hình riêng để thao tác xóa luôn gửi đúng lệnh remove lên server.</div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-floppy-disk"></i> Lưu cấu hình
+                                </button>
+                            </div>
+                        </form>
+                        <div id="configStatus" class="status" aria-live="polite"></div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="actions" style="justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h2 style="margin:0;">Danh sách whitelist</h2>
+                        </div>
+                        <div id="whitelistList" class="list">
+                            <div class="empty">Đang tải dữ liệu...</div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('whitelistForm');
+        const listEl = document.getElementById('whitelistList');
+        const statusEl = document.getElementById('statusMessage');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const generateKeyBtn = document.getElementById('generateKeyBtn');
+        const configForm = document.getElementById('configForm');
+        const configStatus = document.getElementById('configStatus');
+        const keyInput = document.getElementById('keyInput');
+        const suggestedKeysEl = document.getElementById('suggestedKeys');
+        const panelUrlInput = document.getElementById('panelUrlInput');
+        const serverIdInput = document.getElementById('serverIdInput');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const commandInput = document.getElementById('commandInput');
+        const removeCommandInput = document.getElementById('removeCommandInput');
+        const formSubmitBtn = form.querySelector('button[type="submit"]');
+        const configSubmitBtn = configForm.querySelector('button[type="submit"]');
+        let currentWhitelistItems = [];
+
+        function setStatus(text, ok = true) {
+            if (!text) {
+                statusEl.textContent = '';
+                statusEl.className = 'status';
+                return;
+            }
+            statusEl.textContent = text;
+            statusEl.className = `status ${ok ? 'ok' : 'err'}`;
+        }
+
+        function formatTime(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value;
+            return date.toLocaleString('vi-VN');
+        }
+
+        function setConfigStatus(text, ok = true) {
+            if (!text) {
+                configStatus.textContent = '';
+                configStatus.className = 'status';
+                return;
+            }
+            configStatus.textContent = text;
+            configStatus.className = `status ${ok ? 'ok' : 'err'}`;
+        }
+
+        function clearSuggestedKeys() {
+            suggestedKeysEl.innerHTML = '';
+            suggestedKeysEl.hidden = true;
+        }
+
+        function buildSuggestedWhitelistKeys(items, count = 6) {
+            const existingKeys = new Set(
+                (Array.isArray(items) ? items : [])
+                    .map((item) => String(item?.key || '').trim())
+                    .filter(Boolean)
+            );
+            const generatedKeys = new Set();
+            let attempts = 0;
+            const maxAttempts = 5000;
+
+            while (generatedKeys.size < count && attempts < maxAttempts) {
+                const candidate = String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
+                attempts += 1;
+
+                if (existingKeys.has(candidate) || generatedKeys.has(candidate)) {
+                    continue;
+                }
+
+                generatedKeys.add(candidate);
+            }
+
+            return Array.from(generatedKeys);
+        }
+
+        function renderSuggestedKeys(keys) {
+            clearSuggestedKeys();
+            if (!Array.isArray(keys) || keys.length === 0) {
+                return;
+            }
+
+            suggestedKeysEl.hidden = false;
+
+            keys.forEach((key) => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'suggestion-chip';
+                chip.textContent = key;
+                chip.addEventListener('click', () => {
+                    keyInput.value = key;
+                    keyInput.focus();
+                    keyInput.setSelectionRange(key.length, key.length);
+                    suggestedKeysEl.querySelectorAll('.suggestion-chip').forEach((item) => item.classList.remove('active'));
+                    chip.classList.add('active');
+                    setStatus(`Đã chọn mã: ${key}`, true);
+                });
+                suggestedKeysEl.appendChild(chip);
+            });
+        }
+
+        async function loadConfig() {
+            try {
+                const resp = await fetch('/api/admin/pikamc-config');
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    setConfigStatus(data.error || 'Không thể tải cấu hình.', false);
+                    return;
+                }
+                const cfg = data.data || {};
+                panelUrlInput.value = cfg.panelUrl || '';
+                serverIdInput.value = cfg.serverId || '';
+                commandInput.value = cfg.whitelistCommandTemplate || 'whitelist add \"{gamertag}\"';
+                removeCommandInput.value = cfg.whitelistRemoveCommandTemplate || 'whitelist remove \"{gamertag}\"';
+                if (cfg.hasApiKey) {
+                    apiKeyInput.placeholder = cfg.apiKeyMasked ? `Đã lưu (${cfg.apiKeyMasked})` : 'Đã lưu';
+                } else {
+                    apiKeyInput.placeholder = 'Chưa có API key';
+                }
+                setConfigStatus('');
+            } catch (_err) {
+                setConfigStatus('Lỗi kết nối máy chủ.', false);
+            }
+        }
+
+        function renderList(items) {
+            currentWhitelistItems = Array.isArray(items) ? items : [];
+            listEl.innerHTML = '';
+            if (!items || items.length === 0) {
+                listEl.innerHTML = '<div class="empty">Chưa có whitelist nào.</div>';
+                return;
+            }
+
+            items.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'list-card';
+
+                const info = document.createElement('div');
+                const title = document.createElement('h3');
+                title.textContent = `${item.key} · ${item.gamertag}`;
+
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+
+                const statusBadge = document.createElement('span');
+                const statusName = item.status === 'used'
+                    ? 'used'
+                    : item.status === 'processing'
+                        ? 'processing'
+                        : 'pending';
+                statusBadge.className = `badge ${statusName}`;
+                statusBadge.textContent = item.status === 'used'
+                    ? 'Đã kích hoạt'
+                    : item.status === 'processing'
+                        ? 'Đang xử lý'
+                        : 'Chưa kích hoạt';
+
+                const created = document.createElement('span');
+                created.textContent = `Tạo: ${formatTime(item.created_at)}`;
+
+                const used = document.createElement('span');
+                used.textContent = `Kích hoạt: ${formatTime(item.used_at)}`;
+
+                meta.appendChild(statusBadge);
+                meta.appendChild(created);
+                meta.appendChild(used);
+
+                info.appendChild(title);
+                info.appendChild(meta);
+
+                const action = document.createElement('div');
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-delete';
+                delBtn.textContent = item.status === 'processing' ? 'Đang xử lý' : 'Xóa';
+                delBtn.disabled = item.status === 'processing';
+                delBtn.addEventListener('click', async () => {
+                    if (!confirm(`Xóa whitelist cho ${item.gamertag}?`)) return;
+                    delBtn.disabled = true;
+                    delBtn.textContent = 'Đang xóa...';
+                    try {
+                        const resp = await fetch(`/api/admin/whitelist-keys/${item.id}`, { method: 'DELETE' });
+                        const data = await resp.json().catch(() => ({}));
+                        if (!resp.ok || !data.success) {
+                            setStatus(data.error || 'Không thể xóa.', false);
+                            return;
+                        }
+                        setStatus('Đã xóa whitelist.', true);
+                        await loadList();
+                    } catch (_err) {
+                        setStatus('Lỗi kết nối máy chủ.', false);
+                        delBtn.disabled = false;
+                        delBtn.textContent = 'Xóa';
+                    }
+                });
+                action.appendChild(delBtn);
+
+                card.appendChild(info);
+                card.appendChild(action);
+                listEl.appendChild(card);
+            });
+        }
+
+        async function loadList() {
+            currentWhitelistItems = [];
+            clearSuggestedKeys();
+            listEl.innerHTML = '<div class="empty">Đang tải dữ liệu...</div>';
+            try {
+                const resp = await fetch('/api/admin/whitelist-keys');
+                const data = await resp.json();
+                if (!resp.ok || !data.success) {
+                    listEl.innerHTML = `<div class="empty">${data.error || 'Không thể tải danh sách.'}</div>`;
+                    return;
+                }
+                renderList(data.items);
+            } catch (_err) {
+                listEl.innerHTML = '<div class="empty">Lỗi kết nối máy chủ.</div>';
+            }
+        }
+
+        generateKeyBtn.addEventListener('click', () => {
+            const suggestedKeys = buildSuggestedWhitelistKeys(currentWhitelistItems, 6);
+            if (suggestedKeys.length === 0) {
+                setStatus('Không thể tạo mã ngẫu nhiên lúc này.', false);
+                return;
+            }
+
+            renderSuggestedKeys(suggestedKeys);
+            keyInput.focus();
+            setStatus('Đã tạo 6 mã số ngẫu nhiên chưa bị trùng. Chạm vào một mã để điền nhanh.', true);
+        });
+
+        function setFormSubmitting(isSubmitting) {
+            formSubmitBtn.disabled = isSubmitting;
+            refreshBtn.disabled = isSubmitting;
+            generateKeyBtn.disabled = isSubmitting;
+            formSubmitBtn.innerHTML = isSubmitting
+                ? '<i class="fa-solid fa-spinner fa-spin"></i> Đang thêm...'
+                : '<i class="fa-solid fa-plus"></i> Thêm whitelist';
+        }
+
+        function setConfigSubmitting(isSubmitting) {
+            configSubmitBtn.disabled = isSubmitting;
+            configSubmitBtn.innerHTML = isSubmitting
+                ? '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...'
+                : '<i class="fa-solid fa-floppy-disk"></i> Lưu cấu hình';
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = {
+                key: document.getElementById('keyInput').value.trim(),
+                gamertag: document.getElementById('gamertagInput').value.trim()
+            };
+
+            setFormSubmitting(true);
+            setStatus('Đang thêm whitelist...', true);
+
+            try {
+                const resp = await fetch('/api/admin/whitelist-keys', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.success) {
+                    setStatus(data.error || 'Không thể thêm whitelist.', false);
+                    return;
+                }
+                setStatus('Thêm whitelist thành công!', true);
+                form.reset();
+                clearSuggestedKeys();
+                await loadList();
+            } catch (_err) {
+                setStatus('Lỗi kết nối máy chủ.', false);
+            } finally {
+                setFormSubmitting(false);
+            }
+        });
+
+        configForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const payload = {
+                panelUrl: panelUrlInput.value.trim(),
+                serverId: serverIdInput.value.trim(),
+                apiKey: apiKeyInput.value.trim(),
+                whitelistCommandTemplate: commandInput.value.trim(),
+                whitelistRemoveCommandTemplate: removeCommandInput.value.trim()
+            };
+
+            setConfigSubmitting(true);
+            setConfigStatus('Đang lưu cấu hình...', true);
+
+            try {
+                const resp = await fetch('/api/admin/pikamc-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok || !data.success) {
+                    setConfigStatus(data.error || 'Không thể lưu cấu hình.', false);
+                    return;
+                }
+                apiKeyInput.value = '';
+                const cfg = data.data || {};
+                commandInput.value = cfg.whitelistCommandTemplate || commandInput.value;
+                removeCommandInput.value = cfg.whitelistRemoveCommandTemplate || removeCommandInput.value;
+                if (cfg.hasApiKey) {
+                    apiKeyInput.placeholder = cfg.apiKeyMasked ? `Đã lưu (${cfg.apiKeyMasked})` : 'Đã lưu';
+                }
+                setConfigStatus('Đã lưu cấu hình PikaMC!', true);
+            } catch (_err) {
+                setConfigStatus('Lỗi kết nối máy chủ.', false);
+            } finally {
+                setConfigSubmitting(false);
+            }
+        });
+
+        refreshBtn.addEventListener('click', () => loadList());
+        loadList();
+        loadConfig();
+    </script>
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

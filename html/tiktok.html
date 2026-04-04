@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#fe2c55">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>TikTok Downloader | MC Note</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* ===== TikTok Brand Colors ===== */
+        :root {
+            --tk-pink: #fe2c55;
+            --tk-cyan: #25f4ee;
+            --tk-dark: #161823;
+            --tk-pink-glow: rgba(254, 44, 85, 0.35);
+            --tk-cyan-glow: rgba(37, 244, 238, 0.25);
+        }
+
+        /* ===== Gradient Helpers ===== */
+        .tk-gradient { background: linear-gradient(135deg, var(--tk-pink) 0%, #ff006a 50%, var(--tk-cyan) 100%); }
+        .tk-gradient-text {
+            background: linear-gradient(135deg, var(--tk-pink), #ff006a, var(--tk-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== Hero Glow ===== */
+        .hero-glow {
+            position: relative;
+        }
+        .hero-glow::before {
+            content: '';
+            position: absolute;
+            top: -20px; left: -20px; right: -20px; bottom: -20px;
+            background: radial-gradient(ellipse at center, var(--tk-pink-glow) 0%, transparent 70%);
+            filter: blur(50px);
+            z-index: 0;
+            pointer-events: none;
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* ===== Icon Float ===== */
+        .icon-float {
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* ===== Input Focus ===== */
+        .tk-input:focus {
+            border-color: var(--tk-pink);
+            box-shadow: 0 0 0 4px var(--tk-pink-glow), 0 0 20px var(--tk-cyan-glow);
+        }
+
+        /* ===== Download Button ===== */
+        .tk-btn-primary {
+            background: linear-gradient(135deg, var(--tk-pink) 0%, #ff006a 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tk-btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ff006a 0%, var(--tk-pink) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .tk-btn-primary:hover::before { opacity: 1; }
+        .tk-btn-primary:hover {
+            box-shadow: 0 8px 30px var(--tk-pink-glow);
+            transform: translateY(-2px);
+        }
+        .tk-btn-primary:active { transform: scale(0.97); }
+        .tk-btn-primary > * { position: relative; z-index: 1; }
+
+        /* ===== Music Button ===== */
+        .tk-btn-music {
+            background: linear-gradient(135deg, var(--tk-dark) 0%, #2d2d3f 100%);
+            transition: all 0.3s ease;
+        }
+        .tk-btn-music:hover {
+            box-shadow: 0 8px 25px rgba(22, 24, 35, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ===== Card Glass ===== */
+        .glass-card {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+        }
+
+        /* ===== Step Badge ===== */
+        .step-badge {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--tk-pink), var(--tk-cyan));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px var(--tk-pink-glow);
+            transition: transform 0.25s ease;
+        }
+        .step-row:hover .step-badge { transform: scale(1.12) rotate(-5deg); }
+
+        /* ===== Loader ===== */
+        .tk-loader {
+            width: 36px; height: 36px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid var(--tk-pink);
+            border-right: 4px solid var(--tk-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ===== Fade In ===== */
+        #resultBox { animation: fadeSlideIn 0.5s ease-out; }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Stat Chip ===== */
+        .stat-chip {
+            background: linear-gradient(135deg, rgba(254,44,85,0.08), rgba(37,244,238,0.08));
+            border: 1px solid rgba(254,44,85,0.15);
+            transition: all 0.3s ease;
+        }
+        .stat-chip:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(254,44,85,0.1); }
+
+        /* ===== Progress ===== */
+        .tk-progress { background: linear-gradient(90deg, var(--tk-pink), #ff006a, var(--tk-cyan)); }
+
+        /* ===== Scrollbar ===== */
+        .tk-scroll::-webkit-scrollbar { width: 8px; }
+        .tk-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 99px; }
+        .tk-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
+    </style>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-[#f4f7f6] text-[#333] flex h-screen overflow-hidden">
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">MC Note</span>
+        </div>
+
+        <!-- Scrollable Navigation (rendered by shared-sidebar.js) -->
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+
+        <!-- Footer -->
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-h-0">
+
+        <!-- Mobile Header -->
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 tk-gradient rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-brands fa-tiktok text-sm"></i>
+                </div>
+                <span class="font-bold tk-gradient-text">TikTok Save</span>
+            </div>
+            <button onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <!-- Desktop Top Bar -->
+        <div class="p-4 border-b border-gray-200 bg-white hidden lg:flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 tk-gradient rounded-lg flex items-center justify-center text-white">
+                    <i class="fa-brands fa-tiktok text-sm"></i>
+                </div>
+                <span class="font-semibold text-gray-700">TikTok Downloader</span>
+            </div>
+            <div class="bg-white rounded-full px-4 py-2 shadow-lg border border-gray-200 flex items-center gap-2">
+                <i class="fas fa-clock text-gray-500"></i>
+                <span class="text-sm font-medium text-gray-700" id="currentTime">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 pb-16 lg:p-10 tk-scroll scroll-smooth">
+            <div class="max-w-[700px] mx-auto">
+
+                <!-- ===== Hero + Input Card ===== -->
+                <div class="glass-card p-8 lg:p-10 rounded-[28px] text-center mb-8 hero-glow relative">
+                    <!-- Decorative corner accent -->
+                    <div class="absolute top-0 left-0 right-0 h-1 rounded-t-[28px] tk-gradient"></div>
+
+                    <!-- TikTok Icon -->
+                    <div class="relative z-10 mb-5">
+                        <div class="w-20 h-20 mx-auto tk-gradient rounded-2xl flex items-center justify-center shadow-xl icon-float" style="box-shadow: 0 12px 40px var(--tk-pink-glow);">
+                            <i class="fa-brands fa-tiktok text-white text-3xl"></i>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="relative z-10 text-4xl lg:text-5xl font-extrabold mb-2 tk-gradient-text">TikTok Save</h1>
+                    <p class="relative z-10 text-gray-500 mb-8 text-base">Tải video TikTok không logo • Chất lượng gốc • Miễn phí</p>
+
+                    <!-- Input -->
+                    <div class="relative z-10 mb-5">
+                        <input type="text" id="videoUrl" placeholder="https://www.tiktok.com/@user/video/..."
+                            class="tk-input w-full p-4 pl-12 rounded-2xl border-2 border-gray-200 outline-none transition-all bg-white/80 text-base font-medium">
+                        <i class="fa-brands fa-tiktok absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="relative z-10 flex gap-3">
+                        <button onclick="handleDownload()" class="tk-btn-primary flex-1 text-white py-3 lg:py-4 rounded-2xl font-bold text-sm lg:text-lg flex items-center justify-center gap-2">
+                            <i class="fas fa-download"></i>
+                            <span>TẢI XUỐNG NGAY</span>
+                        </button>
+                        <button onclick="clearInput()" class="px-5 py-4 rounded-2xl border-2 border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300 transition-all" title="Xóa">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+
+                    <!-- Download Stats Counter -->
+                    <div class="relative z-10 mt-4 flex justify-center items-center gap-2 text-sm font-medium text-gray-500">
+                        <i class="fas fa-chart-line text-[var(--tk-pink)] animate-pulse"></i>
+                        <span>Tổng lượt tải TikTok: <span id="dailyDownloads" class="font-bold text-gray-800">...</span></span>
+                    </div>
+
+                    <!-- Loader -->
+                    <div id="loader" class="hidden mt-8 flex justify-center relative z-10">
+                        <div class="tk-loader"></div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultBox" class="mt-8 hidden relative z-10">
+                        <div id="videoData" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <!-- ===== Info Cards ===== -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <div class="stat-chip rounded-2xl p-5 flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, rgba(254,44,85,0.12), rgba(254,44,85,0.05));">
+                            <i class="fas fa-bolt text-[var(--tk-pink)]"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">Tốc độ cao</p>
+                            <p class="text-xs text-gray-500">Tải nhanh, không chờ đợi</p>
+                        </div>
+                    </div>
+                    <div class="stat-chip rounded-2xl p-5 flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, rgba(37,244,238,0.12), rgba(37,244,238,0.05));">
+                            <i class="fas fa-shield-alt text-[var(--tk-cyan)]" style="color: #0ea5a5;"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-gray-800">Không logo</p>
+                            <p class="text-xs text-gray-500">Video sạch, chất lượng gốc</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== How to use ===== -->
+                <div class="glass-card rounded-[24px] p-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1 tk-gradient"></div>
+
+                    <h3 class="text-lg font-bold text-center mb-6 tk-gradient-text">Hướng dẫn sử dụng 📋</h3>
+
+                    <div class="space-y-4">
+                        <div class="step-row flex gap-4 items-start">
+                            <div class="step-badge">1</div>
+                            <p class="text-gray-600 text-sm pt-1.5">Mở ứng dụng TikTok, chọn video và nhấn <b>"Chia sẻ" → "Sao chép liên kết"</b>.</p>
+                        </div>
+                        <div class="step-row flex gap-4 items-start">
+                            <div class="step-badge">2</div>
+                            <p class="text-gray-600 text-sm pt-1.5">Dán liên kết vào ô nhập liệu phía trên.</p>
+                        </div>
+                        <div class="step-row flex gap-4 items-start">
+                            <div class="step-badge">3</div>
+                            <p class="text-gray-600 text-sm pt-1.5">Nhấn nút <b>"Tải xuống ngay"</b> và chờ hệ thống xử lý.</p>
+                        </div>
+                        <div class="step-row flex gap-4 items-start">
+                            <div class="step-badge">4</div>
+                            <p class="text-gray-600 text-sm pt-1.5">Chọn tải <b>Video</b>, <b>Ảnh</b> hoặc <b>Nhạc MP3</b> về máy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal" class="fixed inset-0 bg-black/60 z-[2000] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-[24px] w-full max-w-[400px] text-center shadow-2xl">
+            <div class="mb-5">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center icon-float" style="background: linear-gradient(135deg, rgba(254,44,85,0.1), rgba(37,244,238,0.1));">
+                    <i class="fas fa-cloud-download-alt text-2xl" style="color: var(--tk-pink);"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-1">Đang xử lý file...</h3>
+                <p id="progressFilename" class="text-sm text-gray-500 truncate"></p>
+            </div>
+            <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden mb-4">
+                <div id="progressBar" class="w-0 h-full tk-progress transition-all duration-300 rounded-full"></div>
+            </div>
+            <div class="flex justify-between text-sm mb-3">
+                <span id="progressPercent" class="font-semibold" style="color: var(--tk-pink);">0%</span>
+                <span id="progressSize" class="text-gray-500">0 MB / 0 MB</span>
+            </div>
+            <p id="statusText" class="text-sm text-gray-500">Đang kết nối server...</p>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        let currentVideoData = null;
+        const SERVER_ADDRESS = 'vanhmcpe.my-land.fun:25702';
+
+        // ===== Utilities =====
+        function isValidHttpUrl(value) {
+            try {
+                const url = new URL(String(value || ''));
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch { return false; }
+        }
+
+        function formatBytes(bytes) {
+            const size = Number(bytes || 0);
+            if (!size || size < 0) return '0 MB';
+            const mb = size / (1024 * 1024);
+            return `${mb.toFixed(mb >= 100 ? 0 : 2)} MB`;
+        }
+
+        async function logDownloadActivity(type, url) {
+            console.log(`[Log] Tải ${type} từ: ${url}`);
+        }
+
+        // ===== Normalize TikTok Data =====
+        function normalizeTikTokData(raw) {
+            const data = raw && typeof raw === 'object' ? raw : {};
+            return {
+                title: String(data.title || ''),
+                author: String(data.author || data.authorName || ''),
+                play: String(data.play || ''),
+                music: String(data.music || ''),
+                images: Array.isArray(data.images) ? data.images.map((img) => String(img || '')).filter(Boolean) : []
+            };
+        }
+
+        // ===== Create Button Helper =====
+        function createActionButton({ label, iconClass, className, onClick }) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = className;
+
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            const text = document.createElement('span');
+            text.textContent = label;
+
+            button.append(icon, text);
+            button.addEventListener('click', onClick);
+            return button;
+        }
+
+        // ===== Render Results =====
+        function renderResults() {
+            const container = document.getElementById('videoData');
+            container.replaceChildren();
+            if (!currentVideoData) return;
+
+            const { title, author, play, music, images } = currentVideoData;
+
+            if (title || author) {
+                const metaBox = document.createElement('div');
+                metaBox.className = 'text-left rounded-2xl p-5 mb-4';
+                metaBox.style.cssText = 'background: linear-gradient(135deg, rgba(254,44,85,0.06), rgba(37,244,238,0.06)); border: 1px solid rgba(254,44,85,0.1);';
+
+                const titleEl = document.createElement('p');
+                titleEl.className = 'font-bold text-gray-800';
+                titleEl.textContent = title || 'Video TikTok';
+
+                const authorEl = document.createElement('p');
+                authorEl.className = 'text-sm text-gray-500 mt-1';
+                authorEl.textContent = author ? `@${author}` : 'Tác giả: Không rõ';
+
+                metaBox.append(titleEl, authorEl);
+                container.appendChild(metaBox);
+            }
+
+            if (isValidHttpUrl(play)) {
+                const video = document.createElement('video');
+                video.className = 'w-full rounded-2xl mb-4 shadow-lg';
+                video.controls = true;
+                video.src = play;
+                container.appendChild(video);
+
+                container.appendChild(createActionButton({
+                    label: 'Tải Video (Không Logo)',
+                    iconClass: 'fas fa-video',
+                    className: 'tk-btn-primary w-full text-white py-4 rounded-2xl font-bold mb-3 flex items-center justify-center gap-2',
+                    onClick: () => startDownload('video', play)
+                }));
+            }
+
+            if (images.length > 0) {
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 gap-4';
+
+                images.forEach((imgUrl, index) => {
+                    if (!isValidHttpUrl(imgUrl)) return;
+
+                    const card = document.createElement('div');
+                    card.className = 'p-3 border border-gray-100 rounded-2xl bg-white/80';
+
+                    const image = document.createElement('img');
+                    image.src = imgUrl;
+                    image.className = 'rounded-xl mb-3 w-full';
+                    image.alt = `Ảnh ${index + 1}`;
+
+                    const btn = createActionButton({
+                        label: `Tải Ảnh ${index + 1}`,
+                        iconClass: 'fas fa-image',
+                        className: 'w-full bg-teal-600 text-white py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-teal-700 transition-colors',
+                        onClick: () => startDownload('image', imgUrl, `anh_${index + 1}.jpg`)
+                    });
+
+                    card.append(image, btn);
+                    grid.appendChild(card);
+                });
+
+                if (grid.childElementCount > 0) container.appendChild(grid);
+            }
+
+            if (isValidHttpUrl(music)) {
+                const musicWrap = document.createElement('div');
+                musicWrap.className = 'pt-4 border-t mt-4';
+                const musicBtn = createActionButton({
+                    label: 'Tải Nhạc MP3',
+                    iconClass: 'fas fa-music',
+                    className: 'tk-btn-music w-full text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2',
+                    onClick: () => startDownload('music', music)
+                });
+                musicWrap.appendChild(musicBtn);
+                container.appendChild(musicWrap);
+            }
+
+            if (container.childElementCount === 0) {
+                const empty = document.createElement('p');
+                empty.className = 'text-gray-500';
+                empty.textContent = 'Không tìm thấy dữ liệu tải phù hợp cho link này.';
+                container.appendChild(empty);
+            }
+        }
+
+        // ===== Handle Download =====
+        async function handleDownload() {
+            const url = document.getElementById('videoUrl').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const loader = document.getElementById('loader');
+
+            if (!url) { alert('Dán link đã chứ!'); return; }
+            if (!isValidHttpUrl(url)) { alert('Link không hợp lệ. Vui lòng dán URL đầy đủ.'); return; }
+
+            loader.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/download/info?platform=tiktok&url=${encodeURIComponent(url)}`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                let payload = null;
+                try { payload = await response.json(); }
+                catch { throw new Error('Server trả về dữ liệu không hợp lệ.'); }
+
+                if (!response.ok || !payload?.success) {
+                    const errorMessage = payload?.error || payload?.message || 'Link không hợp lệ hoặc video bị chặn.';
+                    throw new Error(errorMessage);
+                }
+
+                const infoData = payload?.data?.raw || payload?.data || null;
+                currentVideoData = normalizeTikTokData(infoData);
+                renderResults();
+                resultBox.classList.remove('hidden');
+            } catch (error) {
+                console.error('Lỗi lấy dữ liệu TikTok:', error);
+                alert(`Lỗi: ${error.message || 'Không thể lấy dữ liệu video'}`);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        // ===== Start Download with Progress =====
+        async function startDownload(type, fileUrl, fileName = '') {
+            const modal = document.getElementById('progressModal');
+            const bar = document.getElementById('progressBar');
+            const status = document.getElementById('statusText');
+            const progressFilename = document.getElementById('progressFilename');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressSize = document.getElementById('progressSize');
+
+            if (!isValidHttpUrl(fileUrl)) { alert('URL tải xuống không hợp lệ.'); return; }
+
+            await logDownloadActivity(type, fileUrl);
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            bar.style.width = '0%';
+            progressPercent.textContent = '0%';
+            progressSize.textContent = '0 MB / 0 MB';
+            progressFilename.textContent = fileName || `tiktok_${type}_${Date.now()}`;
+            status.textContent = 'Đang chuẩn bị...';
+
+            let progress = 0;
+            let progressInterval = null;
+
+            try {
+                progressInterval = setInterval(() => {
+                    if (progress < 88) {
+                        progress += 4;
+                        bar.style.width = `${progress}%`;
+                        progressPercent.textContent = `${progress}%`;
+                    }
+                }, 220);
+
+                const response = await fetch('/api/download/proxy-download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/octet-stream' },
+                    body: JSON.stringify({
+                        fileUrl, type,
+                        fileName: fileName || `tiktok_${type}_${Date.now()}.${type === 'music' ? 'mp3' : (type === 'image' ? 'jpg' : 'mp4')}`
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Lỗi không xác định' }));
+                    throw new Error(errorData.error || errorData.message || 'Lỗi tải file từ server');
+                }
+
+                progress = 94;
+                bar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                status.textContent = 'Đang xử lý file...';
+
+                const blob = await response.blob();
+
+                const disposition = response.headers.get('Content-Disposition');
+                let finalFileName = fileName;
+                if (disposition && disposition.includes('filename=')) {
+                    const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (matches && matches[1]) {
+                        finalFileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+                    }
+                }
+                if (!finalFileName) {
+                    const ext = type === 'music' ? 'mp3' : (type === 'image' ? 'jpg' : 'mp4');
+                    finalFileName = `tiktok_${type}_${Date.now()}.${ext}`;
+                }
+
+                const contentLength = Number(response.headers.get('Content-Length') || 0);
+                progressSize.textContent = contentLength > 0
+                    ? `${formatBytes(blob.size)} / ${formatBytes(contentLength)}`
+                    : `${formatBytes(blob.size)} / ${formatBytes(blob.size)}`;
+
+                progress = 100;
+                bar.style.width = '100%';
+                progressPercent.textContent = '100%';
+                status.textContent = 'Đang tải về máy...';
+
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = downloadUrl;
+                a.download = finalFileName;
+                document.body.appendChild(a);
+                a.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+                    status.textContent = 'Hoàn tất!';
+                    setTimeout(() => { modal.style.display = 'none'; modal.classList.add('hidden'); }, 850);
+                }, 120);
+            } catch (error) {
+                console.error('Lỗi tải file:', error);
+                status.textContent = `Lỗi: ${error.message}`;
+                setTimeout(() => { modal.style.display = 'none'; modal.classList.add('hidden'); }, 2600);
+            } finally {
+                if (progressInterval) clearInterval(progressInterval);
+            }
+        }
+
+        // ===== Clear Input =====
+        function clearInput() {
+            document.getElementById('videoUrl').value = '';
+            document.getElementById('resultBox').classList.add('hidden');
+            document.getElementById('videoData').replaceChildren();
+            currentVideoData = null;
+        }
+
+        // ===== Clock =====
+        function updateTime() {
+            const now = new Date();
+            const el = document.getElementById('currentTime');
+            if (el) el.textContent = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // ===== Sidebar Toggle =====
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // ===== Enter Key Support =====
+        document.getElementById('videoUrl')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleDownload();
+        });
+
+        // ===== Fetch Real Stats =====
+        async function updateTikTokStats() {
+            try {
+                const response = await fetch('/api/leaderboard/tool-usage', { cache: 'no-store' });
+                if (!response.ok) return;
+                const payload = await response.json();
+                const ranking = payload?.data?.ranking || [];
+                const tiktokData = ranking.find(item => item.tool === 'tiktok');
+                if (tiktokData && tiktokData.downloads) {
+                    const el = document.getElementById('dailyDownloads');
+                    if (el) el.textContent = Number(tiktokData.downloads).toLocaleString('vi-VN');
+                }
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        }
+        updateTikTokStats();
+        // Cập nhật mỗi 30 giây
+        setInterval(updateTikTokStats, 30000);
+    </script>
+</body>
+</html>
