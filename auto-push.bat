@@ -61,8 +61,9 @@ call :log Auto push completed successfully
 exit /b 0
 
 :log
+set "MESSAGE=%*"
 set "STAMP="
 for /f "delims=" %%i in ('powershell -NoProfile -Command "(Get-Date).ToString(\"yyyy-MM-dd HH:mm:ss\")"') do set "STAMP=%%i"
-echo [!STAMP!] %~1
->> "%LOG_FILE%" echo [!STAMP!] %~1
+echo [!STAMP!] !MESSAGE!
+>> "%LOG_FILE%" echo [!STAMP!] !MESSAGE!
 exit /b 0
