@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Bedrock World Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-a: #f7fbff;
+            --bg-b: #e8f2ff;
+            --bg-c: #eefbf4;
+            --ink: #081120;
+            --muted: #5d6f85;
+            --line: #d7e5ff;
+            --panel: rgba(255, 255, 255, 0.9);
+            --accent: #2563eb;
+            --accent-2: #14b8a6;
+            --accent-3: #0f172a;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(20, 184, 166, 0.14), transparent 24%),
+                linear-gradient(180deg, var(--bg-a) 0%, var(--bg-b) 52%, var(--bg-c) 100%);
+            overflow: hidden;
+        }
+
+        .page-shell { width: 100%; padding: 26px 16px 64px; }
+        .page { max-width: 1220px; margin: 0 auto; }
+
+        .hero,
+        .panel {
+            background: var(--panel);
+            border: 1px solid rgba(215, 229, 255, 0.95);
+            border-radius: 28px;
+            box-shadow: 0 16px 42px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(12px);
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 30px;
+            background:
+                linear-gradient(140deg, rgba(255, 255, 255, 0.96) 0%, rgba(241, 247, 255, 0.94) 58%, rgba(232, 252, 244, 0.98) 100%);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .hero-grid,
+        .section-grid {
+            display: grid;
+            gap: 22px;
+        }
+
+        .hero-grid { grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.9fr); align-items: center; }
+        .section-grid { grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr); margin-top: 22px; }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.1);
+            color: #1d4ed8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-copy h1 {
+            margin: 14px 0 12px;
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+            line-height: 0.98;
+            letter-spacing: -0.04em;
+        }
+
+        .hero-copy p,
+        .section-copy {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .hero-actions,
+        .drop-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-actions { margin-top: 22px; }
+
+        .btn {
+            border: none;
+            border-radius: 16px;
+            padding: 13px 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #38bdf8);
+            color: #fff;
+            box-shadow: 0 18px 32px rgba(37, 99, 235, 0.24);
+        }
+
+        .btn-soft {
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid var(--line);
+            color: var(--accent-3);
+        }
+
+        .btn:hover,
+        .dropzone:hover { transform: translateY(-1px); }
+
+        .hero-preview {
+            position: relative;
+            min-height: 360px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, #0b1221 0%, #12213a 100%);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            overflow: hidden;
+        }
+
+        .preview-map-wrap {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 26px;
+        }
+
+        .preview-map-card {
+            width: min(100%, 420px);
+            aspect-ratio: 1 / 1;
+            border-radius: 24px;
+            background: rgba(15, 23, 42, 0.68);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            box-shadow: 0 26px 50px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
+            transform: rotate(-5deg);
+        }
+
+        .preview-canvas { display: block; width: 100%; height: 100%; }
+
+        .preview-badge,
+        .floating-note {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #dbeafe;
+        }
+
+        .preview-badge {
+            right: 18px;
+            top: 18px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.65);
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .floating-note {
+            left: 24px;
+            bottom: 24px;
+            width: min(250px, calc(100% - 48px));
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+        }
+
+        .floating-note strong { display: block; margin-bottom: 6px; font-size: 0.98rem; }
+        .floating-note span { color: #a9bdd7; font-size: 0.84rem; line-height: 1.55; }
+
+        .panel { padding: 24px; }
+        .section-title { margin: 0 0 8px; font-size: 1.22rem; letter-spacing: -0.02em; }
+
+        .dropzone {
+            margin-top: 22px;
+            border-radius: 24px;
+            border: 1.5px dashed #9dbcf8;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(243, 249, 255, 0.92));
+            padding: 28px;
+            text-align: center;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .dropzone.is-dragover {
+            border-color: #0ea5e9;
+            box-shadow: 0 22px 42px rgba(37, 99, 235, 0.13);
+        }
+
+        .dropzone-icon {
+            width: 78px;
+            height: 78px;
+            margin: 0 auto 18px;
+            border-radius: 26px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #14b8a6);
+            box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
+        }
+
+        .drop-hint-grid,
+        .metric-grid,
+        .pipeline {
+            display: grid;
+            gap: 12px;
+        }
+
+        .drop-hint-grid { margin-top: 22px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .metric-grid { margin-top: 18px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .pipeline { margin-top: 22px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .micro-card,
+        .metric,
+        .check-item,
+        .files-list li {
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .micro-card,
+        .metric { padding: 14px 16px; }
+
+        .status-box {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border: 1px solid #bfdbfe;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .status-box.ok { color: #166534; background: #ecfdf5; border-color: #bbf7d0; }
+        .status-box.err { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }
+
+        .files-list {
+            margin-top: 16px;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 14px;
+            max-height: 280px;
+            overflow: auto;
+        }
+
+        .files-list ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .files-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+        }
+
+        .checklist { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+
+        .check-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 14px 16px;
+        }
+
+        .check-badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .check-badge.ok { background: #dcfce7; color: #15803d; }
+        .check-badge.warn { background: #fef3c7; color: #b45309; }
+
+        .pipeline-step {
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(24, 38, 66, 0.98));
+            color: #dbeafe;
+            padding: 18px;
+            min-height: 150px;
+        }
+
+        .pipeline-step span {
+            display: block;
+            color: #7dd3fc;
+            font-size: 0.76rem;
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .pipeline-step strong { display: block; margin-top: 18px; font-size: 1.06rem; }
+        .pipeline-step p { margin: 10px 0 0; color: #9fb7d1; font-size: 0.84rem; line-height: 1.6; }
+
+        @media (max-width: 1080px) {
+            .hero-grid,
+            .section-grid { grid-template-columns: 1fr; }
+            .metric-grid,
+            .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 720px) {
+            .page-shell { padding: 16px 12px 40px; }
+            .hero,
+            .panel { border-radius: 24px; padding: 20px; }
+            .drop-hint-grid,
+            .metric-grid,
+            .pipeline { grid-template-columns: 1fr; }
+            .preview-map-card { transform: none; }
+            .hero-actions,
+            .drop-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100 font-sans">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">VNA</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2 font-sans text-sm"></nav>
+        <div class="p-6 pt-4 border-t border-gray-100 font-sans">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 World Tools</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden font-sans">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-map text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-700">Bedrock Viewer</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="page-shell">
+            <div class="page">
+                <section class="hero">
+                    <div class="hero-grid">
+                        <div class="hero-copy">
+                            <span class="chip"><i class="fa-solid fa-cube"></i> Bedrock World Only</span>
+                            <h1>Kéo world vào và đọc bản đồ 2D theo kiểu Bedrock.</h1>
+                            <p>
+                                Trang này là điểm bắt đầu cho Bedrock world viewer trong web. Bạn có thể kéo thả folder world hoặc file
+                                <strong>.mcworld</strong>, hệ thống sẽ kiểm tra cấu trúc gói world, đọc nhanh các dấu hiệu quan trọng
+                                như <strong>db/</strong> và <strong>level.dat</strong>, rồi dựng một preview 2D để chuẩn bị cho pipeline render thật.
+                            </p>
+                            <div class="hero-actions">
+                                <button id="openFolderBtn" class="btn btn-primary" type="button">
+                                    <i class="fa-solid fa-folder-tree"></i> Chọn folder Bedrock world
+                                </button>
+                                <button id="openArchiveBtn" class="btn btn-soft" type="button">
+                                    <i class="fa-solid fa-file-zipper"></i> Chọn file .mcworld
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="hero-preview">
+                            <div class="preview-badge">Preview 2D concept</div>
+                            <div class="preview-map-wrap">
+                                <div class="preview-map-card">
+                                    <canvas id="heroPreviewCanvas" class="preview-canvas" width="720" height="720"></canvas>
+                                </div>
+                            </div>
+                            <div class="floating-note">
+                                <strong id="heroWorldName">No world loaded yet</strong>
+                                <span id="heroWorldMeta">Khi bạn chọn world Bedrock, trang sẽ cập nhật nhanh tên map, số file và trạng thái cấu trúc.</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-grid">
+                    <div class="panel">
+                        <h2 class="section-title">Workspace kéo thả</h2>
+                        <p class="section-copy">
+                            Ưu tiên kéo cả folder world đã giải nén để trình duyệt nhìn thấy cấu trúc tương đối. Bạn vẫn có thể chọn file
+                            <strong>.mcworld</strong>, nhưng bước parse archive sẽ là phần tiếp theo của pipeline.
+                        </p>
+
+                        <div id="dropzone" class="dropzone">
+                            <div class="dropzone-icon">
+                                <i class="fa-solid fa-layer-group text-3xl"></i>
+                            </div>
+                            <h3>Thả world Bedrock vào đây</h3>
+                            <p>
+                                Hợp với thư mục có <strong>db/</strong>, <strong>level.dat</strong>, <strong>levelname.txt</strong>
+                                hoặc file <strong>.mcworld</strong>. Bạn có thể dùng kéo-thả hoặc bấm nút chọn thủ công.
+                            </p>
+                            <div class="drop-actions">
+                                <button class="btn btn-primary" type="button" id="selectFolderInlineBtn">
+                                    <i class="fa-solid fa-folder-open"></i> Chọn thư mục
+                                </button>
+                                <button class="btn btn-soft" type="button" id="selectArchiveInlineBtn">
+                                    <i class="fa-solid fa-file-arrow-up"></i> Chọn archive
+                                </button>
+                            </div>
+
+                            <div class="drop-hint-grid">
+                                <div class="micro-card">
+                                    <strong>Folder mode</strong>
+                                    <span>Đọc danh sách file thật để xác định world Bedrock nhanh hơn.</span>
+                                </div>
+                                <div class="micro-card">
+                                    <strong>Archive mode</strong>
+                                    <span>Nhận file <code>.mcworld</code> như nguồn upload cho bước giải nén sau.</span>
+                                </div>
+                                <div class="micro-card">
+                                    <strong>Preview mode</strong>
+                                    <span>Canvas dựng concept 2D để bạn hình dung layout map và palette.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="dropStatus" class="status-box">
+                            Chưa có world nào được nạp. Hãy chọn folder world Bedrock hoặc thả file vào vùng trên.
+                        </div>
+
+                        <div class="metric-grid">
+                            <div class="metric">
+                                <span>Tên world</span>
+                                <strong id="metricWorldName">Waiting</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Tổng file</span>
+                                <strong id="metricFileCount">0</strong>
+                            </div>
+                            <div class="metric">
+                                <span>DB entries</span>
+                                <strong id="metricDbCount">0</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Mode</span>
+                                <strong id="metricMode">Idle</strong>
+                            </div>
+                        </div>
+
+                        <div class="files-list">
+                            <ul id="filesList">
+                                <li><i class="fa-regular fa-folder-open"></i> Chưa có danh sách file để hiển thị.</li>
+                            </ul>
+                        </div>
+
+                        <div class="pipeline">
+                            <article class="pipeline-step">
+                                <span>Step 01</span>
+                                <strong>Nhận package world</strong>
+                                <p>Đọc file list, tên world, mode folder hay archive và root path tương đối.</p>
+                            </article>
+                            <article class="pipeline-step">
+                                <span>Step 02</span>
+                                <strong>Phát hiện Bedrock signals</strong>
+                                <p>Tìm <code>db/</code>, <code>level.dat</code>, <code>levelname.txt</code> và dấu hiệu chunk store.</p>
+                            </article>
+                            <article class="pipeline-step">
+                                <span>Step 03</span>
+                                <strong>Chunk scan chuẩn bị render</strong>
+                                <p>Ở bước sau sẽ parse LevelDB thật để lấy block top layer, biome và palette.</p>
+                            </article>
+                            <article class="pipeline-step">
+                                <span>Step 04</span>
+                                <strong>Xuất map 2D</strong>
+                                <p>Pan, zoom, tile cache, đánh dấu spawn, điểm quan tâm và nhiều dimension.</p>
+                            </article>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="section-title">Bedrock readiness check</h2>
+                        <p class="section-copy">
+                            Đây là checklist cấu trúc để biết package vừa kéo vào có giống một world Bedrock hợp lệ hay chưa.
+                        </p>
+
+                        <div class="checklist">
+                            <div class="check-item">
+                                <i class="fa-solid fa-database"></i>
+                                <div>
+                                    <strong>Thư mục <code>db/</code></strong>
+                                    <span>Nơi Bedrock world giữ chunk và dữ liệu LevelDB.</span>
+                                </div>
+                                <span id="checkDb" class="check-badge">Missing</span>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-file-lines"></i>
+                                <div>
+                                    <strong>File <code>level.dat</code></strong>
+                                    <span>Metadata quan trọng của world, rất nên có nếu muốn parse thật.</span>
+                                </div>
+                                <span id="checkLevelDat" class="check-badge">Missing</span>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-signature"></i>
+                                <div>
+                                    <strong>File <code>levelname.txt</code></strong>
+                                    <span>Giúp lấy tên world thân thiện để đưa vào viewer nhanh.</span>
+                                </div>
+                                <span id="checkLevelName" class="check-badge">Missing</span>
+                            </div>
+                            <div class="check-item">
+                                <i class="fa-solid fa-box-archive"></i>
+                                <div>
+                                    <strong>Archive <code>.mcworld</code></strong>
+                                    <span>Dùng tốt cho upload, nhưng cần bước giải nén trước khi scan chi tiết.</span>
+                                </div>
+                                <span id="checkArchive" class="check-badge warn">Optional</span>
+                            </div>
+                        </div>
+
+                        <div class="status-box" id="readinessSummary">
+                            Khi có file đầu vào, trang sẽ chấm nhanh độ sẵn sàng của package Bedrock world.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <input id="folderInput" type="file" hidden multiple webkitdirectory directory>
+    <input id="archiveInput" type="file" hidden multiple accept=".mcworld,.zip">
+
+    <script>
+        const folderInput = document.getElementById('folderInput');
+        const archiveInput = document.getElementById('archiveInput');
+        const openFolderBtn = document.getElementById('openFolderBtn');
+        const openArchiveBtn = document.getElementById('openArchiveBtn');
+        const selectFolderInlineBtn = document.getElementById('selectFolderInlineBtn');
+        const selectArchiveInlineBtn = document.getElementById('selectArchiveInlineBtn');
+        const dropzone = document.getElementById('dropzone');
+        const dropStatus = document.getElementById('dropStatus');
+        const heroPreviewCanvas = document.getElementById('heroPreviewCanvas');
+        const filesList = document.getElementById('filesList');
+        const heroWorldName = document.getElementById('heroWorldName');
+        const heroWorldMeta = document.getElementById('heroWorldMeta');
+        const metricWorldName = document.getElementById('metricWorldName');
+        const metricFileCount = document.getElementById('metricFileCount');
+        const metricDbCount = document.getElementById('metricDbCount');
+        const metricMode = document.getElementById('metricMode');
+        const readinessSummary = document.getElementById('readinessSummary');
+        const checkDb = document.getElementById('checkDb');
+        const checkLevelDat = document.getElementById('checkLevelDat');
+        const checkLevelName = document.getElementById('checkLevelName');
+        const checkArchive = document.getElementById('checkArchive');
+
+        const previewState = { seed: 'bedrock-viewer-idle' };
+
+        function setStatus(text, type = 'info') {
+            dropStatus.textContent = text;
+            dropStatus.className = `status-box${type === 'ok' ? ' ok' : type === 'err' ? ' err' : ''}`;
+        }
+
+        function setBadge(element, text, mode = '') {
+            element.textContent = text;
+            element.className = `check-badge${mode ? ` ${mode}` : ''}`;
+        }
+
+        function normalizePath(path) {
+            return String(path || '').replace(/\\/g, '/').replace(/^\/+/, '').trim();
+        }
+
+        function getEntryPath(file) {
+            return normalizePath(file.webkitRelativePath || file.relativePath || file.name || '');
+        }
+
+        function hashSeed(text) {
+            let hash = 2166136261;
+            const value = String(text || 'bedrock');
+            for (let i = 0; i < value.length; i += 1) {
+                hash ^= value.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            return Math.abs(hash >>> 0);
+        }
+
+        function createRandom(seed) {
+            let state = hashSeed(seed) || 1;
+            return function next() {
+                state = Math.imul(1664525, state) + 1013904223;
+                return ((state >>> 0) / 4294967296);
+            };
+        }
+
+        function drawPreview(seed, emphasis = 1) {
+            const canvas = heroPreviewCanvas;
+            const ctx = canvas.getContext('2d');
+            const rand = createRandom(seed);
+            const size = 48;
+            const tile = canvas.width / size;
+            const palette = {
+                water: '#1d4ed8',
+                river: '#38bdf8',
+                sand: '#f6c66d',
+                grass: '#65c466',
+                forest: '#2f8f55',
+                mountain: '#64748b',
+                snow: '#dbeafe'
+            };
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#081120';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let y = 0; y < size; y += 1) {
+                for (let x = 0; x < size; x += 1) {
+                    const nx = x / size - 0.5;
+                    const ny = y / size - 0.5;
+                    const island = 1 - Math.min(1, Math.sqrt(nx * nx + ny * ny) * 1.9);
+                    const wave = Math.sin((x * 0.42) + emphasis) * 0.11 + Math.cos((y * 0.33) - emphasis) * 0.09;
+                    const noise = rand() * 0.75 + rand() * 0.25;
+                    const height = island * 0.78 + wave * 0.24 + noise * 0.58;
+
+                    let color = palette.water;
+                    if (height > 1.02) color = palette.snow;
+                    else if (height > 0.88) color = palette.mountain;
+                    else if (height > 0.68) color = palette.forest;
+                    else if (height > 0.5) color = palette.grass;
+                    else if (height > 0.44) color = palette.sand;
+                    else if (height > 0.36) color = palette.river;
+
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x * tile, y * tile, tile + 1, tile + 1);
+                }
+            }
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= size; i += 6) {
+                ctx.beginPath();
+                ctx.moveTo(i * tile, 0);
+                ctx.lineTo(i * tile, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * tile);
+                ctx.lineTo(canvas.width, i * tile);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(canvas.width * 0.53, canvas.height * 0.45, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        async function tryReadLevelName(files) {
+            const target = files.find((file) => getEntryPath(file).toLowerCase().endsWith('levelname.txt'));
+            if (!target) return '';
+            try {
+                return (await target.text()).trim();
+            } catch (_error) {
+                return '';
+            }
+        }
+
+        function summarizeFiles(files, mode) {
+            const normalizedFiles = Array.from(files || []);
+            const paths = normalizedFiles.map(getEntryPath);
+            const lowerPaths = paths.map((path) => path.toLowerCase());
+            const hasArchive = normalizedFiles.some((file) => /\.mcworld$/i.test(file.name || ''));
+            const hasLevelDat = lowerPaths.some((path) => path.endsWith('level.dat'));
+            const hasLevelName = lowerPaths.some((path) => path.endsWith('levelname.txt'));
+            const dbEntries = lowerPaths.filter((path) => path.startsWith('db/') || path.includes('/db/'));
+            const hasDb = dbEntries.length > 0;
+            const topLevelRoot = normalizePath(paths.find(Boolean) || '').split('/')[0] || '';
+
+            return {
+                files: normalizedFiles,
+                mode,
+                hasArchive,
+                hasLevelDat,
+                hasLevelName,
+                hasDb,
+                dbCount: dbEntries.length,
+                fileCount: normalizedFiles.length,
+                root: topLevelRoot
+            };
+        }
+
+        function renderFiles(files) {
+            filesList.innerHTML = '';
+            if (!files.length) {
+                filesList.innerHTML = '<li><i class="fa-regular fa-folder-open"></i> Chưa có danh sách file để hiển thị.</li>';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            files.slice(0, 18).forEach((file) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fa-regular fa-file-lines"></i><span>${getEntryPath(file)}</span>`;
+                fragment.appendChild(li);
+            });
+
+            if (files.length > 18) {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fa-solid fa-ellipsis"></i><span>Còn ${files.length - 18} file khác chưa hiển thị.</span>`;
+                fragment.appendChild(li);
+            }
+
+            filesList.appendChild(fragment);
+        }
+
+        async function applyWorld(files, mode) {
+            const summary = summarizeFiles(files, mode);
+            const levelName = await tryReadLevelName(summary.files);
+            const fallbackName = summary.root || (summary.hasArchive ? (summary.files[0]?.name || 'Archive') : 'Bedrock World');
+            const worldName = levelName || fallbackName;
+            const readinessScore = [summary.hasDb, summary.hasLevelDat, summary.hasLevelName].filter(Boolean).length;
+
+            metricWorldName.textContent = worldName;
+            metricFileCount.textContent = String(summary.fileCount);
+            metricDbCount.textContent = String(summary.dbCount);
+            metricMode.textContent = mode === 'archive' ? 'Archive' : 'Folder';
+
+            heroWorldName.textContent = worldName;
+            heroWorldMeta.textContent = summary.hasArchive
+                ? 'Archive Bedrock đã được chọn. Bước tiếp theo là giải nén và parse LevelDB để render world thật.'
+                : `Đã nhận ${summary.fileCount} file. Kiểm tra nhanh cho thấy package ${summary.hasDb ? 'có' : 'chưa có'} tín hiệu LevelDB của world Bedrock.`;
+
+            setBadge(checkDb, summary.hasDb ? 'Detected' : 'Missing', summary.hasDb ? 'ok' : '');
+            setBadge(checkLevelDat, summary.hasLevelDat ? 'Detected' : 'Missing', summary.hasLevelDat ? 'ok' : '');
+            setBadge(checkLevelName, summary.hasLevelName ? 'Detected' : 'Missing', summary.hasLevelName ? 'ok' : '');
+            setBadge(checkArchive, summary.hasArchive ? 'Detected' : 'Optional', summary.hasArchive ? 'ok' : 'warn');
+
+            if (summary.hasArchive && !summary.hasDb && !summary.hasLevelDat) {
+                setStatus('Đã nhận file archive .mcworld. Giao diện đã sẵn sàng, còn bước tiếp theo là giải nén archive để quét Bedrock world thật.', 'ok');
+                readinessSummary.textContent = 'Archive đã vào đúng luồng. Muốn render 2D thật, bước kế sẽ là upload + giải nén + parse db/ ở backend.';
+                readinessSummary.className = 'status-box';
+            } else if (readinessScore >= 2) {
+                setStatus(`Đã nhận world "${worldName}". Cấu trúc khá giống một Bedrock world hợp lệ và sẵn sàng cho bước parser/render tiếp theo.`, 'ok');
+                readinessSummary.textContent = 'Package này có dấu hiệu tốt cho Bedrock parser. Bước tiếp theo chỉ còn scan chunk từ LevelDB rồi xuất tile 2D.';
+                readinessSummary.className = 'status-box ok';
+            } else {
+                setStatus('Đã nhận file nhưng cấu trúc Bedrock chưa rõ ràng. Hãy ưu tiên chọn cả folder world đã giải nén để kiểm tra chính xác hơn.', 'err');
+                readinessSummary.textContent = 'Tín hiệu Bedrock còn yếu. Có thể bạn đang kéo sai thư mục, hoặc đang dùng archive chưa giải nén.';
+                readinessSummary.className = 'status-box err';
+            }
+
+            renderFiles(summary.files);
+            previewState.seed = `${worldName}|${summary.fileCount}|${summary.dbCount}|${mode}`;
+            drawPreview(previewState.seed, 1 + (summary.dbCount % 9));
+        }
+
+        function openFolderPicker() {
+            folderInput.value = '';
+            folderInput.click();
+        }
+
+        function openArchivePicker() {
+            archiveInput.value = '';
+            archiveInput.click();
+        }
+
+        function getDroppedFiles(event) {
+            return Array.from(event.dataTransfer?.files || []);
+        }
+
+        openFolderBtn.addEventListener('click', openFolderPicker);
+        openArchiveBtn.addEventListener('click', openArchivePicker);
+        selectFolderInlineBtn.addEventListener('click', openFolderPicker);
+        selectArchiveInlineBtn.addEventListener('click', openArchivePicker);
+
+        folderInput.addEventListener('change', async () => {
+            await applyWorld(Array.from(folderInput.files || []), 'folder');
+        });
+
+        archiveInput.addEventListener('change', async () => {
+            await applyWorld(Array.from(archiveInput.files || []), 'archive');
+        });
+
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            dropzone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropzone.classList.add('is-dragover');
+            });
+        });
+
+        ['dragleave', 'dragend', 'drop'].forEach((eventName) => {
+            dropzone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                if (eventName !== 'drop') {
+                    dropzone.classList.remove('is-dragover');
+                }
+            });
+        });
+
+        dropzone.addEventListener('drop', async (event) => {
+            event.preventDefault();
+            dropzone.classList.remove('is-dragover');
+            const files = getDroppedFiles(event);
+            const mode = files.some((file) => /\.mcworld$/i.test(file.name || '')) ? 'archive' : 'folder';
+            await applyWorld(files, mode);
+        });
+
+        drawPreview(previewState.seed, 1.6);
+    </script>
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            if (sidebar.classList.contains('-left-[260px]')) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

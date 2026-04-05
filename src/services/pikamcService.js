@@ -9,6 +9,46 @@ function isApiConfigured(config) {
     return Boolean(config?.apiKey && config?.panelUrl && config?.serverId);
 }
 
+export async function getConsoleWebSocketAuth() {
+    const config = await getPikamcConfig();
+    if (!isApiConfigured(config)) {
+        console.error('❌ Cannot get console websocket auth: PikaMC API is not configured');
+        return { success: false, error: 'API not configured' };
+    }
+
+    try {
+        const response = await axios.get(
+            `${config.panelUrl}/api/client/servers/${config.serverId}/websocket`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${config.apiKey}`,
+                    'Accept': 'Application/vnd.pterodactyl.v1+json'
+                },
+                timeout: 10000
+            }
+        );
+
+        const payload = response.data?.data || response.data?.attributes || {};
+        const token = String(payload?.token || '').trim();
+        const socketUrl = String(payload?.socket || '').trim();
+
+        if (!token || !socketUrl) {
+            return { success: false, error: 'Invalid websocket credentials response' };
+        }
+
+        return {
+            success: true,
+            data: {
+                token,
+                socketUrl
+            }
+        };
+    } catch (err) {
+        console.error('❌ Lỗi lấy websocket auth PikaMC:', err.response ? err.response.data : err.message);
+        return { success: false, error: err.message };
+    }
+}
+
 // Send console command to Minecraft server
 export async function sendConsoleCommand(command) {
     // Check if API is configured

@@ -114,6 +114,7 @@
             soundcloud: isActivePath(currentPath, ['/html/soundcloud.html']),
             minecraft: isActivePath(currentPath, ['/html/dowloadmc.html']),
             whitelist: isActivePath(currentPath, ['/whitelist', '/html/whitelist.html']),
+            bedrockViewer: isActivePath(currentPath, ['/html/bedrock-world-viewer.html']),
             embedAdmin: isActivePath(currentPath, ['/admin/e.html', '/embed-admin', '/admin06082008']),
             whitelistAdmin: isActivePath(currentPath, ['/admin/whitelist.html']),
             mcAdmin: isActivePath(currentPath, ['/admin/p.html', '/admin/p'])
@@ -143,6 +144,7 @@
                 ${toolTile('fa-brands fa-soundcloud', 'SoundCloud', '/html/soundcloud.html', active.soundcloud)}
                 ${toolTile('fas fa-download', 'Minecraft', '/html/dowloadmc.html', active.minecraft)}
                 ${toolTile('fas fa-user-check', 'Whitelist', '/whitelist', active.whitelist)}
+                ${toolTile('fas fa-map', 'World Map', '/html/bedrock-world-viewer.html', active.bedrockViewer)}
             </div>
 
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Kho rác</div>

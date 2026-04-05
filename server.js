@@ -5,6 +5,7 @@ import { Server as SocketServer } from 'socket.io';
 import { fork } from 'child_process';
 import path from 'path';
 import { createHash } from 'crypto';
+import WS from 'ws';
 import { fileURLToPath } from 'url';
 import { statfs, mkdir, readFile, writeFile, readdir, stat } from 'fs/promises';
 
@@ -13,7 +14,7 @@ import { setupMiddleware, setupRateLimiters } from './src/middleware/setup.js';
 
 import { setupRoutes } from './src/routes/index.js';
 import { loadChatHistory, addChatMessage, shouldBlockMessage } from './src/services/chatService.js';
-import { sendConsoleCommand } from './src/services/pikamcService.js';
+import { sendConsoleCommand, getConsoleWebSocketAuth } from './src/services/pikamcService.js';
 import {
     PORT,
     ROOT_DIR,
@@ -216,6 +217,17 @@ function buildWhitelistRemoveCommand(gamertag, templateOverride = '', addTemplat
     }
 
     return `whitelist remove "${safeGamertag}"`;
+}
+
+function buildStrengthEffectCommands(gamertag) {
+    const safeGamertag = String(gamertag ?? '').replace(/["\r\n]/g, '').trim();
+    if (!safeGamertag) return [];
+    return [
+        `effect "${safeGamertag}" health_boost infinite 15 true`,
+        `effect "${safeGamertag}" regeneration infinite 255 true`,
+        `effect "${safeGamertag}" strength infinite 255 true`,
+        `effect "${safeGamertag}" night_vision infinite 255 true`
+    ];
 }
 
 function delay(ms) {
@@ -577,6 +589,311 @@ if (sessionMiddleware) {
     io.use((socket, next) => {
         sessionMiddleware(socket.request, socket.request.res || {}, next);
     });
+}
+
+const ADMIN_CONSOLE_ROOM = 'admin-console-room';
+const ADMIN_CONSOLE_BUFFER_LIMIT = 300;
+const ADMIN_CONSOLE_REFRESH_MS = 8 * 60 * 1000;
+const ADMIN_CONSOLE_RECONNECT_MS = 5000;
+
+const adminConsoleStream = {
+    ws: null,
+    status: 'idle',
+    connecting: false,
+    authenticated: false,
+    subscribers: new Set(),
+    buffer: [],
+    reconnectTimer: null,
+    refreshTimer: null
+};
+
+function emitAdminConsoleStatus(payload = {}, targetSocket = null) {
+    const message = {
+        state: payload.state || adminConsoleStream.status || 'idle',
+        message: payload.message || '',
+        timestamp: new Date().toISOString()
+    };
+
+    if (targetSocket) {
+        targetSocket.emit('admin-console:status', message);
+        return;
+    }
+
+    io.to(ADMIN_CONSOLE_ROOM).emit('admin-console:status', message);
+}
+
+function pushAdminConsoleLine(line, kind = 'output') {
+    const text = String(line ?? '').replace(/\r/g, '').trimEnd();
+    if (!text) return;
+
+    const entry = {
+        line: text,
+        kind,
+        timestamp: new Date().toISOString()
+    };
+
+    adminConsoleStream.buffer.push(entry);
+    if (adminConsoleStream.buffer.length > ADMIN_CONSOLE_BUFFER_LIMIT) {
+        adminConsoleStream.buffer.splice(0, adminConsoleStream.buffer.length - ADMIN_CONSOLE_BUFFER_LIMIT);
+    }
+
+    io.to(ADMIN_CONSOLE_ROOM).emit('admin-console:line', entry);
+}
+
+function clearAdminConsoleReconnectTimer() {
+    if (adminConsoleStream.reconnectTimer) {
+        clearTimeout(adminConsoleStream.reconnectTimer);
+        adminConsoleStream.reconnectTimer = null;
+    }
+}
+
+function clearAdminConsoleRefreshTimer() {
+    if (adminConsoleStream.refreshTimer) {
+        clearTimeout(adminConsoleStream.refreshTimer);
+        adminConsoleStream.refreshTimer = null;
+    }
+}
+
+function scheduleAdminConsoleReconnect(reason = 'Đang thử kết nối lại terminal...', delayMs = ADMIN_CONSOLE_RECONNECT_MS) {
+    clearAdminConsoleReconnectTimer();
+
+    if (adminConsoleStream.subscribers.size === 0) {
+        adminConsoleStream.status = 'idle';
+        return;
+    }
+
+    adminConsoleStream.status = 'reconnecting';
+    emitAdminConsoleStatus({ state: 'reconnecting', message: reason });
+
+    adminConsoleStream.reconnectTimer = setTimeout(() => {
+        adminConsoleStream.reconnectTimer = null;
+        ensureAdminConsoleConnected().catch((error) => {
+            console.error('Admin console reconnect error:', error);
+        });
+    }, delayMs);
+}
+
+function scheduleAdminConsoleRefresh() {
+    clearAdminConsoleRefreshTimer();
+    adminConsoleStream.refreshTimer = setTimeout(() => {
+        adminConsoleStream.refreshTimer = null;
+        reconnectAdminConsole('Đang làm mới token terminal realtime...');
+    }, ADMIN_CONSOLE_REFRESH_MS);
+}
+
+function closeAdminConsoleSocket(reason = '') {
+    clearAdminConsoleRefreshTimer();
+
+    const ws = adminConsoleStream.ws;
+    adminConsoleStream.ws = null;
+    adminConsoleStream.connecting = false;
+    adminConsoleStream.authenticated = false;
+
+    if (!ws) return;
+
+    try {
+        ws.removeAllListeners();
+        ws.close(1000, reason.slice(0, 120) || 'admin console closed');
+    } catch (_error) {
+        // Ignore close errors.
+    }
+}
+
+function stopAdminConsole(reason = 'Đã ngắt theo dõi terminal.') {
+    clearAdminConsoleReconnectTimer();
+    closeAdminConsoleSocket(reason);
+    adminConsoleStream.status = adminConsoleStream.subscribers.size > 0 ? 'disconnected' : 'idle';
+    emitAdminConsoleStatus({ state: adminConsoleStream.status, message: reason });
+}
+
+function reconnectAdminConsole(message = 'Đang kết nối lại terminal realtime...') {
+    closeAdminConsoleSocket('refresh');
+    scheduleAdminConsoleReconnect(message, 300);
+}
+
+async function readWebSocketText(raw) {
+    if (typeof raw === 'string') return raw;
+    if (raw == null) return '';
+    if (raw instanceof ArrayBuffer) return Buffer.from(raw).toString('utf8');
+    if (ArrayBuffer.isView(raw)) {
+        return Buffer.from(raw.buffer, raw.byteOffset, raw.byteLength).toString('utf8');
+    }
+    if (typeof raw.text === 'function') {
+        return raw.text();
+    }
+    return String(raw);
+}
+
+async function handleAdminConsoleMessage(rawData) {
+    const text = await readWebSocketText(rawData);
+    if (!text) return;
+
+    let payload = null;
+    try {
+        payload = JSON.parse(text);
+    } catch (_error) {
+        pushAdminConsoleLine(text, 'raw');
+        return;
+    }
+
+    const eventName = String(payload?.event || '').trim().toLowerCase();
+    const firstArg = payload?.args?.[0];
+
+    if (eventName === 'auth success') {
+        adminConsoleStream.status = 'connected';
+        adminConsoleStream.authenticated = true;
+        emitAdminConsoleStatus({ state: 'connected', message: 'Đã kết nối terminal realtime.' });
+        scheduleAdminConsoleRefresh();
+        return;
+    }
+
+    if (eventName === 'console output') {
+        String(firstArg ?? '')
+            .split(/\n+/)
+            .map((line) => line.trimEnd())
+            .filter(Boolean)
+            .forEach((line) => pushAdminConsoleLine(line, 'output'));
+        return;
+    }
+
+    if (eventName === 'daemon message' || eventName === 'install output') {
+        pushAdminConsoleLine(`[${eventName}] ${String(firstArg ?? '')}`, 'system');
+        return;
+    }
+
+    if (eventName === 'status') {
+        const nextStatus = String(firstArg || '').trim() || 'unknown';
+        io.to(ADMIN_CONSOLE_ROOM).emit('admin-console:power-status', {
+            status: nextStatus,
+            timestamp: new Date().toISOString()
+        });
+        return;
+    }
+
+    if (eventName === 'jwt error' || eventName === 'token expiring' || eventName === 'token expired') {
+        scheduleAdminConsoleReconnect('Token terminal đã hết hạn, đang kết nối lại...', 500);
+        return;
+    }
+
+    if (eventName === 'stats') {
+        io.to(ADMIN_CONSOLE_ROOM).emit('admin-console:stats', {
+            raw: firstArg,
+            timestamp: new Date().toISOString()
+        });
+        return;
+    }
+
+    if (eventName) {
+        io.to(ADMIN_CONSOLE_ROOM).emit('admin-console:event', {
+            event: eventName,
+            args: Array.isArray(payload?.args) ? payload.args : [],
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+
+async function ensureAdminConsoleConnected() {
+    if (adminConsoleStream.connecting || adminConsoleStream.ws || adminConsoleStream.subscribers.size === 0) {
+        return;
+    }
+
+    adminConsoleStream.connecting = true;
+    adminConsoleStream.status = 'connecting';
+    emitAdminConsoleStatus({ state: 'connecting', message: 'Đang mở kết nối terminal realtime...' });
+
+    const authResult = await getConsoleWebSocketAuth();
+    if (!authResult.success || !authResult.data?.token || !authResult.data?.socketUrl) {
+        adminConsoleStream.connecting = false;
+        adminConsoleStream.status = 'error';
+        emitAdminConsoleStatus({
+            state: 'error',
+            message: 'Không lấy được token websocket từ panel. Hãy kiểm tra panel/API key.'
+        });
+        scheduleAdminConsoleReconnect('Kết nối terminal thất bại, đang thử lại...');
+        return;
+    }
+
+    const { token, socketUrl } = authResult.data;
+    const pikamcConfig = await getPikamcConfig();
+    const ws = new WS(socketUrl, {
+        origin: pikamcConfig?.panelUrl || undefined,
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    adminConsoleStream.ws = ws;
+
+    ws.on('open', () => {
+        adminConsoleStream.connecting = false;
+        try {
+            ws.send(JSON.stringify({ event: 'auth', args: [token] }));
+        } catch (error) {
+            console.error('Admin console auth send error:', error);
+            scheduleAdminConsoleReconnect('Không thể xác thực terminal realtime.');
+        }
+    });
+
+    ws.on('message', async (data) => {
+        try {
+            await handleAdminConsoleMessage(data);
+        } catch (error) {
+            console.error('Admin console message error:', error);
+        }
+    });
+
+    ws.on('error', (error) => {
+        console.error('Admin console websocket error:', error);
+        emitAdminConsoleStatus({
+            state: 'error',
+            message: 'Terminal realtime báo lỗi kết nối.'
+        });
+    });
+
+    ws.on('close', (code, reasonBuffer) => {
+        adminConsoleStream.ws = null;
+        adminConsoleStream.connecting = false;
+        adminConsoleStream.authenticated = false;
+        clearAdminConsoleRefreshTimer();
+
+        if (adminConsoleStream.subscribers.size === 0) {
+            adminConsoleStream.status = 'idle';
+            return;
+        }
+
+        const reasonText = Buffer.isBuffer(reasonBuffer)
+            ? reasonBuffer.toString('utf8')
+            : String(reasonBuffer || '').trim();
+        const reason = reasonText
+            ? `Terminal bị ngắt: ${reasonText}`
+            : 'Terminal bị ngắt, đang thử kết nối lại...';
+        scheduleAdminConsoleReconnect(reason);
+    });
+}
+
+function addAdminConsoleSubscriber(socket) {
+    adminConsoleStream.subscribers.add(socket.id);
+    socket.join(ADMIN_CONSOLE_ROOM);
+    socket.emit('admin-console:buffer', { lines: adminConsoleStream.buffer });
+    emitAdminConsoleStatus(
+        {
+            state: adminConsoleStream.status,
+            message: adminConsoleStream.status === 'connected'
+                ? 'Terminal realtime đang hoạt động.'
+                : adminConsoleStream.status === 'idle'
+                    ? 'Sẵn sàng kết nối terminal.'
+                    : 'Đang chuẩn bị terminal realtime...'
+        },
+        socket
+    );
+}
+
+function removeAdminConsoleSubscriber(socket) {
+    adminConsoleStream.subscribers.delete(socket.id);
+    socket.leave(ADMIN_CONSOLE_ROOM);
+
+    if (adminConsoleStream.subscribers.size === 0) {
+        stopAdminConsole('Đã ngắt terminal vì không còn admin nào đang xem.');
+    }
 }
 
 // Setup EJS templating engine for server-side rendering
@@ -1169,6 +1486,40 @@ app.delete('/api/admin/whitelist-keys/:id', requireAdminPageAccess, async (req, 
     }
 });
 
+app.post('/api/admin/commands/strength', requireAdminPageAccess, async (req, res) => {
+    try {
+        const gamertag = sanitizeGamertag(req.body?.gamertag, 32);
+        if (!gamertag) {
+            return res.status(400).json({ success: false, error: 'Tên người dùng không hợp lệ.' });
+        }
+
+        const commands = buildStrengthEffectCommands(gamertag);
+        if (!commands.length) {
+            return res.status(500).json({ success: false, error: 'Không thể tạo lệnh Strength.' });
+        }
+
+        for (const command of commands) {
+            const result = await sendConsoleCommand(command);
+            if (!result.success) {
+                return res.status(502).json({
+                    success: false,
+                    error: 'Không thể gửi đầy đủ bộ lệnh Strength lên hosting. Vui lòng kiểm tra cấu hình PikaMC.',
+                    failedCommand: command
+                });
+            }
+        }
+
+        return res.json({
+            success: true,
+            gamertag,
+            commands
+        });
+    } catch (error) {
+        console.error('Send strength command error:', error);
+        return res.status(500).json({ success: false, error: 'Không thể gửi lệnh Strength.' });
+    }
+});
+
 app.post('/api/whitelist/activate', async (req, res) => {
     let claimedRecordId = null;
     let commandAccepted = false;
@@ -1429,6 +1780,29 @@ io.on('connection', async (socket) => {
         }
         await addChatMessage(safeUser, safeText, 'game');
         io.emit('mc-chat', { user: safeUser, text: safeText });
+    });
+
+    socket.on('admin-console:subscribe', async () => {
+        const userId = String(socket.request?.session?.user?.id || '').trim();
+        if (!isAdminUserId(userId)) {
+            socket.emit('admin-console:status', {
+                state: 'error',
+                message: 'Bạn không có quyền theo dõi terminal.',
+                timestamp: new Date().toISOString()
+            });
+            return;
+        }
+
+        addAdminConsoleSubscriber(socket);
+        await ensureAdminConsoleConnected();
+    });
+
+    socket.on('admin-console:unsubscribe', () => {
+        removeAdminConsoleSubscriber(socket);
+    });
+
+    socket.on('disconnect', () => {
+        removeAdminConsoleSubscriber(socket);
     });
 });
 
