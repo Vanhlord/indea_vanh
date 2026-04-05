@@ -32,6 +32,7 @@ import db from './src/modules/database.js';
 // Import existing modules
 import statusRoute, { setSocketIO, getNetworkHistory } from './src/modules/status/status.js';
 import snapsaveRoute from './src/modules/downloader/facebook.js';
+import { setupPixeonSocket, pixeonRouter } from './src/modules/games/pixeon.js';
 
 import authRoutes from './src/modules/auth/oauth.js';
 import { handleYoutubeDownload, getYoutubeInfo } from './src/modules/downloader/youtube.js';
@@ -580,6 +581,8 @@ const io = new SocketServer(server);
 // Set Socket.IO for status server and bot2
 setSocketIO(io);
 setBot2SocketIO(io);
+setupPixeonSocket(io);
+app.use('/api/pixeon', pixeonRouter);
 
 // Setup middleware
 const { sessionMiddleware } = setupMiddleware(app);
