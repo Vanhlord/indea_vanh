@@ -34,8 +34,71 @@
             overflow: hidden;
         }
 
-        .page-shell { width: 100%; padding: 26px 16px 64px; }
-        .page { max-width: 1220px; margin: 0 auto; }
+        body.page-paused {
+            background:
+                linear-gradient(180deg, #d7dce3 0%, #c7cdd6 100%);
+        }
+
+        .page-pause-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(226, 232, 240, 0.46);
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+        }
+
+        .page-pause-card {
+            width: min(520px, calc(100vw - 32px));
+            border-radius: 26px;
+            padding: 24px 26px;
+            border: 1px solid rgba(100, 116, 139, 0.32);
+            background: rgba(255, 255, 255, 0.92);
+            color: #1e293b;
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+            text-align: center;
+        }
+
+        .page-pause-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(71, 85, 105, 0.12);
+            color: #334155;
+            border: 1px solid rgba(100, 116, 139, 0.22);
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .page-pause-card h2 {
+            margin: 16px 0 10px;
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            letter-spacing: -0.04em;
+        }
+
+        .page-pause-card p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.7;
+        }
+
+        .page-paused-shell {
+            filter: grayscale(1) saturate(0.1) contrast(0.92);
+            opacity: 0.6;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .page-shell { width: 100%; padding: 12px 10px 28px; }
+        .page { width: 100%; max-width: min(1760px, calc(100vw - 20px)); margin: 0 auto; }
 
         .hero,
         .panel {
@@ -61,8 +124,16 @@
             gap: 22px;
         }
 
-        .hero-grid { grid-template-columns: minmax(0, 1.25fr) minmax(330px, 0.9fr); align-items: center; }
-        .section-grid { grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr); margin-top: 22px; }
+        .hero-grid { grid-template-columns: minmax(320px, 0.52fr) minmax(0, 1.48fr); align-items: stretch; }
+        .section-grid { grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.56fr); margin-top: 16px; }
+
+        .hero-copy {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            max-width: 40rem;
+        }
 
         .chip {
             display: inline-flex;
@@ -125,9 +196,16 @@
         .btn:hover,
         .dropzone:hover { transform: translateY(-1px); }
 
+        .btn:disabled {
+            cursor: wait;
+            opacity: 0.72;
+            transform: none;
+            box-shadow: none;
+        }
+
         .hero-preview {
             position: relative;
-            min-height: 360px;
+            min-height: calc(100vh - 110px);
             border-radius: 28px;
             background: linear-gradient(180deg, #0b1221 0%, #12213a 100%);
             border: 1px solid rgba(148, 163, 184, 0.16);
@@ -138,22 +216,99 @@
             position: absolute;
             inset: 0;
             display: grid;
-            place-items: center;
-            padding: 26px;
+            place-items: stretch;
+            padding: 8px;
         }
 
         .preview-map-card {
-            width: min(100%, 420px);
-            aspect-ratio: 1 / 1;
-            border-radius: 24px;
+            width: 100%;
+            height: 100%;
+            border-radius: 22px;
             background: rgba(15, 23, 42, 0.68);
             border: 1px solid rgba(148, 163, 184, 0.22);
             box-shadow: 0 26px 50px rgba(0, 0, 0, 0.28);
             overflow: hidden;
-            transform: rotate(-5deg);
+            position: relative;
         }
 
-        .preview-canvas { display: block; width: 100%; height: 100%; }
+        .map-stage {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-origin: center center;
+            will-change: transform;
+            cursor: grab;
+        }
+
+        .map-stage.is-dragging {
+            cursor: grabbing;
+        }
+
+        .map-stage.is-animating {
+            transition: transform 220ms ease;
+        }
+
+        .preview-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+        .rendered-map-image {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            background: rgba(8, 17, 32, 0.96);
+        }
+        .hidden { display: none !important; }
+
+        .map-controls {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 4;
+            padding: 8px;
+            border-radius: 16px;
+            background: rgba(8, 17, 32, 0.58);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .map-control-btn,
+        .zoom-readout {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            min-width: 42px;
+            height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .map-control-btn {
+            cursor: pointer;
+            transition: background 0.18s ease, transform 0.18s ease;
+        }
+
+        .map-control-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .zoom-readout {
+            min-width: 72px;
+            padding: 0 10px;
+            font-size: 0.84rem;
+        }
 
         .preview-badge,
         .floating-note {
@@ -175,7 +330,7 @@
         .floating-note {
             left: 24px;
             bottom: 24px;
-            width: min(250px, calc(100% - 48px));
+            width: min(360px, calc(100% - 48px));
             padding: 16px;
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.1);
@@ -201,6 +356,12 @@
         .dropzone.is-dragover {
             border-color: #0ea5e9;
             box-shadow: 0 22px 42px rgba(37, 99, 235, 0.13);
+        }
+
+        .dropzone.is-busy {
+            border-color: #2563eb;
+            box-shadow: 0 22px 42px rgba(37, 99, 235, 0.16);
+            opacity: 0.9;
         }
 
         .dropzone-icon {
@@ -251,6 +412,7 @@
 
         .status-box.ok { color: #166534; background: #ecfdf5; border-color: #bbf7d0; }
         .status-box.err { color: #b91c1c; background: #fff1f2; border-color: #fecdd3; }
+        .status-box.busy { color: #1d4ed8; background: #eff6ff; border-color: #93c5fd; }
 
         .files-list {
             margin-top: 16px;
@@ -321,30 +483,46 @@
         .pipeline-step strong { display: block; margin-top: 18px; font-size: 1.06rem; }
         .pipeline-step p { margin: 10px 0 0; color: #9fb7d1; font-size: 0.84rem; line-height: 1.6; }
 
+        .render-meta-grid {
+            margin-top: 18px;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         @media (max-width: 1080px) {
             .hero-grid,
             .section-grid { grid-template-columns: 1fr; }
             .metric-grid,
             .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .hero-preview { min-height: 62vh; }
         }
 
         @media (max-width: 720px) {
-            .page-shell { padding: 16px 12px 40px; }
+            .page-shell { padding: 10px 8px 24px; }
             .hero,
             .panel { border-radius: 24px; padding: 20px; }
             .drop-hint-grid,
             .metric-grid,
             .pipeline { grid-template-columns: 1fr; }
-            .preview-map-card { transform: none; }
             .hero-actions,
             .drop-actions { flex-direction: column; }
+            .hero-preview { min-height: 54vh; }
+            .floating-note { width: min(320px, calc(100% - 32px)); left: 16px; bottom: 16px; }
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="page-paused flex h-screen overflow-hidden">
+    <div class="page-pause-overlay">
+        <div class="page-pause-card">
+            <span class="page-pause-chip"><i class="fa-solid fa-pause"></i> Hoan Tien Trinh</span>
+            <h2>Bedrock World Viewer dang tam hoan.</h2>
+            <p>Trang nay da duoc danh dau tam dung phat trien. Toan bo giao dien duoc giu o trang thai xam de tranh thao tac tiep trong luc doi mo lai tien do.</p>
+        </div>
+    </div>
     <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden" onclick="toggleSidebar()"></div>
 
-    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
+    <aside id="sidebar" class="page-paused-shell fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
         <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100 font-sans">
             <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
                 <i class="fas fa-server text-xl"></i>
@@ -357,7 +535,7 @@
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col overflow-y-auto">
+    <div class="page-paused-shell flex-1 flex flex-col overflow-y-auto">
         <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden font-sans">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
@@ -392,16 +570,34 @@
                             </div>
                         </div>
 
-                        <div class="hero-preview">
-                            <div class="preview-badge">Preview 2D concept</div>
+                            <div class="hero-preview">
+                            <div id="previewBadge" class="preview-badge">Preview 2D concept</div>
                             <div class="preview-map-wrap">
                                 <div class="preview-map-card">
-                                    <canvas id="heroPreviewCanvas" class="preview-canvas" width="720" height="720"></canvas>
+                                    <div class="map-controls">
+                                        <button id="zoomOutBtn" class="map-control-btn" type="button" aria-label="Zoom out">
+                                            <i class="fa-solid fa-minus"></i>
+                                        </button>
+                                        <div id="zoomReadout" class="zoom-readout">100%</div>
+                                        <button id="zoomInBtn" class="map-control-btn" type="button" aria-label="Zoom in">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                        <button id="zoomFitBtn" class="map-control-btn" type="button" aria-label="Fit map">
+                                            <i class="fa-solid fa-expand"></i>
+                                        </button>
+                                        <button id="zoomResetBtn" class="map-control-btn" type="button" aria-label="Reset view">
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                        </button>
+                                    </div>
+                                    <div id="mapStage" class="map-stage">
+                                        <canvas id="heroPreviewCanvas" class="preview-canvas" width="720" height="720"></canvas>
+                                        <img id="renderedMapImage" class="rendered-map-image hidden" alt="Rendered Bedrock world map">
+                                    </div>
                                 </div>
                             </div>
                             <div class="floating-note">
                                 <strong id="heroWorldName">No world loaded yet</strong>
-                                <span id="heroWorldMeta">Khi bạn chọn world Bedrock, trang sẽ cập nhật nhanh tên map, số file và trạng thái cấu trúc.</span>
+                                <span id="heroWorldMeta">Khi bạn chọn world Bedrock, khung map sẽ bắt đầu hiện dần theo từng đợt render thay vì chờ xong toàn bộ.</span>
                             </div>
                         </div>
                     </div>
@@ -438,13 +634,13 @@
                                     <strong>Folder mode</strong>
                                     <span>Đọc danh sách file thật để xác định world Bedrock nhanh hơn.</span>
                                 </div>
-                                <div class="micro-card">
-                                    <strong>Archive mode</strong>
-                                    <span>Nhận file <code>.mcworld</code> như nguồn upload cho bước giải nén sau.</span>
+                            <div class="micro-card">
+                                <strong>Archive mode</strong>
+                                    <span>Nhận file <code>.mcworld</code>, upload lên server rồi giải nén để scan world.</span>
                                 </div>
                                 <div class="micro-card">
-                                    <strong>Preview mode</strong>
-                                    <span>Canvas dựng concept 2D để bạn hình dung layout map và palette.</span>
+                                    <strong>Render mode</strong>
+                                    <span>Đọc chunk Bedrock thật và trả về ảnh map 2D ngay trên trang.</span>
                                 </div>
                             </div>
                         </div>
@@ -546,6 +742,29 @@
                         <div class="status-box" id="readinessSummary">
                             Khi có file đầu vào, trang sẽ chấm nhanh độ sẵn sàng của package Bedrock world.
                         </div>
+
+                        <div id="renderSummary" class="status-box">
+                            Sau khi render xong, khu này sẽ hiện kích thước ảnh map, số chunk và phạm vi world đã đọc được.
+                        </div>
+
+                        <div class="render-meta-grid">
+                            <div class="metric">
+                                <span>Kích thước ảnh</span>
+                                <strong id="renderSize">Waiting</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Tiến độ chunk</span>
+                                <strong id="renderChunkCount">0</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Bước lấy mẫu</span>
+                                <strong id="renderSampleStep">0</strong>
+                            </div>
+                            <div class="metric">
+                                <span>Bounds</span>
+                                <strong id="renderBounds">Idle</strong>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -565,6 +784,14 @@
         const dropzone = document.getElementById('dropzone');
         const dropStatus = document.getElementById('dropStatus');
         const heroPreviewCanvas = document.getElementById('heroPreviewCanvas');
+        const mapStage = document.getElementById('mapStage');
+        const renderedMapImage = document.getElementById('renderedMapImage');
+        const previewBadge = document.getElementById('previewBadge');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomFitBtn = document.getElementById('zoomFitBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        const zoomReadout = document.getElementById('zoomReadout');
         const filesList = document.getElementById('filesList');
         const heroWorldName = document.getElementById('heroWorldName');
         const heroWorldMeta = document.getElementById('heroWorldMeta');
@@ -577,12 +804,45 @@
         const checkLevelDat = document.getElementById('checkLevelDat');
         const checkLevelName = document.getElementById('checkLevelName');
         const checkArchive = document.getElementById('checkArchive');
+        const renderSummary = document.getElementById('renderSummary');
+        const renderSize = document.getElementById('renderSize');
+        const renderChunkCount = document.getElementById('renderChunkCount');
+        const renderSampleStep = document.getElementById('renderSampleStep');
+        const renderBounds = document.getElementById('renderBounds');
 
         const previewState = { seed: 'bedrock-viewer-idle' };
+        const actionButtons = [
+            openFolderBtn,
+            openArchiveBtn,
+            selectFolderInlineBtn,
+            selectArchiveInlineBtn
+        ];
+        let activeRenderPollToken = 0;
+        let activeRenderJobId = '';
+        let latestImageRevision = 0;
+        let activeSnapshotDrawToken = 0;
+        const mapViewState = {
+            scale: 1,
+            fitScale: 1,
+            minScale: 1,
+            maxScale: 96,
+            offsetX: 0,
+            offsetY: 0,
+            sourceWidth: 720,
+            sourceHeight: 720,
+            lastFittedWidth: 720,
+            lastFittedHeight: 720,
+            dragging: false,
+            pointerId: null,
+            startX: 0,
+            startY: 0,
+            startOffsetX: 0,
+            startOffsetY: 0
+        };
 
         function setStatus(text, type = 'info') {
             dropStatus.textContent = text;
-            dropStatus.className = `status-box${type === 'ok' ? ' ok' : type === 'err' ? ' err' : ''}`;
+            dropStatus.className = `status-box${type === 'ok' ? ' ok' : type === 'err' ? ' err' : type === 'busy' ? ' busy' : ''}`;
         }
 
         function setBadge(element, text, mode = '') {
@@ -596,6 +856,19 @@
 
         function getEntryPath(file) {
             return normalizePath(file.webkitRelativePath || file.relativePath || file.name || '');
+        }
+
+        function attachRelativePath(file, relativePath) {
+            const normalized = normalizePath(relativePath || file.name || '');
+            try {
+                Object.defineProperty(file, 'relativePath', {
+                    configurable: true,
+                    value: normalized
+                });
+            } catch (_error) {
+                file.relativePath = normalized;
+            }
+            return file;
         }
 
         function hashSeed(text) {
@@ -717,27 +990,217 @@
         function renderFiles(files) {
             filesList.innerHTML = '';
             if (!files.length) {
-                filesList.innerHTML = '<li><i class="fa-regular fa-folder-open"></i> Chưa có danh sách file để hiển thị.</li>';
+                const li = document.createElement('li');
+                li.innerHTML = '<i class="fa-regular fa-folder-open"></i>';
+                const text = document.createElement('span');
+                text.textContent = 'Chưa có danh sách file để hiển thị.';
+                li.appendChild(text);
+                filesList.appendChild(li);
                 return;
             }
 
             const fragment = document.createDocumentFragment();
             files.slice(0, 18).forEach((file) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<i class="fa-regular fa-file-lines"></i><span>${getEntryPath(file)}</span>`;
+                li.innerHTML = '<i class="fa-regular fa-file-lines"></i>';
+                const text = document.createElement('span');
+                text.textContent = getEntryPath(file);
+                li.appendChild(text);
                 fragment.appendChild(li);
             });
 
             if (files.length > 18) {
                 const li = document.createElement('li');
-                li.innerHTML = `<i class="fa-solid fa-ellipsis"></i><span>Còn ${files.length - 18} file khác chưa hiển thị.</span>`;
+                li.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                const text = document.createElement('span');
+                text.textContent = `Còn ${files.length - 18} file khác chưa hiển thị.`;
+                li.appendChild(text);
                 fragment.appendChild(li);
             }
 
             filesList.appendChild(fragment);
         }
 
-        async function applyWorld(files, mode) {
+        function setBusy(isBusy) {
+            dropzone.classList.toggle('is-busy', isBusy);
+            actionButtons.forEach((button) => {
+                button.disabled = isBusy;
+            });
+            folderInput.disabled = isBusy;
+            archiveInput.disabled = isBusy;
+        }
+
+        function resetRenderMetrics() {
+            renderSize.textContent = 'Waiting';
+            renderChunkCount.textContent = '0 / 0';
+            renderSampleStep.textContent = '0';
+            renderBounds.textContent = 'Idle';
+            renderSummary.textContent = 'Sau khi render xong, khu này sẽ hiện kích thước ảnh map, số chunk và phạm vi world đã đọc được.';
+            renderSummary.className = 'status-box';
+            latestImageRevision = 0;
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function setMapSurfaceSize(width, height) {
+            mapViewState.sourceWidth = Math.max(1, Number(width || 1));
+            mapViewState.sourceHeight = Math.max(1, Number(height || 1));
+            mapStage.style.width = `${mapViewState.sourceWidth}px`;
+            mapStage.style.height = `${mapViewState.sourceHeight}px`;
+        }
+
+        function shouldRefitSurface(width, height) {
+            return mapViewState.lastFittedWidth !== width || mapViewState.lastFittedHeight !== height;
+        }
+
+        function updateZoomReadout() {
+            const ratio = mapViewState.fitScale > 0 ? (mapViewState.scale / mapViewState.fitScale) : 1;
+            zoomReadout.textContent = `${Math.round(ratio * 100)}%`;
+        }
+
+        function applyMapTransform(animate = false) {
+            mapStage.classList.toggle('is-animating', animate && !mapViewState.dragging);
+            mapStage.style.transform = `translate(-50%, -50%) translate(${mapViewState.offsetX}px, ${mapViewState.offsetY}px) scale(${mapViewState.scale})`;
+            updateZoomReadout();
+        }
+
+        function setMapView(scale, offsetX = 0, offsetY = 0, animate = false) {
+            mapViewState.scale = clamp(scale, mapViewState.minScale, mapViewState.maxScale);
+            mapViewState.offsetX = offsetX;
+            mapViewState.offsetY = offsetY;
+            applyMapTransform(animate);
+        }
+
+        function resetMapView(relativeZoom = 1) {
+            setMapView(mapViewState.fitScale * relativeZoom, 0, 0);
+        }
+
+        function fitMapView() {
+            const viewport = mapStage.parentElement?.getBoundingClientRect();
+            if (!viewport) {
+                setMapView(1, 0, 0);
+                return;
+            }
+
+            const fitScale = Math.min(
+                viewport.width / Math.max(1, mapViewState.sourceWidth),
+                viewport.height / Math.max(1, mapViewState.sourceHeight)
+            );
+            mapViewState.fitScale = Math.max(0.05, fitScale);
+            mapViewState.minScale = mapViewState.fitScale;
+            mapViewState.maxScale = Math.max(mapViewState.fitScale * 128, 96);
+            mapViewState.lastFittedWidth = mapViewState.sourceWidth;
+            mapViewState.lastFittedHeight = mapViewState.sourceHeight;
+            setMapView(mapViewState.fitScale, 0, 0);
+        }
+
+        function zoomMap(nextScale, centerX = 0, centerY = 0) {
+            const clampedScale = clamp(nextScale, mapViewState.minScale, mapViewState.maxScale);
+            const previousScale = mapViewState.scale;
+            if (clampedScale === previousScale) return;
+
+            const rect = mapStage.parentElement.getBoundingClientRect();
+            const originX = centerX - rect.left - (rect.width / 2);
+            const originY = centerY - rect.top - (rect.height / 2);
+            const scaleRatio = clampedScale / previousScale;
+
+            mapViewState.offsetX = (mapViewState.offsetX - originX) * scaleRatio + originX;
+            mapViewState.offsetY = (mapViewState.offsetY - originY) * scaleRatio + originY;
+            mapViewState.scale = clampedScale;
+            applyMapTransform();
+        }
+
+        function focusChunk(job, animate = true) {
+            if (!job?.lastChunk || !job?.bounds || !job?.width || !job?.height) return;
+
+            const viewport = mapStage.parentElement?.getBoundingClientRect();
+            if (!viewport) return;
+
+            const sampleStep = Math.max(1, Number(job.sampleStep || 1));
+            const chunkPixelSize = Math.max(1, 16 / sampleStep);
+            const targetScale = clamp(
+                Math.min(viewport.width / chunkPixelSize, viewport.height / chunkPixelSize, mapViewState.fitScale * 96),
+                mapViewState.fitScale,
+                mapViewState.maxScale
+            );
+            const chunkCenterX = (((Number(job.lastChunk.x) - Number(job.bounds.minChunkX)) * 16) + 8) / sampleStep;
+            const chunkCenterY = (((Number(job.lastChunk.z) - Number(job.bounds.minChunkZ)) * 16) + 8) / sampleStep;
+            const offsetX = -((chunkCenterX - (mapViewState.sourceWidth / 2)) * targetScale);
+            const offsetY = -((chunkCenterY - (mapViewState.sourceHeight / 2)) * targetScale);
+
+            setMapView(targetScale, offsetX, offsetY, animate);
+        }
+
+        function enableMapDragging(event) {
+            mapViewState.dragging = true;
+            mapViewState.pointerId = event.pointerId;
+            mapViewState.startX = event.clientX;
+            mapViewState.startY = event.clientY;
+            mapViewState.startOffsetX = mapViewState.offsetX;
+            mapViewState.startOffsetY = mapViewState.offsetY;
+            mapStage.classList.add('is-dragging');
+            mapStage.classList.remove('is-animating');
+            mapStage.setPointerCapture?.(event.pointerId);
+        }
+
+        function updateMapDragging(event) {
+            if (!mapViewState.dragging || mapViewState.pointerId !== event.pointerId) return;
+            mapViewState.offsetX = mapViewState.startOffsetX + (event.clientX - mapViewState.startX);
+            mapViewState.offsetY = mapViewState.startOffsetY + (event.clientY - mapViewState.startY);
+            applyMapTransform();
+        }
+
+        function disableMapDragging(event) {
+            if (event && mapViewState.pointerId != null && mapViewState.pointerId !== event.pointerId) return;
+            if (event?.pointerId != null) {
+                mapStage.releasePointerCapture?.(event.pointerId);
+            }
+            mapViewState.dragging = false;
+            mapViewState.pointerId = null;
+            mapStage.classList.remove('is-dragging');
+            mapStage.classList.remove('is-animating');
+        }
+
+        function showPreviewConcept() {
+            previewBadge.textContent = 'Preview 2D concept';
+            renderedMapImage.classList.add('hidden');
+            heroPreviewCanvas.classList.remove('hidden');
+            renderedMapImage.removeAttribute('src');
+            setMapSurfaceSize(heroPreviewCanvas.width, heroPreviewCanvas.height);
+            fitMapView();
+        }
+
+        async function drawSnapshotToCanvas(imageDataUrl, width, height) {
+            const token = ++activeSnapshotDrawToken;
+            const image = new Image();
+            image.decoding = 'async';
+
+            await new Promise((resolve, reject) => {
+                image.onload = () => resolve();
+                image.onerror = () => reject(new Error('Không nạp được snapshot map.'));
+                image.src = imageDataUrl;
+            });
+
+            if (token !== activeSnapshotDrawToken) return;
+
+            heroPreviewCanvas.width = Math.max(1, Number(width || 1));
+            heroPreviewCanvas.height = Math.max(1, Number(height || 1));
+            const ctx = heroPreviewCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            ctx.clearRect(0, 0, heroPreviewCanvas.width, heroPreviewCanvas.height);
+            ctx.drawImage(image, 0, 0, heroPreviewCanvas.width, heroPreviewCanvas.height);
+        }
+
+        function showRenderedMap(imageDataUrl, label = 'Rendered Bedrock map', width = 1, height = 1) {
+            renderedMapImage.classList.add('hidden');
+            heroPreviewCanvas.classList.remove('hidden');
+            previewBadge.textContent = label;
+            drawSnapshotToCanvas(imageDataUrl, width, height).catch(() => {});
+        }
+
+        async function updateInputSummary(files, mode) {
             const summary = summarizeFiles(files, mode);
             const levelName = await tryReadLevelName(summary.files);
             const fallbackName = summary.root || (summary.hasArchive ? (summary.files[0]?.name || 'Archive') : 'Bedrock World');
@@ -760,22 +1223,246 @@
             setBadge(checkArchive, summary.hasArchive ? 'Detected' : 'Optional', summary.hasArchive ? 'ok' : 'warn');
 
             if (summary.hasArchive && !summary.hasDb && !summary.hasLevelDat) {
-                setStatus('Đã nhận file archive .mcworld. Giao diện đã sẵn sàng, còn bước tiếp theo là giải nén archive để quét Bedrock world thật.', 'ok');
-                readinessSummary.textContent = 'Archive đã vào đúng luồng. Muốn render 2D thật, bước kế sẽ là upload + giải nén + parse db/ ở backend.';
-                readinessSummary.className = 'status-box';
+                setStatus('Đã nhận file archive .mcworld. Mình sẽ upload lên server rồi giải nén để quét Bedrock world thật.', 'ok');
+                readinessSummary.textContent = 'Archive đã vào đúng luồng. Bước tiếp theo là upload + giải nén + parse db/ ở backend để ra map.';
+                readinessSummary.className = 'status-box ok';
             } else if (readinessScore >= 2) {
-                setStatus(`Đã nhận world "${worldName}". Cấu trúc khá giống một Bedrock world hợp lệ và sẵn sàng cho bước parser/render tiếp theo.`, 'ok');
-                readinessSummary.textContent = 'Package này có dấu hiệu tốt cho Bedrock parser. Bước tiếp theo chỉ còn scan chunk từ LevelDB rồi xuất tile 2D.';
+                setStatus(`Đã nhận world "${worldName}". Cấu trúc khá giống một Bedrock world hợp lệ, đang sẵn sàng upload để render.`, 'ok');
+                readinessSummary.textContent = 'Package này có dấu hiệu tốt cho Bedrock parser. Hệ thống có thể chuyển thẳng sang bước scan chunk và xuất ảnh map.';
                 readinessSummary.className = 'status-box ok';
             } else {
-                setStatus('Đã nhận file nhưng cấu trúc Bedrock chưa rõ ràng. Hãy ưu tiên chọn cả folder world đã giải nén để kiểm tra chính xác hơn.', 'err');
-                readinessSummary.textContent = 'Tín hiệu Bedrock còn yếu. Có thể bạn đang kéo sai thư mục, hoặc đang dùng archive chưa giải nén.';
+                setStatus('Đã nhận file nhưng cấu trúc Bedrock chưa rõ ràng. Mình vẫn sẽ thử render, nhưng khả năng lỗi cao hơn nếu kéo sai thư mục.', 'err');
+                readinessSummary.textContent = 'Tín hiệu Bedrock còn yếu. Có thể bạn đang kéo sai thư mục, hoặc package này chưa chứa đủ world data.';
                 readinessSummary.className = 'status-box err';
             }
 
             renderFiles(summary.files);
             previewState.seed = `${worldName}|${summary.fileCount}|${summary.dbCount}|${mode}`;
             drawPreview(previewState.seed, 1 + (summary.dbCount % 9));
+            return { summary, worldName };
+        }
+
+        function buildBoundsLabel(bounds) {
+            if (!bounds) return 'Idle';
+            const { minChunkX, maxChunkX, minChunkZ, maxChunkZ } = bounds;
+            return `${minChunkX}..${maxChunkX} / ${minChunkZ}..${maxChunkZ}`;
+        }
+
+        function buildRenderLabel(job) {
+            const progress = Math.max(0, Math.min(100, Math.round((Number(job?.progress || 0)) * 100)));
+            if (job?.status === 'completed') {
+                return 'Rendered Bedrock map';
+            }
+            if (job?.status === 'failed') {
+                return 'Render failed';
+            }
+            return `Rendering ${progress}%`;
+        }
+
+        function applyRenderJob(job, fallbackWorldName) {
+            if (!job) return;
+
+            const worldName = job.worldName || fallbackWorldName || 'Bedrock World';
+            const chunkCount = Number(job.chunkCount || 0);
+            const processedChunks = Number(job.processedChunks || 0);
+            const sampleStep = Number(job.sampleStep || 0);
+            const boundsLabel = buildBoundsLabel(job.bounds);
+            const jobWidth = Number(job.width || 0);
+            const jobHeight = Number(job.height || 0);
+            const dimensionsChanged = jobWidth && jobHeight && shouldRefitSurface(jobWidth, jobHeight);
+
+            if (jobWidth && jobHeight) {
+                setMapSurfaceSize(jobWidth, jobHeight);
+                if (dimensionsChanged || !job.imageDataUrl) {
+                    fitMapView();
+                }
+            }
+
+            heroWorldName.textContent = worldName;
+            renderSize.textContent = jobWidth && jobHeight ? `${jobWidth} x ${jobHeight}` : 'Preparing';
+            renderChunkCount.textContent = chunkCount ? `${processedChunks} / ${chunkCount}` : `${processedChunks} / ?`;
+            renderSampleStep.textContent = sampleStep ? `${sampleStep} block` : 'Scanning';
+            renderBounds.textContent = boundsLabel;
+
+            if (job.imageDataUrl && Number(job.imageRevision || 0) !== latestImageRevision) {
+                latestImageRevision = Number(job.imageRevision || 0);
+                showRenderedMap(job.imageDataUrl, buildRenderLabel(job), jobWidth, jobHeight);
+                if (job.status === 'running' || job.status === 'queued') {
+                    focusChunk(job, true);
+                }
+            } else if (!job.imageDataUrl && job.status !== 'failed') {
+                previewBadge.textContent = buildRenderLabel(job);
+            } else if (job.status === 'running' || job.status === 'queued') {
+                previewBadge.textContent = buildRenderLabel(job);
+            }
+
+            if (job.status === 'running' || job.status === 'queued') {
+                const progressLabel = job.progressLabel || `${processedChunks} / ${chunkCount || '?'} chunk`;
+                renderSummary.textContent = job.message || `Đang render world theo từng chunk: ${progressLabel}.`;
+                renderSummary.className = 'status-box busy';
+                heroWorldMeta.textContent = job.message || `Map đang được tô dần. Tiến độ hiện tại: ${progressLabel}.`;
+                setStatus(job.message || `Đang render "${worldName}"...`, 'busy');
+                return;
+            }
+
+            if (job.status === 'completed') {
+                renderChunkCount.textContent = `${chunkCount} / ${chunkCount}`;
+                renderSummary.textContent = `Đã render xong ${chunkCount} chunk. Khung map đã được nạp dần và hiện ảnh cuối cùng hoàn chỉnh.`;
+                renderSummary.className = 'status-box ok';
+                heroWorldMeta.textContent = `Ảnh ${job.width} x ${job.height}px, lấy mẫu ${sampleStep || 1} block và bounds ${boundsLabel}.`;
+                fitMapView();
+                setStatus(`Render xong world "${worldName}". Map đã hiện dần ngay trong khung lớn.`, 'ok');
+                return;
+            }
+
+            renderSummary.textContent = job.error || job.message || 'Không thể render Bedrock world.';
+            renderSummary.className = 'status-box err';
+            heroWorldMeta.textContent = 'Render đã dừng giữa chừng. Hãy thử lại với đúng thư mục world Bedrock hoặc file .mcworld hợp lệ.';
+            setStatus(job.error || job.message || 'Không thể render Bedrock world.', 'err');
+        }
+
+        async function startRenderJob(files, mode) {
+            const formData = new FormData();
+            formData.append('mode', mode);
+            files.forEach((file) => {
+                formData.append('worldFiles', file, file.name || 'world.bin');
+                formData.append('relativePaths', getEntryPath(file));
+            });
+
+            const response = await fetch('/api/bedrock-world/render/start', {
+                method: 'POST',
+                body: formData
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok || !payload?.success) {
+                throw new Error(payload?.error || 'Không thể bắt đầu render Bedrock world.');
+            }
+
+            return payload.data;
+        }
+
+        async function fetchRenderJob(jobId) {
+            const response = await fetch(`/api/bedrock-world/render/jobs/${encodeURIComponent(jobId)}`, {
+                cache: 'no-store'
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok || !payload?.success) {
+                throw new Error(payload?.error || 'Không lấy được tiến độ render.');
+            }
+
+            return payload.data;
+        }
+
+        function delay(ms) {
+            return new Promise((resolve) => {
+                window.setTimeout(resolve, ms);
+            });
+        }
+
+        async function pollRenderJob(jobId, worldName, pollToken) {
+            while (pollToken === activeRenderPollToken) {
+                const job = await fetchRenderJob(jobId);
+                applyRenderJob(job, worldName);
+
+                if (job.status === 'completed' || job.status === 'failed') {
+                    return job;
+                }
+
+                await delay(700);
+            }
+
+            return null;
+        }
+
+        async function processWorld(files, mode) {
+            if (!files.length) {
+                setStatus('Chưa có file nào để xử lý.', 'err');
+                return;
+            }
+
+            activeRenderPollToken += 1;
+            activeRenderJobId = '';
+            resetRenderMetrics();
+            showPreviewConcept();
+            const { worldName } = await updateInputSummary(files, mode);
+
+            setBusy(true);
+            setStatus(`Đang upload world "${worldName}" và khởi động render tiến dần...`, 'busy');
+            heroWorldMeta.textContent = 'Backend đang nhận world, sau đó khung map sẽ bắt đầu hiện dần theo tiến độ render chunk.';
+
+            try {
+                const startJob = await startRenderJob(files, mode);
+                activeRenderJobId = startJob.id || '';
+                const pollToken = activeRenderPollToken;
+                applyRenderJob(startJob, worldName);
+                await pollRenderJob(activeRenderJobId, worldName, pollToken);
+            } catch (error) {
+                showPreviewConcept();
+                renderSummary.textContent = error?.message || 'Không thể render Bedrock world.';
+                renderSummary.className = 'status-box err';
+                heroWorldMeta.textContent = 'Luồng render tiến dần chưa khởi động được. Hãy thử đúng thư mục gốc của world Bedrock hoặc file .mcworld hợp lệ.';
+                setStatus(error?.message || 'Không thể render Bedrock world.', 'err');
+            } finally {
+                setBusy(false);
+            }
+        }
+
+        function readEntryFile(entry) {
+            return new Promise((resolve, reject) => {
+                entry.file(resolve, reject);
+            });
+        }
+
+        function readDirectoryEntries(directoryEntry) {
+            const reader = directoryEntry.createReader();
+            const entries = [];
+
+            return new Promise((resolve, reject) => {
+                function pump() {
+                    reader.readEntries((batch) => {
+                        if (!batch.length) {
+                            resolve(entries);
+                            return;
+                        }
+                        entries.push(...batch);
+                        pump();
+                    }, reject);
+                }
+
+                pump();
+            });
+        }
+
+        async function walkEntry(entry, parentPath = '') {
+            if (!entry) return [];
+            const currentPath = normalizePath(parentPath ? `${parentPath}/${entry.name}` : entry.name);
+
+            if (entry.isFile) {
+                const file = await readEntryFile(entry);
+                return [attachRelativePath(file, currentPath)];
+            }
+
+            if (!entry.isDirectory) return [];
+
+            const children = await readDirectoryEntries(entry);
+            const groups = await Promise.all(children.map((child) => walkEntry(child, currentPath)));
+            return groups.flat();
+        }
+
+        async function getDroppedFiles(event) {
+            const items = Array.from(event.dataTransfer?.items || []);
+            const entries = items
+                .map((item) => (typeof item.webkitGetAsEntry === 'function' ? item.webkitGetAsEntry() : null))
+                .filter(Boolean);
+
+            if (entries.length) {
+                const groups = await Promise.all(entries.map((entry) => walkEntry(entry)));
+                return groups.flat();
+            }
+
+            return Array.from(event.dataTransfer?.files || []);
         }
 
         function openFolderPicker() {
@@ -788,21 +1475,54 @@
             archiveInput.click();
         }
 
-        function getDroppedFiles(event) {
-            return Array.from(event.dataTransfer?.files || []);
+        function getViewportCenter() {
+            const rect = mapStage.parentElement?.getBoundingClientRect();
+            if (!rect) {
+                return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            }
+            return {
+                x: rect.left + (rect.width / 2),
+                y: rect.top + (rect.height / 2)
+            };
         }
 
         openFolderBtn.addEventListener('click', openFolderPicker);
         openArchiveBtn.addEventListener('click', openArchivePicker);
         selectFolderInlineBtn.addEventListener('click', openFolderPicker);
         selectArchiveInlineBtn.addEventListener('click', openArchivePicker);
+        zoomInBtn.addEventListener('click', () => {
+            const center = getViewportCenter();
+            zoomMap(mapViewState.scale * 1.25, center.x, center.y);
+        });
+        zoomOutBtn.addEventListener('click', () => {
+            const center = getViewportCenter();
+            zoomMap(mapViewState.scale / 1.25, center.x, center.y);
+        });
+        zoomFitBtn.addEventListener('click', fitMapView);
+        zoomResetBtn.addEventListener('click', () => resetMapView(1));
+
+        mapStage.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            const factor = event.deltaY < 0 ? 1.14 : (1 / 1.14);
+            zoomMap(mapViewState.scale * factor, event.clientX, event.clientY);
+        }, { passive: false });
+
+        mapStage.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0) return;
+            enableMapDragging(event);
+        });
+
+        mapStage.addEventListener('pointermove', updateMapDragging);
+        mapStage.addEventListener('pointerup', disableMapDragging);
+        mapStage.addEventListener('pointercancel', disableMapDragging);
+        mapStage.addEventListener('pointerleave', disableMapDragging);
 
         folderInput.addEventListener('change', async () => {
-            await applyWorld(Array.from(folderInput.files || []), 'folder');
+            await processWorld(Array.from(folderInput.files || []), 'folder');
         });
 
         archiveInput.addEventListener('change', async () => {
-            await applyWorld(Array.from(archiveInput.files || []), 'archive');
+            await processWorld(Array.from(archiveInput.files || []), 'archive');
         });
 
         ['dragenter', 'dragover'].forEach((eventName) => {
@@ -824,11 +1544,18 @@
         dropzone.addEventListener('drop', async (event) => {
             event.preventDefault();
             dropzone.classList.remove('is-dragover');
-            const files = getDroppedFiles(event);
+            const files = await getDroppedFiles(event);
             const mode = files.some((file) => /\.mcworld$/i.test(file.name || '')) ? 'archive' : 'folder';
-            await applyWorld(files, mode);
+            await processWorld(files, mode);
         });
 
+        window.addEventListener('resize', () => {
+            fitMapView();
+        });
+
+        resetRenderMetrics();
+        setMapSurfaceSize(heroPreviewCanvas.width, heroPreviewCanvas.height);
+        fitMapView();
         drawPreview(previewState.seed, 1.6);
     </script>
     <script src="/html/shared-sidebar.js"></script>
