@@ -386,6 +386,74 @@
                         </div>
                     </section>
 
+                    <!-- VNA LIVE CCTV -->
+                    <section class="mt-12 bg-black/5 rounded-[2rem] p-4 sm:p-8 border border-white/20 backdrop-blur-sm shadow-inner relative overflow-hidden group font-sans">
+                        <div class="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                        
+                        <div class="text-center mb-8 relative z-10">
+                            <div class="inline-flex items-center gap-2 bg-red-600/10 text-red-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-4 border border-red-200/50 animate-pulse">
+                                <span class="w-2.5 h-2.5 bg-red-600 rounded-full shadow-[0_0_8px_rgba(220,38,38,0.8)]"></span>
+                                Live System Feed
+                            </div>
+                            <h2 class="text-4xl font-black text-gray-800 tracking-tight">VNA LIVE <span class="text-blue-600">CCTV</span></h2>
+                            <p class="text-gray-500 mt-2 font-medium">Góc nhìn trực tiếp từ hệ thống Bot tuần tra tự động.</p>
+                        </div>
+
+                        <div class="max-w-5xl mx-auto relative z-10">
+                            <div class="bg-[#1a1a1a] rounded-[2.5rem] p-3 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative group/monitor">
+                                <!-- Screen Overlay Effects -->
+                                <div class="absolute inset-5 rounded-2xl pointer-events-none z-20 overflow-hidden opacity-30 mix-blend-overlay">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent animate-scanline"></div>
+                                </div>
+
+                                <!-- Camera Metadata -->
+                                <div class="absolute top-8 left-8 z-30 font-mono text-[10px] sm:text-xs text-white/70 tracking-tighter uppercase whitespace-nowrap hidden sm:block text-left">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                                        REC: 00:24:12:08
+                                    </div>
+                                    <div>CAM_ID: VNA-BOT-01</div>
+                                    <div id="cctv-pos">POS: 0, 64, 0</div>
+                                </div>
+
+                                <div class="absolute top-8 right-8 z-30 font-mono text-[10px] sm:text-xs text-red-500/80 tracking-tighter hidden sm:block">
+                                    SOURCE: HEADLESS_RENDERER_V1
+                                </div>
+
+                                <!-- Main Feed Container -->
+                                <div class="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-inner flex items-center justify-center group-hover/monitor:scale-[1.005] transition-transform duration-500">
+                                    <img id="cctv-feed" 
+                                         src="/photos/banner/banner.png" 
+                                         alt="Live CCTV Feed" 
+                                         class="w-full h-full object-cover opacity-80 group-hover/monitor:opacity-100 transition-opacity grayscale-[0.2] sepia-[0.1]">
+                                    
+                                    <!-- No Signal / Loading State -->
+                                    <div id="cctv-no-signal" class="absolute inset-0 bg-[#111] flex flex-col items-center justify-center gap-4 hidden">
+                                        <div class="w-16 h-16 border-4 border-white/10 border-t-white/60 rounded-full animate-spin"></div>
+                                        <span class="font-mono text-white/40 text-xs tracking-[0.2em]">CONNECTING_TO_BOT...</span>
+                                    </div>
+                                    
+                                    <!-- Screen Static Overlay -->
+                                    <div class="absolute inset-0 pointer-events-none opacity-[0.05] bg-[url('https://media.giphy.com/media/oEI9uWUicKgR6/giphy.gif')] mix-blend-screen"></div>
+                                </div>
+
+                                <!-- Bottom Controls/Info -->
+                                <div class="mt-5 px-4 flex justify-between items-center text-white/40 font-mono text-[10px] uppercase tracking-widest">
+                                    <div class="flex gap-4">
+                                        <span class="flex items-center gap-1.5"><i class="fas fa-signal text-[8px]"></i> Link Est.</span>
+                                        <span class="flex items-center gap-1.5"><i class="fas fa-microchip text-[8px]"></i> AI Synced</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-white/60">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_5px_#3b82f6]"></span>
+                                        LIVE_FEED_STREAM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+
+
                     <!-- THÔNG TIN SERVER PIKAMC -->
                     <section>
                         <div class="text-center mb-8">
@@ -1853,6 +1921,44 @@
 
         setInterval(loadCountdownSettings, 30000);
         setInterval(updateTimeAndCountdown, 1000);
+
+        // ===== VNA LIVE CCTV SOCKET (FORCED GLOBAL) =====
+        function setupCCTV() {
+            const cctvFeed = document.getElementById('cctv-feed');
+            const cctvNoSignal = document.getElementById('cctv-no-signal');
+            const cctvPos = document.getElementById('cctv-pos');
+            
+            if (typeof socket !== 'undefined') {
+                console.log('🔌 CCTV Socket system initialized');
+                
+                socket.on('vna-live-cam:frame', (base64) => {
+                    console.log('📸 [DEBUG] RECEIVED DATA FROM SERVER'); // TEST LOG
+                    if (cctvFeed) {
+                        cctvFeed.src = 'data:image/jpeg;base64,' + base64;
+                        if (cctvNoSignal) cctvNoSignal.classList.add('hidden');
+                        cctvFeed.classList.remove('hidden');
+                    }
+                });
+
+                socket.on('vna-live-cam:position', (pos) => {
+                    if (cctvPos) {
+                        cctvPos.textContent = `POS: ${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}`;
+                    }
+                });
+                
+                socket.emit('vna-live-cam:request-frame');
+            } else {
+                console.error('❌ Socket not found! Retrying in 1s...');
+                setTimeout(setupCCTV, 1000);
+            }
+        }
+        setupCCTV();
+            setInterval(() => {
+                if (Date.now() - lastFrameTime > 5000) {
+                    cctvNoSignal.classList.remove('hidden');
+                }
+            }, 2000);
+        }
     });
 
     // ===== WEB PUSH NOTIFICATIONS =====

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VNA CCTV RENDERER</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+        #viewer { width: 100vw; height: 100vh; }
+        
+        /* Night Vision Effect */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 20%, rgba(0,20,0,0.4) 80%);
+            border: 2px solid #0f0;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .ui-text {
+            position: absolute;
+            color: #0f0;
+            text-shadow: 0 0 5px #0f0;
+            z-index: 20;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        #top-left { top: 20px; left: 20px; }
+        #top-right { top: 20px; right: 20px; text-align: right; }
+        #bottom-left { bottom: 20px; left: 20px; }
+
+        .rec-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            background: #f00;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+        /* Scanning line */
+        .scanline {
+            width: 100%; height: 2px;
+            background: rgba(0, 255, 0, 0.1);
+            position: absolute;
+            top: 0;
+            animation: scan 4s linear infinite;
+            z-index: 15;
+        }
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
+
+        #no-signal {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0f0;
+            font-size: 24px;
+            display: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay"></div>
+    <div class="scanline"></div>
+    
+    <div id="top-left" class="ui-text">
+        <span class="rec-dot"></span> [LIVE] VNA-CAM-01<br>
+        <span id="date">2026-04-06</span> <span id="time">15:00:00</span>
+    </div>
+
+    <div id="top-right" class="ui-text">
+        ISO 800 | F2.8<br>
+        MODE: NIGHT_VISN
+    </div>
+
+    <div id="bottom-left" class="ui-text">
+        X: <span id="val-x">0</span><br>
+        Y: <span id="val-y">0</span><br>
+        Z: <span id="val-z">0</span>
+    </div>
+
+    <div id="no-signal">NO SIGNAL RECEIVED</div>
+    <div id="viewer"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.147.0';
+
+        const socket = io();
+        const viewerEl = document.getElementById('viewer');
+        const noSignalEl = document.getElementById('no-signal');
+        
+        // UI Elements
+        const valX = document.getElementById('val-x');
+        const valY = document.getElementById('val-y');
+        const valZ = document.getElementById('val-z');
+        const timeEl = document.getElementById('time');
+
+        // Three.js Setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000500);
+        scene.fog = new THREE.FogExp2(0x000500, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        viewerEl.appendChild(renderer.domElement);
+
+        // Simple Lights
+        const ambientLight = new THREE.AmbientLight(0x00ff00, 0.5);
+        scene.add(ambientLight);
+
+        // Ground Grid (CCTV Style)
+        const grid = new THREE.GridHelper(200, 50, 0x00ff00, 0x004400);
+        scene.add(grid);
+
+        // Bot Representation (A simple cube for now)
+        const geometry = new THREE.BoxGeometry(1, 2, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const botMesh = new THREE.Mesh(geometry, material);
+        scene.add(botMesh);
+
+        camera.position.set(5, 5, 5);
+        camera.lookAt(botMesh.position);
+
+        let lastDataTime = Date.now();
+
+        // Socket Listeners
+        socket.on('position', (pos) => {
+            lastDataTime = Date.now();
+            noSignalEl.style.display = 'none';
+
+            // Update Bot Position
+            botMesh.position.set(0, 1, 0); // Local origin for the bot in the viewer
+            
+            // Update UI
+            valX.textContent = Math.round(pos.x);
+            valY.textContent = Math.round(pos.y);
+            valZ.textContent = Math.round(pos.z);
+
+            // Camera follow (Simple orbit)
+            camera.position.x = Math.sin(Date.now() * 0.0005) * 10;
+            camera.position.z = Math.cos(Date.now() * 0.0005) * 10;
+            camera.position.y = 6;
+            camera.lookAt(botMesh.position);
+        });
+
+        socket.on('chunk', (data) => {
+            lastDataTime = Date.now();
+            // TODO: Simple block rendering if needed
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update Time
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString();
+
+            // Auto Signal Loss Check
+            if (Date.now() - lastDataTime > 5000) {
+                noSignalEl.style.display = 'block';
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
