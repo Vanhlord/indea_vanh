@@ -20,10 +20,9 @@ export class MCCameraCapture extends EventEmitter {
                 args: [
                     '--no-sandbox', 
                     '--disable-setuid-sandbox', 
-                    '--disable-gpu',
-                    '--use-gl=swiftshader', // Ép trình duyệt dùng CPU để vẽ 3D (Rất quan trọng cho VPS/Headless)
-                    '--disable-software-rasterizer',
-                    '--disable-dev-shm-usage'
+                    '--use-gl=swiftshader', // Allow CPU WebGL fallback
+                    '--disable-dev-shm-usage',
+                    '--ignore-gpu-blocklist' // Force WebGL even if headless
                 ]
             });
             this.page = await this.browser.newPage({
