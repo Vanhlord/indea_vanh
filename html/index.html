@@ -984,10 +984,12 @@
     }
 
     // ===== COPY IP =====
+    let pikamcData = { ip: 'vna.vanhmcpe.top', port: 25003 };
+    
     function copyIP() {
-        const serverAddress = 'vna.vanhmcpe.top:25003';
+        const serverAddress = `${pikamcData.ip}:${pikamcData.port}`;
         navigator.clipboard.writeText(serverAddress).then(() => {
-            showToast('✅ Đã sao chép: ' + serverAddress, 'success');
+            showToast(`✅ Đã sao chép: ${serverAddress}`, 'success');
         }).catch(() => {
             showToast('❌ Lỗi sao chép. Vui lòng thử lại.', 'error');
         });
@@ -1898,7 +1900,7 @@
     }
 
     // ===== INIT =====
-    document.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('load', async () => {
         setupFurinaCorner();
 
         if (!sessionStorage.getItem('welcomePopupShown')) {
@@ -1923,6 +1925,8 @@
         setInterval(updateTimeAndCountdown, 1000);
 
         // ===== VNA LIVE CCTV SOCKET (FORCED GLOBAL) =====
+        let lastFrameTime = 0;
+        
         function setupCCTV() {
             const cctvFeed = document.getElementById('cctv-feed');
             const cctvNoSignal = document.getElementById('cctv-no-signal');
@@ -1930,8 +1934,10 @@
             
             if (typeof socket !== 'undefined') {
                 console.log('🔌 CCTV Socket system initialized');
+                lastFrameTime = Date.now();
                 
                 socket.on('vna-live-cam:frame', (base64) => {
+                    lastFrameTime = Date.now();
                     console.log('📸 [DEBUG] RECEIVED DATA FROM SERVER'); // TEST LOG
                     if (cctvFeed) {
                         cctvFeed.src = 'data:image/jpeg;base64,' + base64;
@@ -1959,7 +1965,7 @@
                 }
             }, 2000);
         }
-    });
+    );
 
     // ===== WEB PUSH NOTIFICATIONS =====
     const VAPID_PUBLIC_KEY = 'BCIwWTxvXmKzN7Tdg0IiJ0RsASHNVKBKjE3wln2sCSMledAUMc_XrSyZmdmz9ZKUkap4MIlk8cQbmnQwarl2R-Q';

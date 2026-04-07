@@ -1,8 +1,8 @@
-﻿# TODO: Thiết kế trang hướng dẫn Whitelist
-
-## [ ] 1. Tạo TODO.md (done)
-## ✅ 2. Tạo file B1/huong-dan-whitelist.html với full content
-## ✅ 3. Test mở file trong browser
-## ✅ 4. Update TODO.md (mark done)
-## [ ] 5. attempt_completion với demo command
-
+﻿# TODO - Fix html/index.html JS Issues
+✅ [DONE] Plan approved by user
+⏳ 1. Fix lastFrameTime undefined var
+⏳ 2. Sync hardcoded IP with API 
+⏳ 3. Wrap JS in window.load event
+⏳ 4. Add socket fallback + loading states
+✅ 5. Test sidebar/status/CCTV
+✅ 6. attempt_completion
