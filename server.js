@@ -1053,6 +1053,12 @@ app.get('/api/config/countdown-settings', async (_req, res) => {
     return res.json(payload);
 });
 
+// API endpoint to get VAPID public key for web push notifications
+app.get('/api/config/vapid-public', (_req, res) => {
+    const vapidKey = process.env.VAPID_PUBLIC_KEY || 'BCIwWTxvXmKzN7Tdg0IiJ0RsASHNVKBKjE3wln2sCSMledAUMc_XrSyZmdmz9ZKUkap4MIlk8cQbmnQwarl2R-Q';
+    res.json({ key: vapidKey });
+});
+
 // API endpoint để lấy trạng thái PikaMC dựa trên cấu hình .env
 app.get('/api/pikamc/status', async (req, res) => {
     // Tránh trùng tên biến PORT của web server, dùng PIKAMC_IP và PIKAMC_PORT
