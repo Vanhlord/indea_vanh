@@ -1,0 +1,605 @@
+dự án điểm point
+tạo 1 ngân hàng để lưu trữ số điểm của mỗi người dùng
+sau đó tạo 1 game đánh đàn đơn giản để kiếm số điểm đó
+tạo một shop để mua vật phẩm minecraft
+
+
+- hệ thống điểm 
+hệ thống này sẽ lưu giữ những số điểm của người chơi vào .db hoặc một dạng file khác xịn hơn
+điểm được liên kết với từng tài khoản discord để xác định người dùng
+
+- hệ thống trò chơi
+trò chơi và những mini game sẽ có phần thưởng là những điểm point xứng đáng
+ví dụ: trò tài xỉu chẳng hạn, nó giống với trò thật 
+khi nhận được số điểm từ trong game thì hệ thống điểm sẽ cập nhật ngay số điểm vào tài khoản người đó
+ngoài ra còn có nhiều trò chơi khác, cờ cá ngựa vv.v.v
+
+- hệ thống của hàng (xịn)
+hệ thống này sẽ có web html taiwind riêng thiết kế chuyên nghiệp để dựng gian hàng là các món đồ trong minecraft như kiếm, cúp, giáo, rìu, búa
+hệ thống này sẽ kết nối đến hosting minecraft 
+bước khó:
+làm thế nào để khi người dùng mua hàng trên shop mà trong minecraft họ lại được nhận đúng như vậy?
+làm thế nào để kiểm tra danh sách người chơi trong minecraft bedrock server dedicated mà không cần vào trực tiếp? có cách nào khác không?
+
+
+- khả thi và đang thực hiện: MAILBOX SYSTEM ✅
+
+=== MAILBOX SYSTEM (HOÀN CHỈNH) ===
+
+📋 TỔNG QUAN:
+Hệ thống hòm thư cho phép admin thêm item cho player mà không cần player phải online.
+Player sẽ vào web, xem hòm thư, nhấn "Nhận hàng" để claim item vào inv Minecraft.
+
+📊 DATABASE SCHEMA:
+
+CREATE TABLE mailbox_items (
+    id TEXT PRIMARY KEY,                    -- UUID
+    playerName TEXT NOT NULL,               -- Minecraft name
+    playerDiscordId TEXT,                   -- Optional: Discord ID
+    itemId TEXT NOT NULL,                   -- diamond_block, golden_apple, etc.
+    quantity INTEGER NOT NULL DEFAULT 1,
+    status TEXT DEFAULT 'pending',          -- pending, claimed, expired
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    claimedAt DATETIME,
+    expiresAt DATETIME,                     -- Auto-delete sau 30 ngày
+    addedBy TEXT,                           -- Admin Discord ID
+    notes TEXT
+);
+
+CREATE TABLE minecraft_items_config (
+    itemId TEXT PRIMARY KEY,
+    itemName TEXT,
+    displayName TEXT,
+    description TEXT,
+    rarity TEXT                            -- common, rare, epic, legendary
+);
+
+CREATE TABLE mailbox_history (
+    id TEXT PRIMARY KEY,
+    itemId TEXT,
+    playerName TEXT,
+    action TEXT,                           -- 'added', 'claimed', 'expired'
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    details TEXT
+);
+
+
+🔧 BACKEND IMPLEMENTATION:
+
+1. FILE: src/services/pikamcService.js (UPDATE)
+
+import axios from 'axios';
+
+const PIKAMC_PANEL_URL = process.env.PIKAMC_PANEL_URL;
+const PIKAMC_API_KEY = process.env.PIKAMC_API_KEY;
+const PIKAMC_SERVER_ID = process.env.PIKAMC_SERVER_ID;
+
+/**
+ * Gửi lệnh đến Minecraft server qua Pterodactyl API
+ */
+export async function executeMinecraftCommand(command) {
+    try {
+        const url = `${PIKAMC_PANEL_URL}/api/client/servers/${PIKAMC_SERVER_ID}/command`;
+        
+        console.log(`🔨 [PIKAMC] Executing: ${command}`);
+        
+        const response = await axios.post(
+            url,
+            { command },
+            {
+                headers: {
+                    'Authorization': `Bearer ${PIKAMC_API_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        
+        console.log('✅ [PIKAMC] Command executed successfully');
+        return true;
+    } catch (error) {
+        console.error('❌ [PIKAMC] Command failed:', error.response?.data || error.message);
+        return false;
+    }
+}
+
+/**
+ * Cho player một item
+ */
+export async function giveItemToPlayer(playerName, itemId, quantity = 1) {
+    const command = `/give @p[name=${playerName}] ${itemId} ${quantity}`;
+    return executeMinecraftCommand(command);
+}
+
+/**
+ * Lấy danh sách player online (gửi lệnh /list)
+ */
+export async function getOnlinePlayers() {
+    try {
+        const url = `${PIKAMC_PANEL_URL}/api/client/servers/${PIKAMC_SERVER_ID}/command`;
+        
+        await axios.post(
+            url,
+            { command: '/list' },
+            {
+                headers: {
+                    'Authorization': `Bearer ${PIKAMC_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        
+        return true;
+    } catch (error) {
+        console.error('Failed to get player list:', error.message);
+        return false;
+    }
+}
+
+
+2. FILE: src/routes/mailboxRoutes.js (NEW)
+
+import express from 'express';
+import { v4 as uuid } from 'uuid';
+import db from '../modules/database.js';
+import { giveItemToPlayer, executeMinecraftCommand } from '../services/pikamcService.js';
+
+const router = express.Router();
+
+// ===== MIDDLEWARE: Check Admin =====
+function isAdmin(userId) {
+    const admins = process.env.ADMIN_ID?.split(',') || [];
+    return admins.includes(String(userId));
+}
+
+// ===== ADD ITEM TO MAILBOX (Admin) =====
+router.post('/add', async (req, res) => {
+    const { playerName, itemId, quantity } = req.body;
+    
+    if (!isAdmin(req.user?.id)) {
+        return res.status(403).json({ error: 'Admin only' });
+    }
+    
+    // Validate item
+    const validItems = ['diamond_block', 'golden_apple', 'diamond_sword', 'netherite_pickaxe', 'diamond_pickaxe', 'shield'];
+    if (!validItems.includes(itemId)) {
+        return res.status(400).json({ error: 'Invalid item ID' });
+    }
+    
+    try {
+        const itemUuid = uuid();
+        db.run(`
+            INSERT INTO mailbox_items (id, playerName, itemId, quantity, addedBy, status)
+            VALUES (?, ?, ?, ?, ?, 'pending')
+        `, [itemUuid, playerName, itemId, quantity || 1, req.user.id]);
+        
+        // Log to history
+        db.run(`
+            INSERT INTO mailbox_history (id, itemId, playerName, action, details)
+            VALUES (?, ?, ?, 'added', ?)
+        `, [uuid(), itemUuid, playerName, `Added by ${req.user.username}`]);
+        
+        res.json({ 
+            success: true, 
+            message: `✅ Added ${quantity || 1}x ${itemId} to ${playerName}'s mailbox` 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== GET MAILBOX (Player) =====
+router.get('/:playerName', async (req, res) => {
+    const playerName = req.params.playerName;
+    
+    try {
+        const items = db.all(`
+            SELECT id, itemId, quantity, createdAt, status
+            FROM mailbox_items
+            WHERE playerName = ? AND status = 'pending'
+            ORDER BY createdAt DESC
+        `, [playerName]);
+        
+        res.json({ 
+            success: true,
+            playerName,
+            totalItems: items.length,
+            items 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== CLAIM ITEM (Player) =====
+router.post('/claim/:itemId', async (req, res) => {
+    const itemId = req.params.itemId;
+    const playerName = req.user.minecraftName;
+    
+    try {
+        // Get item from DB
+        const item = db.get(`
+            SELECT * FROM mailbox_items 
+            WHERE id = ? AND playerName = ?
+        `, [itemId, playerName]);
+        
+        if (!item) {
+            return res.status(404).json({ error: 'Item not found' });
+        }
+        
+        if (item.status !== 'pending') {
+            return res.status(400).json({ error: 'This item has already been claimed' });
+        }
+        
+        // Execute /give command
+        const success = await giveItemToPlayer(
+            playerName, 
+            item.itemId, 
+            item.quantity
+        );
+        
+        if (!success) {
+            return res.status(500).json({ 
+                error: 'Failed to give item in game. Make sure you are online!',
+                action: 'retry_when_online'
+            });
+        }
+        
+        // Mark as claimed in DB
+        db.run(`
+            UPDATE mailbox_items 
+            SET status = 'claimed', claimedAt = datetime('now')
+            WHERE id = ?
+        `, [itemId]);
+        
+        // Log to history
+        db.run(`
+            INSERT INTO mailbox_history (id, itemId, playerName, action)
+            VALUES (?, ?, ?, 'claimed')
+        `, [uuid(), itemId, playerName]);
+        
+        res.json({ 
+            success: true, 
+            message: `✅ Received ${item.quantity}x ${item.itemId}!` 
+        });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== ADMIN: EXECUTE COMMAND DIRECTLY =====
+router.post('/admin/execute-command', async (req, res) => {
+    if (!isAdmin(req.user?.id)) {
+        return res.status(403).json({ error: 'Admin only' });
+    }
+    
+    const { command } = req.body;
+    
+    try {
+        const success = await executeMinecraftCommand(command);
+        res.json({ 
+            success, 
+            message: success ? 'Command executed' : 'Command failed' 
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== ADMIN: VIEW ALL MAILBOXES =====
+router.get('/admin/all', async (req, res) => {
+    if (!isAdmin(req.user?.id)) {
+        return res.status(403).json({ error: 'Admin only' });
+    }
+    
+    try {
+        const items = db.all(`
+            SELECT playerName, COUNT(*) as totalItems, 
+                   SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) as pendingItems
+            FROM mailbox_items
+            GROUP BY playerName
+            ORDER BY pendingItems DESC
+        `);
+        
+        res.json({ success: true, data: items });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+export default router;
+
+
+🤖 DISCORD BOT COMMANDS: bot/bot2.js (ADD)
+
+// ===== +them command =====
+// Usage: +them VanhMCPE diamond_block 5
+
+if (message.content.startsWith('+them ')) {
+    const ADMIN_IDS = process.env.ADMIN_ID?.split(',') || [];
+    
+    if (!ADMIN_IDS.includes(message.author.id)) {
+        return message.reply('❌ Chỉ admin mới có quyền');
+    }
+    
+    const args = message.content.slice(6).trim().split(' ');
+    const [playerName, itemId, quantity] = args;
+    
+    if (!playerName || !itemId) {
+        return message.reply('❌ Cú pháp: `+them <playerName> <itemId> [quantity]`\nVí dụ: `+them VanhMCPE diamond_block 5`');
+    }
+    
+    const VALID_ITEMS = ['diamond_block', 'golden_apple', 'diamond_sword', 'netherite_pickaxe', 'diamond_pickaxe', 'shield'];
+    if (!VALID_ITEMS.includes(itemId)) {
+        return message.reply(`❌ Item không tồn tại. Có sẵn:\n${VALID_ITEMS.join(', ')}`);
+    }
+    
+    try {
+        const itemUuid = require('uuid').v4();
+        db.run(`
+            INSERT INTO mailbox_items (id, playerName, itemId, quantity, addedBy, status)
+            VALUES (?, ?, ?, ?, ?, 'pending')
+        `, [itemUuid, playerName, itemId, quantity || 1, message.author.id]);
+        
+        message.reply({
+            embeds: [{
+                color: 3066993,
+                title: '✅ Thêm vào hòm thư thành công',
+                description: `
+**Player:** ${playerName}
+**Item:** ${itemId}
+**Số lượng:** ${quantity || 1}
+
+Player sẽ nhận item khi vào web và nhấn "Nhận hàng"
+                `
+            }]
+        });
+    } catch (error) {
+        message.reply(`❌ Lỗi: ${error.message}`);
+    }
+}
+
+// ===== +give command =====
+// Usage: +give VanhMCPE diamond_block 5 (instant, player phải online)
+
+if (message.content.startsWith('+give ')) {
+    const ADMIN_IDS = process.env.ADMIN_ID?.split(',') || [];
+    
+    if (!ADMIN_IDS.includes(message.author.id)) {
+        return message.reply('❌ Admin only');
+    }
+    
+    const args = message.content.slice(6).trim().split(' ');
+    const [playerName, itemId, quantity] = args;
+    
+    if (!playerName || !itemId) {
+        return message.reply('❌ Cú pháp: `+give <playerName> <itemId> [quantity]`');
+    }
+    
+    try {
+        const { giveItemToPlayer } = await import('../src/services/pikamcService.js');
+        const success = await giveItemToPlayer(playerName, itemId, quantity || 1);
+        
+        if (success) {
+            message.reply(`✅ Đã gửi ${quantity || 1}x ${itemId} cho ${playerName}`);
+        } else {
+            message.reply(`❌ Lỗi khi gửi item. Kiểm tra player có online không?`);
+        }
+    } catch (error) {
+        message.reply(`❌ ${error.message}`);
+    }
+}
+
+
+🎨 FRONTEND: HTML/Tailwind UI - mailbox.html
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📮 Hòm Thư - VNA Server</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 mb-8 shadow-2xl">
+        <div class="flex items-center gap-4">
+            <i class="fas fa-mailbox text-5xl"></i>
+            <div>
+                <h1 class="text-4xl font-bold">📮 Hòm Thư Của Bạn</h1>
+                <p class="text-blue-100">Nhận những item từ admin & shop</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-12">
+        <div class="inline-block">
+            <div class="border-4 border-blue-600 border-t-white rounded-full w-12 h-12 animate-spin"></div>
+        </div>
+        <p class="mt-4 text-gray-300">Đang tải hòm thư...</p>
+    </div>
+
+    <!-- Mailbox Items Grid -->
+    <div id="mailboxGrid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Items sẽ render ở đây -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-12">
+        <i class="fas fa-inbox text-6xl text-gray-500 mb-4"></i>
+        <p class="text-xl text-gray-400">📭 Hòm thư trống</p>
+        <p class="text-gray-500 mt-2">Quay lại sau để kiểm tra item mới!</p>
+    </div>
+
+    <!-- Admin Panel (if user is admin) -->
+    <div id="adminPanel" class="hidden mt-12 bg-red-900/30 rounded-lg p-6 border border-red-600">
+        <h2 class="text-2xl font-bold mb-4">🔧 Admin Panel</h2>
+        <form class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" placeholder="Player Name" id="adminPlayerName" class="bg-gray-800 border border-gray-600 rounded px-4 py-2 text-white">
+                <select id="adminItemId" class="bg-gray-800 border border-gray-600 rounded px-4 py-2 text-white">
+                    <option value="">Select Item</option>
+                    <option value="diamond_block">Diamond Block</option>
+                    <option value="golden_apple">Golden Apple</option>
+                    <option value="diamond_sword">Diamond Sword</option>
+                </select>
+                <input type="number" placeholder="Quantity" id="adminQuantity" value="1" class="bg-gray-800 border border-gray-600 rounded px-4 py-2 text-white">
+            </div>
+            <button type="button" onclick="adminAddItem()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-bold">
+                ➕ Add to Mailbox
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    async function loadMailbox() {
+        try {
+            const res = await fetch(`/api/mailbox/${playerName}`);
+            const data = await res.json();
+            
+            document.getElementById('loadingState').classList.add('hidden');
+            
+            if (data.items && data.items.length > 0) {
+                document.getElementById('mailboxGrid').classList.remove('hidden');
+                renderItems(data.items);
+            } else {
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Failed to load mailbox:', error);
+        }
+    }
+
+    function renderItems(items) {
+        const grid = document.getElementById('mailboxGrid');
+        grid.innerHTML = items.map(item => `
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 border border-gray-700 hover:border-blue-500 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-blue-400">${item.itemId}</h3>
+                        <p class="text-gray-400">x${item.quantity}</p>
+                    </div>
+                    <i class="fas fa-box text-3xl text-yellow-400"></i>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">${new Date(item.createdAt).toLocaleDateString('vi-VN')}</p>
+                <button 
+                    onclick="claimItem('${item.id}')"
+                    class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-2 rounded-lg transition"
+                >
+                    ✅ Nhận Hàng
+                </button>
+            </div>
+        `).join('');
+    }
+
+    async function claimItem(itemId) {
+        try {
+            const res = await fetch(`/api/mailbox/claim/${itemId}`, { method: 'POST' });
+            const data = await res.json();
+            
+            if (res.ok) {
+                alert('✅ ' + data.message);
+                loadMailbox(); // Reload
+            } else {
+                alert('❌ ' + data.error);
+            }
+        } catch (error) {
+            alert('❌ Lỗi: ' + error.message);
+        }
+    }
+
+    async function adminAddItem() {
+        const playerName = document.getElementById('adminPlayerName').value;
+        const itemId = document.getElementById('adminItemId').value;
+        const quantity = parseInt(document.getElementById('adminQuantity').value) || 1;
+        
+        if (!playerName || !itemId) {
+            alert('❌ Fill all fields');
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/mailbox/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerName, itemId, quantity })
+            });
+            
+            const data = await res.json();
+            alert(data.message);
+        } catch (error) {
+            alert('❌ Error: ' + error.message);
+        }
+    }
+
+    // Load on page load
+    loadMailbox();
+</script>
+
+</body>
+</html>
+
+
+⚙️ SETUP & IMPLEMENTATION:
+
+1. Thêm routes vào server.js:
+   import mailboxRoutes from './src/routes/mailboxRoutes.js';
+   app.use('/api/mailbox', mailboxRoutes);
+
+2. Create database tables (dùng SQL ở trên)
+
+3. Update Discord bot commands (bot/bot2.js)
+
+4. Tạo mailbox.html trong /html folder
+
+5. Add navigation link trong index.html
+
+
+📋 USAGE EXAMPLES:
+
+Discord Commands:
+  +them VanhMCPE diamond_block 5
+  +them nancy_2007 golden_apple 1
+  +give player123 diamond_sword 1
+
+Web API:
+  POST /api/mailbox/add
+  { "playerName": "VanhMCPE", "itemId": "diamond_block", "quantity": 5 }
+  
+  GET /api/mailbox/VanhMCPE
+  Response: { items: [...] }
+  
+  POST /api/mailbox/claim/item-uuid
+  Response: { success: true, message: "Received..." }
+
+
+✅ IMPLEMENTATION CHECKLIST:
+
+☐ Create mailbox_items table in database
+☐ Create minecraft_items_config table
+☐ Create mailbox_history table for audit log
+☐ Update pikamcService.js with executeMinecraftCommand()
+☐ Create mailboxRoutes.js
+☐ Add mailbox routes to server.js
+☐ Add +them command to bot2.js
+☐ Add +give command to bot2.js
+☐ Create mailbox.html UI
+☐ Add mailbox link in navigation
+☐ Test: +them command
+☐ Test: Web UI load items
+☐ Test: Claim item
+☐ Test: /give execution in game
+☐ Setup admin panel on web UI
+
+
+🎯 KHẢ THI: 9/10 ✅
+- Backend: 8/10 (Pterodactyl API ready)
+- Frontend: 9/10 (Tailwind)
+- Integration: 9/10 (DB + Commands)
