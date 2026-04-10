@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
     <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
-    <!-- CSP Meta Tag to allow external CDNs and inline event handlers -->
-         <!-- Open Graph Meta Tags -->
+    <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vanhmcpe.top/html/dowloadmc.html">
     <meta property="og:title" content="VNA - Trang tải Minecraft">
@@ -17,142 +16,387 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <title>Minecraft Download | VNA</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-
-
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-</style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .gradient-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .gradient-blue {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-gradient::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+        }
+
+        .hero-gradient::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .download-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .download-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .download-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+            transform: translateY(-2px);
+        }
+
+        .pulse-icon {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+    </style>
     <link rel="stylesheet" href="/html/shared-theme.css">
 </head>
-<body class="bg-[#f4f7f6] text-[#333] flex h-screen overflow-hidden">
+<body class="bg-[#f8fafc] text-[#1e293b] flex h-screen overflow-hidden">
 
     <!-- Overlay -->
     <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden"></div>
 
     <!-- Sidebar -->
-    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col">
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
         <!-- Header -->
         <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
-            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
-                <i class="fas fa-server text-xl"></i>
+            <div class="w-10 h-10 gradient-green rounded-xl flex items-center justify-center text-white shadow-lg">
+                <i class="fas fa-cube text-lg"></i>
             </div>
-            <span class="text-xl font-bold tracking-tight">MC Note</span>
+            <span class="text-lg font-bold">VNA MC</span>
         </div>
 
         <!-- Scrollable Navigation -->
-        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
-            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Hệ thống</div>
-            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='https://vanhmcpe.top'">
-                <i class="fas fa-home"></i> Trang chủ
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-3">Navigation</div>
+            <div class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" onclick="window.location.href='https://vanhmcpe.top'">
+                <i class="fas fa-home w-5 text-center"></i> Trang chủ
             </div>
-            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="copyIP()">
-                <i class="fas fa-copy"></i> Copy IP
+            <div class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" onclick="copyIP()">
+                <i class="fas fa-link w-5 text-center"></i> Copy IP
             </div>
             
-            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='status-server.html'">
-                <i class="fas fa-chart-line w-5"></i> Status server
+            <div class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" onclick="window.location.href='status-server.html'">
+                <i class="fas fa-pulse w-5 text-center"></i> Status
             </div>
-            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../A11/chat.html'">
-                    <i class="fas fa-comments w-5"></i> Chat
-                </div>
-                <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/A11/streak.html">
-                <i class="fas fa-fire w-5"></i> Streak
+            <div class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" onclick="window.location.href='../A11/chat.html'">
+                <i class="fas fa-message w-5 text-center"></i> Chat
+            </div>
+            <a class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" href="/A11/streak.html">
+                <i class="fas fa-fire w-5 text-center"></i> Streak
             </a>
-<a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/cloud">
-                <i class="fas fa-cloud w-5"></i> Cloud</a>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3">Thư viện</div>
-            <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" onclick="window.location.href='../p/rawphoto.html'">
-                <i class="fas fa-expand"></i> Album
-            </div>
-            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Tiện ích</div>
-            <div class="tool-grid-sidebar">
-                <a class="tool-tile" href="/p/snapsave.html">
-                    <i class="fa-brands fa-facebook-f"></i>
-                    <span>Facebook</span>
-                </a>
-                <a class="tool-tile" href="/html/tiktok.html">
-                    <i class="fa-brands fa-tiktok"></i>
-                    <span>TikTok</span>
-                </a>
-                <a class="tool-tile" href="/html/youtube.html">
-                    <i class="fa-brands fa-youtube"></i>
-                    <span>YouTube</span>
-                </a>
-                <a class="tool-tile" href="/html/soundcloud.html">
-                    <i class="fa-brands fa-soundcloud"></i>
-                    <span>SoundCloud</span>
-                </a>
-                <a class="tool-tile" href="/html/dowloadmc.html">
-                    <i class="fas fa-download"></i>
-                    <span>Minecraft</span>
-                </a>
-            </div>
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-6 mb-2 px-3">Kho rác</h2>
-            <a class="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-[#007bff] hover:text-white transition-all text-gray-600 font-medium" href="/p/kho.html">
-                <i class="fas fa-toolbox"></i> Kho công cụ
+            <a class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-green-50 hover:text-[#10b981] transition-all text-gray-600 font-medium" href="/cloud">
+                <i class="fas fa-cloud w-5 text-center"></i> Cloud
             </a>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-3 mt-4">Tools</div>
+            <div class="grid grid-cols-3 gap-2 px-1">
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="/p/snapsave.html" title="Facebook">
+                    <i class="fa-brands fa-facebook text-blue-500 text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">FB</span>
+                </a>
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="/html/tiktok.html" title="TikTok">
+                    <i class="fa-brands fa-tiktok text-black text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">TK</span>
+                </a>
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="/html/youtube.html" title="YouTube">
+                    <i class="fa-brands fa-youtube text-red-500 text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">YT</span>
+                </a>
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="/html/soundcloud.html" title="SoundCloud">
+                    <i class="fa-brands fa-soundcloud text-orange-500 text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">SC</span>
+                </a>
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="../p/rawphoto.html" title="Album">
+                    <i class="fas fa-images text-purple-500 text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">Album</span>
+                </a>
+                <a class="flex flex-col items-center justify-center gap-1 p-3 rounded-lg hover:bg-gray-100 transition-all" href="/p/kho.html" title="Tools">
+                    <i class="fas fa-toolbox text-amber-500 text-lg"></i>
+                    <span class="text-[10px] font-medium text-gray-600">Tools</span>
+                </a>
+            </div>
         </nav>
 
         <!-- Footer -->
-        <div class="p-6 pt-4 border-t border-gray-100">
-            <p class="text-xs text-gray-400 text-center font-medium">© 2026 MC Note</p>
+        <div class="p-4 pt-3 border-t border-gray-100 text-center">
+            <p class="text-xs text-gray-400 font-medium">© 2026 VNA Server</p>
+            <p class="text-[10px] text-gray-300 mt-1">Minecraft Bedrock</p>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Header -->
-        <div class="p-4 border-b border-gray-200 bg-white flex justify-center items-center relative">
-            <button type="button" class="hamburger text-2xl text-gray-700 absolute left-4 lg:hidden" onclick="window.toggleSidebar()">
+        <div class="p-4 border-b border-gray-200 bg-white flex justify-between items-center relative shadow-sm">
+            <button type="button" class="hamburger text-2xl text-gray-700 lg:hidden" onclick="window.toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="bg-gray-100 px-3 py-1 rounded-lg border border-gray-200 flex items-center gap-2">
-                <i class="fas fa-clock text-gray-600 text-sm"></i>
-                <span class="text-sm font-medium text-gray-700" id="headerTime">--:--:--</span>
+            <div class="flex-1 text-center">
+                <div class="text-sm font-semibold text-gray-700">Minecraft Bedrock Edition</div>
+            </div>
+            <div class="text-sm font-medium text-gray-600">
+                <i class="fas fa-clock text-gray-500 mr-2"></i><span id="headerTime">--:--:--</span>
             </div>
         </div>
 
         <!-- Content -->
-        <div class="flex-1 overflow-y-auto">
-            <!-- Main Content -->
-            <div class="max-w-6xl mx-auto px-6 py-12">
-                <div class="max-w-[480px] mx-auto bg-white p-6 lg:p-10 rounded-[2rem] shadow-sm border border-gray-100 text-center mt-2 lg:mt-6">
-                    <div class="flex justify-center mb-5">
-                        <div class="relative">
-                            <img src="../photos/mc.png" alt="Minecraft" class="w-20 h-20 lg:w-24 lg:h-24 rounded-2xl shadow-xl border-4 border-white">
-                            <div class="absolute -bottom-1 -right-1 bg-[#2ecc71] text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md">
-                                <i class="fas fa-check text-[8px]"></i>
+        <div class="flex-1 overflow-y-auto bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9]">
+            <!-- Hero Section -->
+            <div class="hero-gradient text-white pt-8 sm:pt-16 pb-8 sm:pb-16 relative z-0">
+                <div class="max-w-6xl mx-auto px-6">
+                    <div class="max-w-3xl">
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Minecraft PE</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl font-black leading-tight mb-4">
+                            Tải Minecraft PE<br><span class="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">Chính thức</span>
+                        </h1>
+                        <p class="text-lg text-gray-300 mb-8 max-w-xl leading-relaxed">
+                            Tham gia cộng đồng Minecraft Bedrock tuyệt vọi. Chơi cùng VNA Server với hàng ngàn người chơi khác.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="gradient-green text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all hover:scale-105 flex items-center gap-2">
+                                <i class="fas fa-download"></i> Tải Ngay
+                            </button>
+                            <button onclick="copyIP()" class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40">
+                                <i class="fas fa-copy mr-2"></i> Copy IP: vna.vanhmcpe.top
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="mt-12 sm:mt-16">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="stat-card p-6 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-500 text-sm mb-1">Người chơi hoạt động</p>
+                                        <p class="text-3xl font-bold text-white" id="player-count">-</p>
+                                    </div>
+                                    <i class="fas fa-users text-3xl text-green-400 opacity-20"></i>
+                                </div>
+                            </div>
+                            <div class="stat-card p-6 rounded-xl">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-500 text-sm mb-1">RAM Server</p>
+                                        <p class="text-3xl font-bold text-white" id="ram-usage">-</p>
+                                    </div>
+                                    <i class="fas fa-server text-3xl text-blue-400 opacity-20"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <h1 class="text-2xl lg:text-3xl font-extrabold text-[#1e293b] mb-1">Minecraft PE</h1>
-                    <p class="text-[13px] lg:text-sm text-gray-500 mb-8 font-medium">Phiên bản APK Minecraft</p>
+                </div>
+            </div>
 
-                    <div class="space-y-3"> 
-                        <div id="dynamic-downloads" class="space-y-3"></div>
+            <!-- Downloads Section -->
+            <div id="downloads" class="max-w-4xl mx-auto px-6 mb-16">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-900">Các phiên bản sẵn có</h2>
+                    <p class="text-gray-600">Chọn phiên bản Minecraft PE bạn muốn để tải về</p>
+                </div>
 
+                <div id="dynamic-downloads" class="space-y-4 mb-8"></div>
+
+                <!-- Info Box -->
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 flex items-start gap-4">
+                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-lightbulb text-amber-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900 mb-2">Hướng dẫn cài đặt</h3>
+                        <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
+                            <li>Bật <span class="font-semibold">"Cài đặt từ nguồn không xác định"</span> trong cài đặt thiết bị</li>
+                            <li>Tải file APK từ bên trên</li>
+                            <li>Mở file APK và chọn cài đặt</li>
+                            <li>Chờ cài đặt hoàn tất rồi mở game</li>
+                            <li>Vào <span class="font-semibold">Máy chủ</span> và thêm server với IP: <span class="font-mono bg-white px-2 py-1 rounded">vna.vanhmcpe.top:25003</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="max-w-4xl mx-auto px-6 mb-20">
+                <h2 class="text-3xl font-bold mb-10 text-gray-900 text-center">Tại sao chọn VNA Server?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
+                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
+                            <i class="fas fa-bolt text-lg"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Tốc độ cao</h3>
+                        <p class="text-gray-600">Server chạy trên infrastructure tối ưu với ping siêu thấp</p>
                     </div>
 
-                    <div class="mt-8 p-4 bg-orange-50 rounded-2xl border border-orange-100/50">
-                        <p class="text-[11px] lg:text-xs text-orange-700 leading-relaxed font-medium">
-                            <i class="fas fa-info-circle mr-1"></i> <b>Nhắc nhẹ:</b> Nhớ bật quyền <b>"Cài đặt từ nguồn không xác định"</b> trong máy để cài nhé!
-                        </p>
+                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
+                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
+                            <i class="fas fa-shield-alt text-lg"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">An toàn</h3>
+                        <p class="text-gray-600">Dữ liệu được bảo vệ và server được quản lý chuyên nghiệp</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
+                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
+                            <i class="fas fa-users text-lg"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Cộng đồng lớn</h3>
+                        <p class="text-gray-600">Hàng ngàn người chơi từ khắp nơi tập hợp tại đây</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
+                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
+                            <i class="fas fa-gift text-lg"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Nhiều tính năng</h3>
+                        <p class="text-gray-600">Minigames, events, rewards và nhiều điều thú vị khác</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="bg-gradient-to-r from-green-500 to-blue-600 text-white py-16 mb-8">
+                <div class="max-w-4xl mx-auto px-6 text-center">
+                    <h2 class="text-3xl font-bold mb-4">Sẵn sàng tham gia?</h2>
+                    <p class="text-lg opacity-90 mb-8">Tải Minecraft PE ngay hôm nay và bắt đầu cuộc phiêu lưu của bạn</p>
+                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-10 py-3 rounded-lg font-bold hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2">
+                        <i class="fas fa-download"></i> Tải Minecraft PE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="border-t border-gray-200 bg-white py-8">
+                <div class="max-w-6xl mx-auto px-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                        <div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fas fa-cube text-green-500 text-xl"></i>
+                                <span class="font-bold text-lg">VNA Server</span>
+                            </div>
+                            <p class="text-gray-600 text-sm">Cộng đồng Minecraft Bedrock tuyệt vời tại vanhmcpe.top</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 mb-4">Liên kết nhanh</h4>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li><a href="https://vanhmcpe.top" class="hover:text-green-500 transition">Trang chủ</a></li>
+                                <li><a href="status-server.html" class="hover:text-green-500 transition">Trạng thái server</a></li>
+                                <li><a href="../A11/chat.html" class="hover:text-green-500 transition">Chat trực tuyến</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900 mb-4">IP Server</h4>
+                            <div class="bg-gray-100 p-3 rounded-lg">
+                                <code class="text-sm font-mono text-gray-800">vna.vanhmcpe.top:25003</code>
+                                <button onclick="copyIP()" class="ml-2 text-green-500 hover:text-green-600 transition">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
+                        <p>© 2026 VNA Server - Minecraft Bedrock Community | All rights reserved</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-        <script src="/html/shared-sidebar.js"></script>
-<script>
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
         // Robust sidebar implementation (overrides broken versions and adds diagnostics)
         window.toggleSidebar = function toggleSidebarImpl() {
             try {
@@ -229,9 +473,9 @@
         };
 
         function copyIP() {
-            const ip = 'vanhmcpe.my-land.fun:25702';
+            const ip = 'vna.vanhmcpe.top:25003';
             navigator.clipboard.writeText(ip).then(() => {
-                alert('Đã copy IP server: ' + ip);
+                showToast('✓ Đã copy IP server', 'success');
             }).catch(err => {
                 console.error('Không thể copy IP:', err);
                 // Fallback cho trình duyệt cũ
@@ -241,8 +485,70 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('Đã copy IP server: ' + ip);
+                showToast('✓ Đã copy IP server', 'success');
             });
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white font-medium shadow-lg z-[2000] animate-fade-in-up ${
+                type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        async function loadServerStats() {
+            try {
+                // Get server status (players online + RAM usage)
+                const statusRes = await fetch('/api/pikamc/status');
+                const statusData = await statusRes.json();
+                if (statusRes.ok) {
+                    // Get real-time player count from mcsrvstat API
+                    try {
+                        const mcRes = await fetch(`https://api.mcsrvstat.us/bedrock/3/${statusData.ip}:${statusData.port}`);
+                        const mcData = await mcRes.json();
+                        
+                        if (mcData.online) {
+                            const playerCount = document.getElementById('player-count');
+                            if (playerCount) {
+                                playerCount.textContent = `${mcData.players.online}/${mcData.players.max}`;
+                            }
+                        }
+                    } catch (mcError) {
+                        console.debug('Error fetching from mcsrvstat:', mcError);
+                        // Fallback: use data from /api/pikamc/status
+                        if (statusData.players && statusData.players.online !== undefined) {
+                            const playerCount = document.getElementById('player-count');
+                            if (playerCount) {
+                                playerCount.textContent = statusData.players.online + '/' + statusData.players.max;
+                            }
+                        }
+                    }
+                    
+                    // Update RAM usage if available
+                    if (statusData.ram) {
+                        const ramElement = document.getElementById('ram-usage');
+                        if (ramElement) {
+                            ramElement.textContent = statusData.ram.usage;
+                        }
+                    }
+                }
+
+                // Get network stats (avg ping)
+                const networkRes = await fetch('/api/status/stats');
+                const networkData = await networkRes.json();
+                if (networkRes.ok && networkData.networkHistory && Array.isArray(networkData.networkHistory)) {
+                    // Network stats loaded but not displayed
+                }
+            } catch (error) {
+                console.debug('Error loading server stats:', error);
+                // Use fallback values if APIs fail
+            }
         }
 
         async function loadMinecraftDownloads() {
@@ -256,71 +562,120 @@
                 }
 
                 container.innerHTML = '';
-                data.items.forEach((item) => {
+                data.items.forEach((item, index) => {
                     if (!item?.title || !item?.url) return;
+                    
                     const link = document.createElement('a');
                     link.href = item.url;
                     link.target = '_blank';
-                    link.className = 'flex items-center justify-between p-4 lg:p-5 bg-[#2ecc71] text-white rounded-2xl hover:bg-[#27ae60] transition-all active:scale-[0.97] shadow-lg shadow-green-100 group';
+                    link.rel = 'noopener noreferrer';
+                    link.className = 'download-card flex items-center justify-between p-5 lg:p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl group';
+                    link.style.animationDelay = `${index * 50}ms`;
 
                     const left = document.createElement('div');
-                    left.className = 'flex items-center gap-3';
+                    left.className = 'flex items-center gap-4 flex-1 min-w-0';
 
                     const iconWrap = document.createElement('div');
-                    iconWrap.className = 'bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center shrink-0';
+                    iconWrap.className = 'bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center shrink-0 backdrop-blur-sm';
                     const icon = document.createElement('i');
-                    icon.className = 'fa-brands fa-android text-xl';
+                    icon.className = 'fa-brands fa-android text-2xl';
                     iconWrap.appendChild(icon);
 
                     const textWrap = document.createElement('div');
-                    textWrap.className = 'text-left';
+                    textWrap.className = 'text-left overflow-hidden';
 
                     const title = document.createElement('span');
-                    title.className = 'block font-bold text-sm lg:text-base leading-none';
+                    title.className = 'block font-bold text-base lg:text-lg leading-none truncate';
                     title.textContent = item.title;
 
                     textWrap.appendChild(title);
 
                     if (item.version) {
                         const version = document.createElement('span');
-                        version.className = 'text-[10px] opacity-90 mt-1 block uppercase tracking-tight';
-                        version.textContent = item.version;
+                        version.className = 'text-[11px] opacity-80 mt-1 block uppercase tracking-wider font-semibold';
+                        version.textContent = `v${item.version}`;
                         textWrap.appendChild(version);
                     }
 
                     left.appendChild(iconWrap);
                     left.appendChild(textWrap);
 
-                    const arrow = document.createElement('i');
-                    arrow.className = 'fas fa-arrow-down text-xs opacity-70 group-hover:translate-y-1 transition-transform';
+                    const badge = document.createElement('span');
+                    badge.className = 'bg-white/20 px-3 py-1 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap';
+                    badge.textContent = 'Tải';
 
                     link.appendChild(left);
-                    link.appendChild(arrow);
+                    link.appendChild(badge);
 
                     container.appendChild(link);
                 });
             } catch (_err) {
-                // Ignore fetch errors to avoid breaking the page.
+                console.debug('Failed to load minecraft downloads. This is OK if API is not available');
             }
         }
 
         // Hàm cập nhật thời gian thực
-function updateTime() {
-    const timeDisplay = document.getElementById('headerTime');
-    if (timeDisplay) {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        timeDisplay.innerText = `${hours}:${minutes}:${seconds}`;
-    }
-}
+        function updateTime() {
+            const timeDisplay = document.getElementById('headerTime');
+            if (timeDisplay) {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                timeDisplay.innerText = `${hours}:${minutes}:${seconds}`;
+            }
+        }
 
-// Chạy ngay lập tức và lặp lại mỗi giây
-setInterval(updateTime, 1000);
-updateTime();
+        // Chạy ngay lập tức và lặp lại mỗi giây
+        setInterval(updateTime, 1000);
+        updateTime();
 
-        loadMinecraftDownloads();
+        // Load downloads khi trang load xong
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadMinecraftDownloads();
+                loadServerStats();
+                // Refresh stats every 10 seconds
+                setInterval(loadServerStats, 10000);
+            });
+        } else {
+            loadMinecraftDownloads();
+            loadServerStats();
+            // Refresh stats every 10 seconds
+            setInterval(loadServerStats, 10000);
+        }
+
+        // Add some CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fade-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .animate-fade-in-up {
+                animation: fade-in-up 0.3s ease-out;
+            }
+
+            .download-card {
+                animation: fade-in-up 0.4s ease-out forwards;
+                opacity: 0;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
