@@ -55,10 +55,6 @@ import cloudRoutes from './src/routes/cloudRoutes.js';
 import ssrRoutes from './src/routes/ssrRoutes.js';
 import forumRoutes from './src/routes/forumRoutes.js';
 
-// VNA Live CCTV Infrastructure Modules (Web side)
-import { MCViewerServer } from './src/modules/games/mc-viewer-server.js';
-import { MCCameraCapture } from './src/modules/games/mc-camera-capture.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const RECENT_USERS_FILE = path.join(ROOT_DIR, 'json', 'recent-users.json');
@@ -1815,12 +1811,6 @@ io.on('connection', async (socket) => {
         removeAdminConsoleSubscriber(socket);
     });
 
-    // VNA Live CAM: Send last frame if requested
-    socket.on('vna-live-cam:request-frame', () => {
-        if (global.lastCamFrame) {
-            socket.emit('vna-live-cam:frame', global.lastCamFrame);
-        }
-    });
 });
 
 async function bootstrap() {
@@ -1849,38 +1839,6 @@ async function bootstrap() {
         startCleanup();
     } catch (err) {
         console.error('Failed to start cleanup worker:', err);
-    }
-
-    // Initialize VNA Live CCTV Infrastructure (Web Side)
-    try {
-        console.log('📹 Initializing VNA Live CCTV Infrastructure...');
-        // Note: Running in standalone mode. 
-        // Start the bot separately using: node vna-cam-bot.js
-        const viewerServer = new MCViewerServer(null, 3001); 
-        const cameraCapture = new MCCameraCapture('http://localhost:3001/html/mc-viewer.html', 800);
-
-        viewerServer.start();
-
-        cameraCapture.on('frame', (base64) => {
-            if (!global.frameLogCounter) global.frameLogCounter = 0;
-            global.frameLogCounter++;
-            
-            if (global.frameLogCounter % 10 === 0) {
-                console.log(`[CCTV-Server] Broadcasted ${global.frameLogCounter} frames to clients.`);
-            }
-            
-            global.lastCamFrame = base64;
-            io.emit('vna-live-cam:frame', base64);
-        });
-
-        // Delay capture start - Reduced to 5s for faster testing
-        setTimeout(() => {
-            console.log('📸 Start capturing CCTV frames...');
-            cameraCapture.start();
-        }, 5000);
-
-    } catch (err) {
-        console.error('❌ Failed to start VNA Live CCTV Infra:', err);
     }
 
     server.listen(PORT, '0.0.0.0', () => {

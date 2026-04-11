@@ -114,7 +114,7 @@ WEB1/
 │   ├── whitelist.html               # Whitelist management
 │   ├── leaderboard.html             # Tool usage leaderboard
 │   ├── bedrock-world-viewer.html    # World viewer UI
-│   ├── mc-viewer.html               # MC viewer alt version
+│   ├── shared-theme.css             # Shared homepage styling
 │   ├── tiktok.html, youtube.html    # Media download pages
 │   ├── soundcloud.html              # Audio download
 │   ├── x.html                       # Twitter/X downloader
@@ -524,7 +524,7 @@ BOT_TOKEN=...
 |------|-----------|---------|
 | **JavaScript Files** | kebab-case.js | `chat-service.js`, `rate-limiter.js` |
 | **Functions** | camelCase | `getUserById()`, `addChatMessage()` |
-| **Classes** | PascalCase | `MCViewerServer`, `ChatService` |
+| **Classes** | PascalCase | `PlayerService`, `ChatService` |
 | **Constants** | UPPER_SNAKE_CASE | `MAX_PLAYERS`, `DEFAULT_TIMEOUT_MS` |
 | **HTML IDs** | kebab-case | `id="stats-container"`, `id="player-count"` |
 | **CSS Classes** | kebab-case | `class="hero-gradient"`, `class="stat-card"` |
