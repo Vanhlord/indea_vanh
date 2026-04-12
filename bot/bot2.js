@@ -1,13 +1,6 @@
-import { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField, ChannelType, Partials, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Client, GatewayIntentBits, EmbedBuilder, PermissionsBitField, ChannelType, Partials } from 'discord.js';
 import { DISCORD_BOT_TOKEN, DISCORD_CHANNEL_ID_1, DISCORD_CHANNEL_ID_2, DISCORD_DONATE_CHANNEL_ID } from '../src/config/index.js';
 import { addDonation, parseDonationCommand, parseRemoveCommand, removeDonation } from '../src/services/donateService.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const STREAK_REMINDERS_FILE = path.join(__dirname, '../json/streak-reminders.json');
 
 let client2;
 let startPromise = null;
@@ -18,79 +11,6 @@ const FIXED_CHANNEL_ID_2 = DISCORD_CHANNEL_ID_2;
 
 // Bot token from environment configuration
 export const BOT2_TOKEN = DISCORD_BOT_TOKEN;
-const BOT2_ADMIN_IDS = new Set(
-    String(
-        process.env.STREAK_ADMIN_IDS
-        || process.env.DISCORD_ADMIN_IDS
-        || process.env.DISCORD_ADMIN_ID
-        || process.env.ADMIN_ID
-        || ''
-    )
-        .split(',')
-        .map((value) => value.trim())
-        .filter(Boolean)
-);
-
-let reminderMessagesCache = null;
-
-async function loadReminderMessages() {
-    if (reminderMessagesCache) return reminderMessagesCache;
-    try {
-        const raw = await readFile(STREAK_REMINDERS_FILE, 'utf8');
-        const parsed = JSON.parse(raw);
-        const list = Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string' && item.trim()) : [];
-        reminderMessagesCache = list;
-        return list;
-    } catch (_error) {
-        reminderMessagesCache = [];
-        return [];
-    }
-}
-
-function pickRandomReminder(messages) {
-    if (!Array.isArray(messages) || messages.length === 0) return null;
-    const idx = Math.floor(Math.random() * messages.length);
-    return messages[idx];
-}
-
-function isBotAdmin(userId) {
-    const normalized = String(userId || '').trim();
-    return BOT2_ADMIN_IDS.size > 0 && BOT2_ADMIN_IDS.has(normalized);
-}
-
-export const buildStreakReminderPayload = (baseUrl, options = {}) => {
-    const normalizedBase = String(baseUrl || '').replace(/\/+$/, '');
-    const url = normalizedBase ? `${normalizedBase}/A11/streak.html` : '/A11/streak.html';
-    const reminderLine = String(options.reminderLine || '').trim();
-    const lines = [
-        reminderLine || '8h tối rồi! Bạn chưa điểm danh streak hôm nay.',
-        `Điểm danh tại: ${url}`,
-        'Giữ streak đều đặn nhé!'
-    ];
-    const embed = new EmbedBuilder()
-        .setTitle('⏰ Nhắc nhở streak')
-        .setDescription(lines.join('\n'))
-        .setColor('#f97316')
-        .setTimestamp();
-
-    if (options.test) {
-        embed.setFooter({ text: 'Tin nhắn test' });
-    }
-
-    const openButton = new ButtonBuilder()
-        .setLabel('Mở trang')
-        .setStyle(ButtonStyle.Link)
-        .setURL(url);
-
-    const row = new ActionRowBuilder().addComponents(openButton);
-
-    return {
-        content: options.content || null,
-        embed,
-        components: [row]
-    };
-};
-
 /**
  * Khởi chạy Bot 2
  */
@@ -146,32 +66,10 @@ export const startBot2 = () => {
         }
     });
 
-    // Listen for donation commands + admin DM test
+    // Listen for donation commands
     client2.on('messageCreate', async (message) => {
         if (message.author.bot) return;
         if (message.channel?.type === ChannelType.DM) {
-            const content = String(message.content || '').trim().toLowerCase();
-            if (content === '!test') {
-                if (BOT2_ADMIN_IDS.size === 0) {
-                    await message.reply('❌ Chưa cấu hình danh sách admin để chạy lệnh test.');
-                    return;
-                }
-                if (!isBotAdmin(message.author.id)) {
-                    await message.reply('❌ Bạn không có quyền dùng lệnh này.');
-                    return;
-                }
-
-                const baseUrl = process.env.PUBLIC_BASE_URL || 'https://vanhmcpe.top';
-                const reminders = await loadReminderMessages();
-                const reminderLine = pickRandomReminder(reminders);
-                const payload = buildStreakReminderPayload(baseUrl, { test: true, reminderLine });
-                await message.channel.send({
-                    content: payload.content || undefined,
-                    embeds: payload.embed ? [payload.embed] : undefined,
-                    components: payload.components || undefined
-                });
-                return;
-            }
             return;
         }
 

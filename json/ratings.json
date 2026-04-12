@@ -17,14 +17,6 @@
       "timestamp": "2026-02-18T14:16:26.801Z"
     },
     {
-      "userId": "999830214198710324",
-      "userName": "vanh_68208",
-      "userAvatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
-      "rating": 5,
-      "comment": "át min siêu nhân gồng gánh hết mọi thứ",
-      "timestamp": "2026-02-18T14:20:42.175Z"
-    },
-    {
       "userId": "976028853346652161",
       "userName": "gartv",
       "userAvatar": "https://cdn.discordapp.com/avatars/976028853346652161/3c30b65b10bffa79c18da34b5ce89fd3.png",
@@ -39,6 +31,14 @@
       "rating": 5,
       "comment": "Ảnh bìa đệp voãi á á á",
       "timestamp": "2026-02-18T14:48:25.974Z"
+    },
+    {
+      "userId": "999830214198710324",
+      "userName": "vanh_68208",
+      "userAvatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
+      "rating": 5,
+      "comment": "tuyệt",
+      "timestamp": "2026-04-12T00:57:15.757Z"
     }
   ],
   "stats": {

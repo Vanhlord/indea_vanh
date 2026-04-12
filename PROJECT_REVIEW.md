@@ -71,7 +71,6 @@ cluster.on('message', async (worker, message) => {
 ```
 
 ### 3. Referenced Files Don't Exist
-- `streak.html`
 - `embed-admin.html`  
 - `admin.html`
 - `youtube.html`

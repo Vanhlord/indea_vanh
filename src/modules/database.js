@@ -41,16 +41,6 @@ db.exec(`
     downloadNote TEXT
   );
 
-  CREATE TABLE IF NOT EXISTS checkin_data (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    avatar TEXT,
-    time TEXT,
-    date TEXT,
-    streak INTEGER,
-    lastCheckin TEXT
-  );
-
   CREATE TABLE IF NOT EXISTS whitelist (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     admin_id TEXT UNIQUE
@@ -209,12 +199,6 @@ export function migrateData() {
         if (fs.existsSync('custom_download_config.json')) {
             const downloadData = JSON.parse(fs.readFileSync('custom_download_config.json', 'utf8'));
             insertData('custom_download_config', downloadData);
-        }
-
-        // Migrate checkin_data.json
-        if (fs.existsSync('checkin_data.json')) {
-            const checkinData = JSON.parse(fs.readFileSync('checkin_data.json', 'utf8'));
-            checkinData.forEach(item => insertData('checkin_data', item));
         }
 
         // Migrate whitelist.json

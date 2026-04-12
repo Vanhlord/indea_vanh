@@ -3,7 +3,6 @@ import chatRoutes from './chatRoutes.js';
 import downloaderRoutes from './downloaderRoutes.js';
 import bedrockWorldRoutes from './bedrockWorldRoutes.js';
 import ratingRoutes from './ratingRoutes.js';
-import streakRoutes from './streakRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 
 export function setupRoutes(app) {
@@ -18,9 +17,6 @@ export function setupRoutes(app) {
     
     // Rating routes
     app.use('/api/ratings', ratingRoutes);
-    
-    // Streak routes
-    app.use('/api/streaks', streakRoutes);
     
     // Notification routes
     app.use('/api/notifications', notificationRoutes);

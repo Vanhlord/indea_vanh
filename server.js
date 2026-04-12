@@ -44,13 +44,11 @@ import {
     resolveToolFromPlatform
 } from './src/services/toolUsageService.js';
 
-import { startBot2, BOT2_TOKEN, sendEmbed, isBotReady, sendDirectMessage, buildStreakReminderPayload, setSocketIO as setBot2SocketIO } from './bot/bot2.js';
-import { loadStreaks as loadStreaksService, isCheckedInToday, getStartOfDay, getLocalDateString } from './src/services/streakService.js';
+import { startBot2, BOT2_TOKEN, sendEmbed, isBotReady, setSocketIO as setBot2SocketIO } from './bot/bot2.js';
 import { getDonations } from './src/services/donateService.js';
 
 import binhchonRoute from './bot/binhchon.js';
 import albumRoutes from './src/routes/albumRoutes.js';
-import streakRoutes from './src/routes/streakRoutes.js';
 import cloudRoutes from './src/routes/cloudRoutes.js';
 import ssrRoutes from './src/routes/ssrRoutes.js';
 import forumRoutes from './src/routes/forumRoutes.js';
@@ -62,14 +60,8 @@ const FURINA_QUOTES_FILE = path.join(ROOT_DIR, 'json', 'furina_quotes.json');
 const SERVER_STATUS_FILE = path.join(ROOT_DIR, 'json', 'server_status.json');
 const COUNTDOWN_SETTINGS_FILE = path.join(ROOT_DIR, 'json', 'countdown_settings.json');
 const DOWNLOADS_JSON_FILE = path.join(ROOT_DIR, 'json', 'minecraft_downloads.json');
-const STREAK_REMINDER_FILE = path.join(ROOT_DIR, 'json', 'streak-reminder.json');
-const STREAK_REMINDER_MESSAGES_FILE = path.join(ROOT_DIR, 'json', 'streak-reminders.json');
 const RECENT_USERS_MAX = 30;
 const RECENT_USERS_DEFAULT_LIMIT = 8;
-const STREAK_REMINDER_HOUR = 20;
-const STREAK_REMINDER_MINUTE = 0;
-const STREAK_REMINDER_CHECK_INTERVAL_MS = 5 * 60 * 1000;
-const STREAK_REMINDER_MAX_DAYS_INACTIVE = 30;
 
 function parseIdSet(rawValue) {
     return new Set(
@@ -228,153 +220,6 @@ function buildStrengthEffectCommands(gamertag) {
         `effect "${safeGamertag}" strength infinite 255 true`,
         `effect "${safeGamertag}" night_vision infinite 255 true`
     ];
-}
-
-function delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-let reminderMessagesCache = null;
-
-async function loadReminderMessages() {
-    if (reminderMessagesCache) return reminderMessagesCache;
-    try {
-        const raw = await readFile(STREAK_REMINDER_MESSAGES_FILE, 'utf8');
-        const parsed = JSON.parse(raw);
-        const list = Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string' && item.trim()) : [];
-        reminderMessagesCache = list;
-        return list;
-    } catch (_error) {
-        reminderMessagesCache = [];
-        return [];
-    }
-}
-
-function pickRandomReminder(messages) {
-    if (!Array.isArray(messages) || messages.length === 0) return null;
-    const idx = Math.floor(Math.random() * messages.length);
-    return messages[idx];
-}
-
-async function loadReminderState() {
-    try {
-        const raw = await readFile(STREAK_REMINDER_FILE, 'utf8');
-        const parsed = JSON.parse(raw);
-        const lastSentDate = String(parsed?.lastSentDate || '').trim();
-        const lastSentAt = String(parsed?.lastSentAt || '').trim();
-        const lastSentTotal = Number.isFinite(Number(parsed?.lastSentTotal))
-            ? Math.max(0, Math.floor(Number(parsed.lastSentTotal)))
-            : 0;
-        const lastSentSuccess = Number.isFinite(Number(parsed?.lastSentSuccess))
-            ? Math.max(0, Math.floor(Number(parsed.lastSentSuccess)))
-            : 0;
-        const lastSentFailed = Number.isFinite(Number(parsed?.lastSentFailed))
-            ? Math.max(0, Math.floor(Number(parsed.lastSentFailed)))
-            : 0;
-        return {
-            lastSentDate: lastSentDate || null,
-            lastSentAt: lastSentAt || null,
-            lastSentTotal,
-            lastSentSuccess,
-            lastSentFailed
-        };
-    } catch (_error) {
-        return {
-            lastSentDate: null,
-            lastSentAt: null,
-            lastSentTotal: 0,
-            lastSentSuccess: 0,
-            lastSentFailed: 0
-        };
-    }
-}
-
-async function saveReminderState(dateStr, summary = {}) {
-    const total = Number.isFinite(Number(summary?.total)) ? Math.max(0, Math.floor(Number(summary.total))) : 0;
-    const success = Number.isFinite(Number(summary?.success)) ? Math.max(0, Math.floor(Number(summary.success))) : 0;
-    const failed = Number.isFinite(Number(summary?.failed)) ? Math.max(0, Math.floor(Number(summary.failed))) : 0;
-    const sentAt = String(summary?.sentAt || '').trim() || new Date().toISOString();
-    await mkdir(path.dirname(STREAK_REMINDER_FILE), { recursive: true });
-    const payload = {
-        lastSentDate: dateStr,
-        lastSentAt: sentAt,
-        lastSentTotal: total,
-        lastSentSuccess: success,
-        lastSentFailed: failed,
-        updatedAt: new Date().toISOString()
-    };
-    await writeFile(STREAK_REMINDER_FILE, JSON.stringify(payload, null, 2), 'utf8');
-}
-
-async function runStreakReminder() {
-    const now = new Date();
-    const isAfterReminderTime = now.getHours() > STREAK_REMINDER_HOUR
-        || (now.getHours() === STREAK_REMINDER_HOUR && now.getMinutes() >= STREAK_REMINDER_MINUTE);
-    if (!isAfterReminderTime) return;
-
-    const todayStr = getLocalDateString(now);
-    const reminderState = await loadReminderState();
-    if (reminderState.lastSentDate === todayStr) return;
-
-    if (!BOT2_TOKEN || BOT2_TOKEN.includes('PASTE_YOUR_BOT_TOKEN_HERE')) {
-        console.warn('[Streak Reminder] BOT2_TOKEN chưa cấu hình, bỏ qua nhắc nhở.');
-        return;
-    }
-
-    const ok = await startBot2();
-    if (!ok) {
-        console.warn('[Streak Reminder] Bot chưa sẵn sàng để gửi nhắc nhở.');
-        return;
-    }
-
-    const data = await loadStreaksService(now, STREAK_REMINDER_MAX_DAYS_INACTIVE);
-    const today = getStartOfDay(now);
-    const targets = data.streaks.filter((streak) => (
-        streak?.userId
-        && streak?.lastCheckIn
-        && !isCheckedInToday(streak, today)
-    ));
-
-    if (targets.length === 0) {
-        const finishedAt = new Date().toISOString();
-        await saveReminderState(todayStr, { total: 0, success: 0, failed: 0, sentAt: finishedAt });
-        console.log('[Streak Reminder] Không có ai cần nhắc hôm nay.');
-        return;
-    }
-
-    const baseUrl = process.env.PUBLIC_BASE_URL || 'https://vanhmcpe.top';
-    const reminders = await loadReminderMessages();
-    const reminderLine = pickRandomReminder(reminders);
-    const reminderPayload = buildStreakReminderPayload(baseUrl, { reminderLine });
-
-    let success = 0;
-    let failed = 0;
-
-    for (const streak of targets) {
-        const result = await sendDirectMessage(streak.userId, reminderPayload);
-        if (result.success) {
-            success += 1;
-        } else {
-            failed += 1;
-            console.warn(`[Streak Reminder] DM failed for ${streak.userId}: ${result.error}`);
-        }
-        await delay(350);
-    }
-
-    const finishedAt = new Date().toISOString();
-    await saveReminderState(todayStr, { total: targets.length, success, failed, sentAt: finishedAt });
-    console.log(`[Streak Reminder] Sent=${success}, Failed=${failed}, Total=${targets.length}`);
-}
-
-function startStreakReminderScheduler() {
-    runStreakReminder().catch((error) => {
-        console.error('[Streak Reminder] Lỗi khi chạy nhắc nhở:', error);
-    });
-    setInterval(() => {
-        runStreakReminder().catch((error) => {
-            console.error('[Streak Reminder] Lỗi khi chạy nhắc nhở:', error);
-        });
-    }, STREAK_REMINDER_CHECK_INTERVAL_MS);
 }
 
 async function listMinecraftFiles() {
@@ -1201,26 +1046,6 @@ app.get('/api/status/network-history', (_req, res) => {
 app.use('/', binhchonRoute);
 app.use('/api/album', albumRoutes);
 
-app.get('/api/streaks/reminder-status', async (_req, res) => {
-    try {
-        const now = new Date();
-        const todayStr = getLocalDateString(now);
-        const reminderState = await loadReminderState();
-        const sentToday = reminderState.lastSentDate === todayStr;
-        res.setHeader('Cache-Control', 'no-store');
-        return res.json({
-            success: true,
-            today: todayStr,
-            sentToday,
-            ...reminderState
-        });
-    } catch (error) {
-        console.error('[Streak Reminder] Load status error:', error);
-        return res.status(500).json({ success: false, error: 'Không thể tải trạng thái nhắc streak.' });
-    }
-});
-
-app.use('/api/streaks', streakRoutes);
 app.use('/api/cloud', cloudRoutes);
 app.use('/api/forum', forumRoutes);
 
@@ -1398,6 +1223,19 @@ app.get('/api/admin/whitelist-keys', requireAdminPageAccess, (req, res) => {
     } catch (error) {
         console.error('Load whitelist keys error:', error);
         return res.status(500).json({ success: false, error: 'Không thể tải danh sách whitelist.' });
+    }
+});
+
+app.get('/api/whitelist/list', (_req, res) => {
+    try {
+        const items = whitelistStatements.list.all().map((item) => ({
+            gamertag: item.gamertag,
+            activated: item.status === 'used'
+        }));
+        return res.json({ success: true, items });
+    } catch (error) {
+        console.error('Load public whitelist list error:', error);
+        return res.status(500).json({ success: false, error: 'Không thể tải danh sách thành viên whitelist.' });
     }
 });
 
@@ -1714,7 +1552,6 @@ app.get('/tiktok', (req, res) => res.sendFile(path.join(__dirname, 'html/tiktok.
 app.get('/x', (req, res) => res.sendFile(path.join(__dirname, 'html/x.html')));
 app.get('/twitter', (req, res) => res.sendFile(path.join(__dirname, 'html/x.html')));
 app.get('/soundcloud', (req, res) => res.sendFile(path.join(__dirname, 'html/soundcloud.html')));
-app.get('/streak', (req, res) => res.sendFile(path.join(__dirname, 'A11/streak.html')));
 app.get('/whitelist', (req, res) => res.sendFile(path.join(__dirname, 'html/whitelist.html')));
 
 app.get('/embed-admin', requireAdminPageAccess, (req, res) => res.sendFile(path.join(__dirname, 'admin/e.html')));
@@ -1823,8 +1660,6 @@ async function bootstrap() {
     } else {
         console.warn('BOT2_TOKEN not set; Bot 2 will not start.');
     }
-
-    startStreakReminderScheduler();
 
     try {
         const xoavideoPath = path.join(__dirname, 'src/modules/xoavideo.js');
