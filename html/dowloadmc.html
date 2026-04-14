@@ -243,12 +243,15 @@
                         <p class="text-lg text-gray-300 mb-8 max-w-xl leading-relaxed">
                             Tham gia cộng đồng Minecraft Bedrock tuyệt vọi. Chơi cùng VNA Server với hàng ngàn người chơi khác.
                         </p>
-                        <div class="flex flex-wrap gap-4">
-                            <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="gradient-green text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all hover:scale-105 flex items-center gap-2">
+                        <div class="flex flex-wrap gap-3 sm:gap-4">
+                            <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="gradient-green text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all hover:scale-105 flex items-center gap-2 whitespace-nowrap text-sm sm:text-base">
                                 <i class="fas fa-download"></i> Tải Ngay
                             </button>
-                            <button onclick="copyIP()" class="bg-white/10 text-white px-8 py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40">
+                            <button onclick="copyIP()" class="bg-white/10 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40 hidden sm:flex items-center gap-2 whitespace-nowrap text-sm">
                                 <i class="fas fa-copy mr-2"></i> Copy IP: vna.vanhmcpe.top
+                            </button>
+                            <button onclick="copyIP()" class="bg-white/10 text-white px-4 py-2 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40 sm:hidden flex items-center gap-2 whitespace-nowrap text-sm">
+                                <i class="fas fa-copy"></i>
                             </button>
                         </div>
                     </div>
@@ -349,8 +352,8 @@
                 <div class="max-w-4xl mx-auto px-6 text-center">
                     <h2 class="text-3xl font-bold mb-4">Sẵn sàng tham gia?</h2>
                     <p class="text-lg opacity-90 mb-8">Tải Minecraft PE ngay hôm nay và bắt đầu cuộc phiêu lưu của bạn</p>
-                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-10 py-3 rounded-lg font-bold hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2">
-                        <i class="fas fa-download"></i> Tải Minecraft PE
+                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-4 sm:px-10 py-2 sm:py-3 rounded-lg font-bold text-sm sm:text-base hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-download"></i> <span class="hidden sm:inline">Tải Minecraft PE</span><span class="sm:hidden">Tải</span>
                     </button>
                 </div>
             </div>
