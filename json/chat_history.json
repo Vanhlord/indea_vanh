@@ -1,12 +1,5 @@
 [
   {
-    "id": "mlip35nakrni2d6jd4j",
-    "user": "Hệ thống",
-    "text": "[CLEAR LAG] Xóa bỏ những vật phẩm trong 30 giây!",
-    "source": "game",
-    "timestamp": "2026-02-12T00:02:48.022Z"
-  },
-  {
     "id": "mlip3l2t8nizsvwugob",
     "user": "Hệ thống",
     "text": "[CLEAR LAG] 10 giây nữa vật phẩm sẽ được càn quét",
@@ -698,5 +691,12 @@
     "text": "xin chaoaf",
     "source": "web",
     "timestamp": "2026-02-19T04:01:48.427Z"
+  },
+  {
+    "id": "mnxyjus7u2e20ic2059",
+    "user": "vanhrtx5127",
+    "text": "Chao",
+    "source": "web",
+    "timestamp": "2026-04-14T01:43:40.951Z"
   }
 ]
