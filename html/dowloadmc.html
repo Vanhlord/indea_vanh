@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
         }
 
         ::-webkit-scrollbar {
@@ -47,9 +47,33 @@
         }
 
         .hero-gradient {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: #000000;
             position: relative;
             overflow: hidden;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mesh-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.1) 0, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-art-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            opacity: 0.8;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .hero-gradient::before {
@@ -103,16 +127,18 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .stat-card:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
-            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .pulse-icon {
@@ -138,6 +164,19 @@
             font-weight: 600;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+        }
+
+        /* Fix button visibility on mobile */
+        button {
+            color: inherit;
+        }
+
+        .gradient-green {
+            color: white !important;
+        }
+
+        .bg-white\/10 {
+            color: white !important;
         }
     </style>
     <link rel="stylesheet" href="/html/shared-theme.css">
@@ -229,52 +268,65 @@
         </div>
 
         <!-- Content -->
-        <div class="flex-1 overflow-y-auto bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9]">
+        <div class="flex-1 overflow-y-auto bg-[#fafafa] soft-scroll">
             <!-- Hero Section -->
-            <div class="hero-gradient text-white pt-8 sm:pt-16 pb-8 sm:pb-16 relative z-0">
-                <div class="max-w-6xl mx-auto px-6">
-                    <div class="max-w-3xl">
-                        <div class="mb-4 flex items-center gap-2">
-                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Minecraft PE</span>
+            <div class="hero-gradient text-white pt-8 sm:pt-0 pb-8 sm:pb-0 relative z-0 mesh-bg">
+                <div class="mesh-bg-overlay" style="background: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%); opacity: 0.8;"></div>
+                <img src="/photos/minecraft_hero.png" class="hero-art-bg" alt="Hero Art">
+                
+                <div class="max-w-6xl mx-auto px-6 relative z-10 w-full">
+                    <div class="max-w-2xl py-12 sm:py-24">
+                        <div class="mb-6 flex items-center gap-2">
+                            <span class="chip" style="background: rgba(16, 185, 129, 0.3); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);">MINECRAFT BEDROCK</span>
                         </div>
-                        <h1 class="text-4xl sm:text-5xl font-black leading-tight mb-4">
-                            Tải Minecraft PE<br><span class="bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">Chính thức</span>
+                        <h1 class="text-5xl sm:text-7xl font-black leading-[1.1] mb-6 tracking-tight text-white drop-shadow-2xl">
+                            Tải Minecraft PE<br><span class="text-green-400 drop-shadow-lg">Bản chính thức</span>
                         </h1>
-                        <p class="text-lg text-gray-300 mb-8 max-w-xl leading-relaxed">
-                            Tham gia cộng đồng Minecraft Bedrock tuyệt vọi. Chơi cùng VNA Server với hàng ngàn người chơi khác.
+                        <p class="text-xl text-gray-100 mb-10 max-w-xl leading-relaxed font-medium drop-shadow-md">
+                            Tham gia cộng đồng Minecraft Bedrock tuyệt vời. Trải nghiệm gameplay mượt mà cùng VNA Server và hàng ngàn người chơi khác.
                         </p>
-                        <div class="flex flex-wrap gap-3 sm:gap-4">
-                            <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="gradient-green text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all hover:scale-105 flex items-center gap-2 whitespace-nowrap text-sm sm:text-base">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-10 py-4 rounded-2xl font-bold hover:shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.02] flex items-center gap-3">
                                 <i class="fas fa-download"></i> Tải Ngay
                             </button>
-                            <button onclick="copyIP()" class="bg-white/10 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40 hidden sm:flex items-center gap-2 whitespace-nowrap text-sm">
-                                <i class="fas fa-copy mr-2"></i> Copy IP: vna.vanhmcpe.top
-                            </button>
-                            <button onclick="copyIP()" class="bg-white/10 text-white px-4 py-2 rounded-lg font-semibold border border-white/20 hover:bg-white/20 transition-all hover:border-white/40 sm:hidden flex items-center gap-2 whitespace-nowrap text-sm">
-                                <i class="fas fa-copy"></i>
+                            <button onclick="copyIP()" class="glass-dark text-white px-10 py-4 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center gap-3">
+                                <i class="fas fa-link"></i> IP Server
                             </button>
                         </div>
                     </div>
 
-                    <!-- Stats Section -->
-                    <div class="mt-12 sm:mt-16">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div class="stat-card p-6 rounded-xl">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-500 text-sm mb-1">Người chơi hoạt động</p>
-                                        <p class="text-3xl font-bold text-white" id="player-count">-</p>
-                                    </div>
-                                    <i class="fas fa-users text-3xl text-green-400 opacity-20"></i>
+                    <!-- Stats Section (Integrated) -->
+                    <div class="pb-16 grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div class="stat-card p-6 rounded-[2rem]">
+                            <div class="flex items-center gap-5">
+                                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                                    <i class="fas fa-users text-2xl text-green-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 text-xs font-bold uppercase tracking-widest mb-1">Players Online</p>
+                                    <p class="text-3xl font-black text-white" id="player-count">0/0</p>
                                 </div>
                             </div>
-                            <div class="stat-card p-6 rounded-xl">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-gray-500 text-sm mb-1">RAM Server</p>
-                                        <p class="text-3xl font-bold text-white" id="ram-usage">-</p>
-                                    </div>
-                                    <i class="fas fa-server text-3xl text-blue-400 opacity-20"></i>
+                        </div>
+                        <div class="stat-card p-6 rounded-[2rem]">
+                            <div class="flex items-center gap-5">
+                                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                                    <i class="fas fa-microchip text-2xl text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 text-xs font-bold uppercase tracking-widest mb-1">Server Memory</p>
+                                    <p class="text-3xl font-black text-white" id="ram-usage">-- GB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card p-6 rounded-[2rem] hidden sm:block">
+                            <div class="flex items-center gap-5">
+                                <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center">
+                                    <i class="fas fa-bolt text-2xl text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 text-xs font-bold uppercase tracking-widest mb-1">Uptime</p>
+                                    <p class="text-3xl font-black text-white">24/7</p>
                                 </div>
                             </div>
                         </div>
@@ -283,28 +335,102 @@
             </div>
 
             <!-- Downloads Section -->
-            <div id="downloads" class="max-w-4xl mx-auto px-6 mb-16">
-                <div class="mb-10">
-                    <h2 class="text-3xl font-bold mb-2 text-gray-900">Các phiên bản sẵn có</h2>
-                    <p class="text-gray-600">Chọn phiên bản Minecraft PE bạn muốn để tải về</p>
+            <div id="downloads" class="max-w-4xl mx-auto px-6 py-20">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-black mb-4 text-gray-900">Các phiên bản sẵn có</h2>
+                    <p class="text-gray-500 font-medium">Chọn phiên bản Minecraft Bedrock phù hợp để bắt đầu</p>
                 </div>
 
-                <div id="dynamic-downloads" class="space-y-4 mb-8"></div>
+                <div id="dynamic-downloads" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16"></div>
+
+                <!-- Requirements Section -->
+                <div class="mb-20">
+                    <div class="glass p-8 sm:p-12 rounded-[2.5rem] border-white/10 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h2 class="text-3xl font-black mb-8 text-gray-900">Cấu hình yêu cầu</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="space-y-6">
+                                    <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-widest">Cấu hình tối thiểu</h3>
+                                    <ul class="space-y-4">
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-check-circle text-emerald-500"></i> Android 5.0+ / iOS 11.0+
+                                        </li>
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-check-circle text-emerald-500"></i> RAM 2GB
+                                        </li>
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-check-circle text-emerald-500"></i> Dung lượng trống 1GB
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="space-y-6">
+                                    <h3 class="text-sm font-bold text-blue-500 uppercase tracking-widest">Đề nghị (Mượt mà)</h3>
+                                    <ul class="space-y-4">
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-star text-blue-500"></i> Android 10+ / iOS 14+
+                                        </li>
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-star text-blue-500"></i> RAM 4GB+
+                                        </li>
+                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
+                                            <i class="fas fa-star text-blue-500"></i> Dung lượng trống 2GB+
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="mb-20">
+                    <h2 class="text-3xl font-black mb-10 text-gray-900 text-center">Câu hỏi thường gặp</h2>
+                    <div class="space-y-4">
+                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                                <span>Làm thế nào để cài đặt Minecraft PE?</span>
+                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="mt-4 text-gray-600 leading-relaxed">
+                                Bạn chỉ cần tải file APK về ứng dụng, mở file lên và chọn Cài đặt. Nếu điện thoại báo "Cài đặt bị chặn", hãy vào Cài đặt > Bảo mật và bật "Cho phép cài đặt từ nguồn không xác định".
+                            </p>
+                        </details>
+                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                                <span>Có cần mua game không?</span>
+                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="mt-4 text-gray-600 leading-relaxed">
+                                Các phiên bản được cung cấp tại đây là bản APK đã được mod nhẹ để có thể chơi cùng máy chủ VNA Server mà không cần mua bản quyền Google Play.
+                            </p>
+                        </details>
+                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                                <span>Tại sao không thể kết nối vào Server?</span>
+                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <p class="mt-4 text-gray-600 leading-relaxed">
+                                Hãy đảm bảo bạn đã nhập đúng IP: <span class="font-mono bg-gray-100 px-2 py-1 rounded">vna.vanhmcpe.top</span> và Port: <span class="font-mono bg-gray-100 px-2 py-1 rounded">25003</span>. Ngoài ra, hãy kiểm tra kết nối mạng của bạn.
+                            </p>
+                        </details>
+                    </div>
+                </div>
 
                 <!-- Info Box -->
-                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 flex items-start gap-4">
-                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-lightbulb text-amber-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-900 mb-2">Hướng dẫn cài đặt</h3>
-                        <ol class="text-sm text-gray-700 space-y-1 list-decimal list-inside">
-                            <li>Bật <span class="font-semibold">"Cài đặt từ nguồn không xác định"</span> trong cài đặt thiết bị</li>
-                            <li>Tải file APK từ bên trên</li>
-                            <li>Mở file APK và chọn cài đặt</li>
-                            <li>Chờ cài đặt hoàn tất rồi mở game</li>
-                            <li>Vào <span class="font-semibold">Máy chủ</span> và thêm server với IP: <span class="font-mono bg-white px-2 py-1 rounded">vna.vanhmcpe.top:25003</span></li>
-                        </ol>
+                <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-[2rem] p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                        <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center shrink-0">
+                            <i class="fas fa-lightbulb text-4xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-black mb-4">Mẹo nhỏ cho bạn</h3>
+                            <ul class="space-y-3 opacity-90 font-medium">
+                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> Hãy đăng nhập Xbox để đồng bộ skin và thành tựu</li>
+                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> Luôn cập nhật phiên bản mới nhất từ trang này để tránh lỗi</li>
+                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> IP: vna.vanhmcpe.top | Port: 25003</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -352,8 +478,8 @@
                 <div class="max-w-4xl mx-auto px-6 text-center">
                     <h2 class="text-3xl font-bold mb-4">Sẵn sàng tham gia?</h2>
                     <p class="text-lg opacity-90 mb-8">Tải Minecraft PE ngay hôm nay và bắt đầu cuộc phiêu lưu của bạn</p>
-                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-4 sm:px-10 py-2 sm:py-3 rounded-lg font-bold text-sm sm:text-base hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2 whitespace-nowrap">
-                        <i class="fas fa-download"></i> <span class="hidden sm:inline">Tải Minecraft PE</span><span class="sm:hidden">Tải</span>
+                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-6 sm:px-8 py-3 rounded-lg font-bold hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2 whitespace-nowrap text-base" style="color: #059669;">
+                        <i class="fas fa-download"></i> Tải Minecraft PE
                     </button>
                 </div>
             </div>
@@ -504,50 +630,79 @@
 
         async function loadServerStats() {
             try {
+                console.log('[Stats] Starting to load server stats...');
+                
+                // Check if elements exist
+                const playerCountEl = document.getElementById('player-count');
+                const ramUsageEl = document.getElementById('ram-usage');
+                if (!playerCountEl || !ramUsageEl) {
+                    console.error('[Stats] Missing DOM elements');
+                    return;
+                }
+                
                 // Get server status (players online + RAM usage)
                 const statusRes = await fetch('/api/pikamc/status');
+                console.log('[Stats] /api/pikamc/status response:', statusRes.status);
+                
+                if (!statusRes.ok) {
+                    console.warn('[Stats] API failed:', statusRes.status);
+                    playerCountEl.textContent = 'Offline';
+                    ramUsageEl.textContent = 'N/A';
+                    return;
+                }
+                
                 const statusData = await statusRes.json();
-                if (statusRes.ok) {
-                    // Get real-time player count from mcsrvstat API
+                console.log('[Stats] statusData:', statusData);
+                
+                if (!statusData) {
+                    console.warn('[Stats] statusData is null');
+                    return;
+                }
+
+                // Try mcsrvstat API first for live player count
+                let playerCountSet = false;
+                if (statusData.ip && statusData.port) {
                     try {
-                        const mcRes = await fetch(`https://api.mcsrvstat.us/bedrock/3/${statusData.ip}:${statusData.port}`);
+                        const mcUrl = `https://api.mcsrvstat.us/bedrock/3/${statusData.ip}:${statusData.port}`;
+                        console.log('[Stats] Fetching from mcsrvstat:', mcUrl);
+                        const mcRes = await fetch(mcUrl);
                         const mcData = await mcRes.json();
+                        console.log('[Stats] mcsrvstat data:', mcData);
                         
-                        if (mcData.online) {
-                            const playerCount = document.getElementById('player-count');
-                            if (playerCount) {
-                                playerCount.textContent = `${mcData.players.online}/${mcData.players.max}`;
-                            }
+                        if (mcData.online && mcData.players) {
+                            playerCountEl.textContent = `${mcData.players.online}/${mcData.players.max}`;
+                            playerCountSet = true;
+                            console.log('[Stats] Player count set from mcsrvstat:', mcData.players.online, '/', mcData.players.max);
                         }
                     } catch (mcError) {
-                        console.debug('Error fetching from mcsrvstat:', mcError);
-                        // Fallback: use data from /api/pikamc/status
-                        if (statusData.players && statusData.players.online !== undefined) {
-                            const playerCount = document.getElementById('player-count');
-                            if (playerCount) {
-                                playerCount.textContent = statusData.players.online + '/' + statusData.players.max;
-                            }
-                        }
-                    }
-                    
-                    // Update RAM usage if available
-                    if (statusData.ram) {
-                        const ramElement = document.getElementById('ram-usage');
-                        if (ramElement) {
-                            ramElement.textContent = statusData.ram.usage;
-                        }
+                        console.warn('[Stats] mcsrvstat error:', mcError.message);
                     }
                 }
 
-                // Get network stats (avg ping)
-                const networkRes = await fetch('/api/status/stats');
-                const networkData = await networkRes.json();
-                if (networkRes.ok && networkData.networkHistory && Array.isArray(networkData.networkHistory)) {
-                    // Network stats loaded but not displayed
+                // Fallback: use data from /api/pikamc/status
+                if (!playerCountSet && statusData.players) {
+                    const online = statusData.players.online || 0;
+                    const max = statusData.players.max || 20;
+                    playerCountEl.textContent = `${online}/${max}`;
+                    console.log('[Stats] Player count set from API fallback:', online, '/', max);
+                }
+                
+                // Update RAM usage
+                if (statusData.ram) {
+                    const ramText = typeof statusData.ram === 'object' 
+                        ? statusData.ram.usage 
+                        : statusData.ram;
+                    ramUsageEl.textContent = ramText || 'N/A';
+                    console.log('[Stats] RAM set to:', ramText);
+                } else {
+                    ramUsageEl.textContent = 'N/A';
                 }
             } catch (error) {
-                console.debug('Error loading server stats:', error);
-                // Use fallback values if APIs fail
+                console.error('[Stats] Fatal error:', error);
+                const playerCountEl = document.getElementById('player-count');
+                const ramUsageEl = document.getElementById('ram-usage');
+                if (playerCountEl) playerCountEl.textContent = 'Error';
+                if (ramUsageEl) ramUsageEl.textContent = 'Error';
             }
         }
 
@@ -569,43 +724,56 @@
                     link.href = item.url;
                     link.target = '_blank';
                     link.rel = 'noopener noreferrer';
-                    link.className = 'download-card flex items-center justify-between p-5 lg:p-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl group';
-                    link.style.animationDelay = `${index * 50}ms`;
+                    link.className = 'download-card flex flex-col p-6 glass border-white/10 rounded-[1.5rem] hover:border-emerald-500/50 transition-all duration-500 group relative overflow-hidden';
+                    link.style.animationDelay = `${index * 100}ms`;
 
-                    const left = document.createElement('div');
-                    left.className = 'flex items-center gap-4 flex-1 min-w-0';
+                    // Hover effect background
+                    const hoverBg = document.createElement('div');
+                    hoverBg.className = 'absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500';
+                    link.appendChild(hoverBg);
+
+                    const top = document.createElement('div');
+                    top.className = 'flex items-center gap-4 mb-4 relative z-10';
 
                     const iconWrap = document.createElement('div');
-                    iconWrap.className = 'bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center shrink-0 backdrop-blur-sm';
+                    iconWrap.className = 'w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform';
                     const icon = document.createElement('i');
                     icon.className = 'fa-brands fa-android text-2xl';
                     iconWrap.appendChild(icon);
 
                     const textWrap = document.createElement('div');
-                    textWrap.className = 'text-left overflow-hidden';
-
-                    const title = document.createElement('span');
-                    title.className = 'block font-bold text-base lg:text-lg leading-none truncate';
+                    textWrap.className = 'flex-1';
+                    const title = document.createElement('h3');
+                    title.className = 'font-bold text-gray-800 text-lg leading-tight group-hover:text-emerald-600 transition-colors';
                     title.textContent = item.title;
-
                     textWrap.appendChild(title);
 
                     if (item.version) {
-                        const version = document.createElement('span');
-                        version.className = 'text-[11px] opacity-80 mt-1 block uppercase tracking-wider font-semibold';
-                        version.textContent = `v${item.version}`;
-                        textWrap.appendChild(version);
+                        const ver = document.createElement('span');
+                        ver.className = 'text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md mt-1 inline-block';
+                        ver.textContent = `v${item.version}`;
+                        textWrap.appendChild(ver);
                     }
 
-                    left.appendChild(iconWrap);
-                    left.appendChild(textWrap);
+                    top.appendChild(iconWrap);
+                    top.appendChild(textWrap);
 
-                    const badge = document.createElement('span');
-                    badge.className = 'bg-white/20 px-3 py-1 rounded-lg text-xs font-semibold shrink-0 whitespace-nowrap';
-                    badge.textContent = 'Tải';
+                    const bottom = document.createElement('div');
+                    bottom.className = 'flex items-center justify-between mt-auto relative z-10';
+                    
+                    const label = document.createElement('span');
+                    label.className = 'text-xs font-bold text-gray-400 uppercase tracking-widest';
+                    label.textContent = item.size || 'APK File';
 
-                    link.appendChild(left);
-                    link.appendChild(badge);
+                    const btn = document.createElement('div');
+                    btn.className = 'bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold group-hover:bg-emerald-600 transition-colors flex items-center gap-2';
+                    btn.innerHTML = 'Download <i class="fas fa-arrow-right"></i>';
+
+                    bottom.appendChild(label);
+                    bottom.appendChild(btn);
+
+                    link.appendChild(top);
+                    link.appendChild(bottom);
 
                     container.appendChild(link);
                 });
@@ -633,45 +801,50 @@
         // Load downloads khi trang load xong
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
+                console.log('[Init] DOM loaded, loading data...');
                 loadMinecraftDownloads();
                 loadServerStats();
                 // Refresh stats every 10 seconds
                 setInterval(loadServerStats, 10000);
+                console.log('[Init] Initialization complete');
             });
         } else {
+            console.log('[Init] DOM already loaded, loading data...');
             loadMinecraftDownloads();
             loadServerStats();
             // Refresh stats every 10 seconds
             setInterval(loadServerStats, 10000);
+            console.log('[Init] Initialization complete');
         }
 
         // Add some CSS animations
         const style = document.createElement('style');
         style.textContent = `
+            .download-card {
+                animation: fade-in-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+                -webkit-animation: fade-in-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+                opacity: 1; /* Default to visible for mobile safety */
+            }
+
             @keyframes fade-in-up {
-                from {
+                0% {
                     opacity: 0;
-                    transform: translateY(10px);
+                    transform: translateY(20px);
                 }
-                to {
+                100% {
                     opacity: 1;
                     transform: translateY(0);
                 }
             }
-            
-            .animate-fade-in-up {
-                animation: fade-in-up 0.3s ease-out;
-            }
 
-            .download-card {
-                animation: fade-in-up 0.4s ease-out forwards;
-                opacity: 0;
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                * {
-                    animation: none !important;
-                    transition: none !important;
+            @-webkit-keyframes fade-in-up {
+                0% {
+                    opacity: 0;
+                    -webkit-transform: translateY(20px);
+                }
+                100% {
+                    opacity: 1;
+                    -webkit-transform: translateY(0);
                 }
             }
         `;
