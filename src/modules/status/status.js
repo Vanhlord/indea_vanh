@@ -2,30 +2,49 @@ import express from 'express';
 import { exec } from 'child_process';
 import util from 'util';
 import os from 'os';
+import si from 'systeminformation';
 
 const router = express.Router();
 const execPromise = util.promisify(exec);
 
 // Socket.IO instance (will be set from main server)
 let io;
-const networkHistory = [];
-const MAX_NET_POINTS = 60;
+const networkLog = [];
+const MAX_POINTS = 60;
+
+// History stores for charts
+const cpuHistory = Array(MAX_POINTS).fill(0);
+const ramHistory = Array(MAX_POINTS).fill(0);
+const pingHistory = Array(MAX_POINTS).fill(0);
+const speedHistory = Array(MAX_POINTS).fill(0);
 
 export function setSocketIO(socketIO) {
     io = socketIO;
 }
 
 export function getNetworkHistory() {
-    return networkHistory;
+    return networkLog;
 }
 
 // --- 1. KHO LƯU TRỮ DỮ LIỆU ---
-const cpuHistory = Array(60).fill(0);
-const ramHistory = Array(60).fill(0);
 let currentProcesses = [];
 let ramUsedMb = 0;
 let ramTotalMb = Math.round(os.totalmem() / (1024 * 1024));
 let ramPercent = 0;
+
+let diskInfo = { used: 0, total: 1, percent: 0 };
+let staticInfo = { hostname: os.hostname(), platform: os.platform(), cpuModel: '' };
+
+// Fetch static info once
+(async () => {
+    try {
+        const cpu = await si.cpu();
+        const osData = await si.osInfo();
+        staticInfo.cpuModel = cpu.brand;
+        staticInfo.hostname = osData.hostname;
+        staticInfo.platform = `${osData.distro} ${osData.release}`;
+    } catch (e) {}
+})();
 
 /**
  * Hàm hỗ trợ lấy thông số CPU hệ thống
@@ -55,24 +74,35 @@ function refreshRamSnapshot() {
     ramPercent = totalMem > 0 ? Math.floor((usedMem / totalMem) * 100) : 0;
 }
 
-// Prime RAM stats
-refreshRamSnapshot();
+async function refreshDiskSnapshot() {
+    try {
+        const fsSize = await si.fsSize();
+        const mainFs = fsSize.find(f => f.mount === '/' || f.mount === 'C:') || fsSize[0];
+        if (mainFs) {
+            diskInfo = {
+                used: (mainFs.used / (1024 ** 3)).toFixed(1),
+                total: (mainFs.size / (1024 ** 3)).toFixed(1),
+                percent: Math.round(mainFs.use)
+            };
+        }
+    } catch (e) {}
+}
 
-// --- 2. LUỒNG CẬP NHẬT BIỂU ĐỒ (2 GIÂY/LẦN) ---
-setInterval(() => {
+// Stats Loop
+setInterval(async () => {
     const endMeasure = getCPUUsage();
     const idleDiff = endMeasure.idle - startMeasure.idle;
     const totalDiff = endMeasure.total - startMeasure.total;
-    
     const cpuTotal = totalDiff > 0 ? (100 - Math.floor(100 * idleDiff / totalDiff)) : 0;
     startMeasure = endMeasure;
 
     refreshRamSnapshot();
+    await refreshDiskSnapshot();
 
     cpuHistory.push(cpuTotal);
     ramHistory.push(ramPercent);
-    if (cpuHistory.length > 60) cpuHistory.shift();
-    if (ramHistory.length > 60) ramHistory.shift();
+    if (cpuHistory.length > MAX_POINTS) cpuHistory.shift();
+    if (ramHistory.length > MAX_POINTS) ramHistory.shift();
 
     if (io) {
         io.emit('statsUpdate', {
@@ -80,34 +110,46 @@ setInterval(() => {
             ramPercent,
             ramMb: ramUsedMb,
             maxRamMb: ramTotalMb,
-            history: { cpu: cpuHistory, ram: ramHistory },
+            disk: diskInfo,
+            uptime: { system: Math.floor(os.uptime()), process: Math.floor(process.uptime()) },
+            system: staticInfo,
+            history: { 
+                cpu: cpuHistory, 
+                ram: ramHistory,
+                ping: pingHistory,
+                speed: speedHistory
+            },
             processes: currentProcesses,
-            network: networkHistory.length > 0 ? networkHistory[networkHistory.length - 1] : null
+            network: networkLog.length > 0 ? networkLog[networkLog.length - 1] : null
         });
     }
 }, 2000);
 
-// --- 2.1 LUỒNG ĐO MẠNG NGẦM (Server-side - 3 GIÂY/LẦN) ---
+// Network Measure Loop
 async function measureNetworkFromServer() {
     const start = Date.now();
     try {
-        // Thực hiện đo ping từ server
         await fetch('https://www.google.com/generate_204', { method: 'HEAD' });
         const ping = Date.now() - start;
         const time = new Date().toLocaleTimeString('vi-VN');
-        const speed = parseFloat((Math.random() * 20 + 30).toFixed(1)); // Simulated speed logic
+        const speed = parseFloat((Math.random() * 15 + 10).toFixed(1)); // "Upload" speed sim
         
         const data = { time, ping, speed };
-        networkHistory.push(data);
-        if (networkHistory.length > MAX_NET_POINTS) networkHistory.shift();
-    } catch (e) {
-        // console.error("Network measure error:", e.message);
-    }
+        networkLog.push(data);
+        if (networkLog.length > MAX_POINTS) networkLog.shift();
+
+        // Update history arrays for persistence on reload
+        pingHistory.push(ping);
+        speedHistory.push(speed);
+        if (pingHistory.length > MAX_POINTS) pingHistory.shift();
+        if (speedHistory.length > MAX_POINTS) speedHistory.shift();
+
+    } catch (e) {}
 }
 setInterval(measureNetworkFromServer, 3000);
 measureNetworkFromServer();
 
-// --- 3. LUỒNG CẬP NHẬT TIẾN TRÌNH ---
+// Process List Update
 async function updateProcessList() {
     try {
         const cmd = 'powershell -Command "$cores = (Get-WmiObject Win32_Processor).NumberOfCores; Get-Process | Where-Object { $_.CPU -gt 0 } | Sort-Object CPU -Descending | Select-Object -First 5 | Select-Object Name, @{Name=\'CPU\';Expression={[Math]::Round($_.CPU / $cores / 100, 1)}}, @{Name=\'RAM\';Expression={[Math]::Round($_.WorkingSet / 1MB, 1)}} | ConvertTo-Json"';
@@ -122,22 +164,34 @@ async function updateProcessList() {
             }));
         }
     } catch (_error) {
-        // Ignore process list errors; this is best-effort telemetry.
+        try {
+            const list = await si.processes();
+            currentProcesses = list.list.slice(0, 5).map(p => ({
+                name: p.name,
+                cpu: p.cpu,
+                ram: Math.round(p.mem / 1024)
+            }));
+        } catch(e) {}
     }
     setTimeout(updateProcessList, 5000);
 }
 updateProcessList();
 
-// --- 4. API ENDPOINT ---
+// API
 router.get('/stats', (req, res) => {
     res.json({
         cpu: cpuHistory[cpuHistory.length - 1],
-        ramPercent,
-        ramMb: ramUsedMb,
-        maxRamMb: ramTotalMb,
-        history: { cpu: cpuHistory, ram: ramHistory },
+        ramPercent, ramMb: ramUsedMb, maxRamMb: ramTotalMb,
+        disk: diskInfo,
+        system: staticInfo,
+        history: { 
+            cpu: cpuHistory, 
+            ram: ramHistory,
+            ping: pingHistory,
+            speed: speedHistory
+        },
         processes: currentProcesses,
-        networkHistory: networkHistory
+        networkHistory: networkLog
     });
 });
 
