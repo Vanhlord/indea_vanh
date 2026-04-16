@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import { Server as SocketServer } from 'socket.io';
@@ -47,7 +47,6 @@ import {
 import { startBot2, BOT2_TOKEN, sendEmbed, isBotReady, setSocketIO as setBot2SocketIO } from './bot/bot2.js';
 import { getDonations } from './src/services/donateService.js';
 
-import binhchonRoute from './bot/binhchon.js';
 import albumRoutes from './src/routes/albumRoutes.js';
 import cloudRoutes from './src/routes/cloudRoutes.js';
 import ssrRoutes from './src/routes/ssrRoutes.js';
@@ -1043,7 +1042,6 @@ app.use('/api/auth', authRoutes);
 app.get('/api/status/network-history', (_req, res) => {
     res.json(getNetworkHistory());
 });
-app.use('/', binhchonRoute);
 app.use('/api/album', albumRoutes);
 
 app.use('/api/cloud', cloudRoutes);
@@ -1347,7 +1345,19 @@ app.post('/api/admin/commands/strength', requireAdminPageAccess, async (req, res
             if (!result.success) {
                 return res.status(502).json({
                     success: false,
-                    error: 'Không thể gửi �app.post('/api/whitelist/activate', async (req, res) => {
+                    error: 'Không thể gửi lệnh Strength lên hosting.'
+                });
+            }
+        }
+
+        return res.json({ success: true, message: 'Đã gửi lệnh Strength thành công.' });
+    } catch (error) {
+        console.error('Strength command error:', error);
+        return res.status(500).json({ success: false, error: 'Lỗi server khi gửi lệnh.' });
+    }
+});
+
+app.post('/api/whitelist/activate', async (req, res) => {
     let claimedRecordId = null;
     let commandAccepted = false;
     let activationFinished = false;
@@ -1414,26 +1424,6 @@ app.post('/api/admin/commands/strength', requireAdminPageAccess, async (req, res
     } catch (error) {
         console.error('Whitelist activate error:', error);
         return res.status(500).json({ success: false, error: 'Không thể kích hoạt whitelist.' });
-    } finally {
-        if (claimedRecordId && !activationFinished && !commandAccepted) {
-            try {
-                whitelistStatements.revertProcessing.run('pending', claimedRecordId, 'processing');
-            } catch (rollbackError) {
-                console.error('Whitelist rollback error:', rollbackError);
-            }
-        }
-    }
-});
-
-app.get('/api/leaderboard/tool-usage', async (_req, res) => {
-    try {
-        const summary = await getToolUsageSummary();
-        return res.json({ success: true, data: summary });
-    } catch (error) {
-        console.error('Error loading tool usage leaderboard:', error);
-        return res.status(500).json({ success: false, error: 'Không thể tải dữ liệu leaderboard.' });
-    }
-}); false, error: 'Không thể kích hoạt whitelist.' });
     } finally {
         if (claimedRecordId && !activationFinished && !commandAccepted) {
             try {
@@ -1554,12 +1544,10 @@ app.get('/youtube', (req, res) => res.sendFile(path.join(__dirname, 'html/youtub
 app.get('/tiktok', (req, res) => res.sendFile(path.join(__dirname, 'html/tiktok.html')));
 app.get('/x', (req, res) => res.sendFile(path.join(__dirname, 'html/x.html')));
 app.get('/twitter', (req, res) => res.sendFile(path.join(__dirname, 'html/x.html')));
-app.get('/soundcloud', (req, res) => res.sendFile(path.join(__dirname, 'html/soundcloud.html')));
 app.get('/whitelist', (req, res) => res.sendFile(path.join(__dirname, 'html/whitelist.html')));
 
 app.get('/embed-admin', requireAdminPageAccess, (req, res) => res.sendFile(path.join(__dirname, 'admin/e.html')));
 app.get('/admin06082008', requireAdminPageAccess, (req, res) => res.sendFile(path.join(__dirname, 'admin/e.html')));
-app.get('/rawphoto', (req, res) => res.sendFile(path.join(__dirname, 'p/rawphoto.html')));
 
 app.get('/', (req, res) => {
     res.setHeader('Accept-Ranges', 'none');

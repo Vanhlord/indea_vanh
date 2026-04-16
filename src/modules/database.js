@@ -59,19 +59,6 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_whitelist_keys_key ON whitelist_keys(key);
   CREATE INDEX IF NOT EXISTS idx_whitelist_keys_gamertag_norm ON whitelist_keys(gamertag_norm);
 
-  CREATE TABLE IF NOT EXISTS binhchon_votes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id TEXT,
-    name TEXT,
-    timestamp TEXT
-  );
-
-  CREATE TABLE IF NOT EXISTS binhchon_settings (
-    id INTEGER PRIMARY KEY DEFAULT 1,
-    giu_lai INTEGER,
-    loai_bo INTEGER
-  );
-
   CREATE TABLE IF NOT EXISTS push_subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id TEXT,
@@ -80,37 +67,6 @@ db.exec(`
     auth TEXT,
     created_at TEXT
   );
-
-    CREATE TABLE IF NOT EXISTS forum_posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT,
-      author_name TEXT,
-      author_avatar TEXT,
-      title TEXT,
-      content TEXT,
-      attachments TEXT,
-      created_at TEXT,
-      updated_at TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS forum_likes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id INTEGER,
-      user_id TEXT,
-      created_at TEXT,
-      UNIQUE(post_id, user_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS forum_comments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id INTEGER,
-      user_id TEXT,
-      author_name TEXT,
-      author_avatar TEXT,
-      content TEXT,
-      parent_id INTEGER DEFAULT NULL,
-      created_at TEXT
-    );
 `);
 
 // Function to get data
@@ -205,17 +161,6 @@ export function migrateData() {
         if (fs.existsSync('whitelist.json')) {
             const whitelistData = JSON.parse(fs.readFileSync('whitelist.json', 'utf8'));
             whitelistData.admins.forEach(adminId => insertData('whitelist', { admin_id: adminId }));
-        }
-
-        // Migrate binhchon.json
-        if (fs.existsSync('binhchon.json')) {
-            const binhchonData = JSON.parse(fs.readFileSync('binhchon.json', 'utf8'));
-            insertData('binhchon_settings', { giu_lai: binhchonData.giu_lai, loai_bo: binhchonData.loai_bo });
-            binhchonData.voted_users.forEach(vote => insertData('binhchon_votes', {
-                user_id: vote.id,
-                name: vote.name,
-                timestamp: vote.timestamp
-            }));
         }
 
         console.log('Data migration completed successfully.');
