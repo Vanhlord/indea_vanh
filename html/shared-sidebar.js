@@ -100,18 +100,14 @@
             home: isActivePath(currentPath, ['/', '/html/index.html']),
             statusServer: isActivePath(currentPath, ['/html/status-server.html']),
             chat: isActivePath(currentPath, ['/a11/chat.html']),
-            streak: isActivePath(currentPath, ['/a11/streak.html']),
             cloud: isActivePath(currentPath, ['/cloud', '/p/cloud.html']),
-            leaderboard: isActivePath(currentPath, ['/leaderboard', '/html/leaderboard.html']),
             donate: isActivePath(currentPath, ['/a11/donet.html', '/A11/donet.html']),
             kho: isActivePath(currentPath, ['/p/kho.html']),
-            facebook: isActivePath(currentPath, ['/p/snapsave.html']),
             tiktok: isActivePath(currentPath, ['/html/tiktok.html']),
             youtube: isActivePath(currentPath, ['/html/youtube.html']),
             x: isActivePath(currentPath, ['/x', '/twitter', '/html/x.html']),
             minecraft: isActivePath(currentPath, ['/html/dowloadmc.html']),
             whitelist: isActivePath(currentPath, ['/whitelist', '/html/whitelist.html']),
-            bedrockViewer: isActivePath(currentPath, ['/html/bedrock-world-viewer.html']),
             embedAdmin: isActivePath(currentPath, ['/admin/e.html', '/embed-admin', '/admin06082008']),
             whitelistAdmin: isActivePath(currentPath, ['/admin/whitelist.html']),
             mcAdmin: isActivePath(currentPath, ['/admin/p.html', '/admin/p'])
@@ -123,7 +119,6 @@
             ${navButton('fas fa-copy', 'Copy IP')}
             ${navLink('fas fa-chart-line w-5', 'Status server', '/html/status-server.html', active.statusServer)}
             ${navLink('fas fa-comments w-5', 'Chat', '/A11/chat.html', active.chat)}
-            ${navLink('fas fa-fire w-5', 'Streak', '/A11/streak.html', active.streak)}
             ${navLink('fas fa-cloud w-5', 'Cloud', '/cloud', active.cloud)}
             ${navLink('fas fa-trophy w-5', 'Leaderboard', '/leaderboard', active.leaderboard)}
             ${navLink('fas fa-gem w-5', 'Donate', '/A11/donet.html', active.donate)}
@@ -136,7 +131,6 @@
                 ${toolTile('fa-brands fa-twitter', 'X', '/x', active.x)}
                 ${toolTile('fas fa-download', 'Minecraft', '/html/dowloadmc.html', active.minecraft)}
                 ${toolTile('fas fa-user-check', 'Whitelist', '/whitelist', active.whitelist)}
-                ${toolTile('fas fa-map', 'World Map', '/html/bedrock-world-viewer.html', active.bedrockViewer)}
             </div>
 
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Kho rác</div>
