@@ -651,6 +651,132 @@ if (message.content.startsWith('+mycommand')) {
 **When Discord bot commands don't work:**
 - [ ] Verify `BOT_TOKEN` in `.env`
 - [ ] Check bot has right permissions in server
+| **Constants** | UPPER_SNAKE_CASE | `MAX_PLAYERS`, `DEFAULT_TIMEOUT_MS` |
+| **HTML IDs** | kebab-case | `id="stats-container"`, `id="player-count"` |
+| **CSS Classes** | kebab-case | `class="hero-gradient"`, `class="stat-card"` |
+| **Database fields** | snake_case | `user_id`, `created_at`, `last_login` |
+| **API params** | camelCase | `?playerId=123&limit=50` |
+| **Environment vars** | UPPER_SNAKE_CASE | `PIKAMC_API_KEY`, `BOT_TOKEN` |
+
+---
+
+## 🔄 Common Development Workflows
+
+### Adding a New API Endpoint
+
+1. Create route handler in `/src/routes/` folder
+2. Define route in `src/routes/index.js` and add to `setupRoutes(app)`
+3. Import in `server.js` if not auto-loaded
+4. Test with POST/GET requests
+5. Update `AGENT.md` API reference table
+
+**Example**:
+```javascript
+// src/routes/newRoutes.js
+import express from 'express';
+const router = express.Router();
+
+router.get('/test', (req, res) => {
+    res.json({ success: true });
+});
+
+export default router;
+
+// Then in server.js
+app.use('/api/new', newRoutes);
+```
+
+### Fixing the Player Count Display
+
+Root cause patterns:
+- Wrong API endpoint (checked "database count" vs "live Pterodactyl status")
+- Async data race condition (response sent before fetch completes)
+- Missing fallback when API unreachable
+- Incorrect data parsing (e.g., `mcData.players.online` vs `mcData.players.count`)
+
+Solution checklist:
+1. Identify which endpoint has correct data
+2. Add error handling + fallback chain
+3. Use `setInterval()` to refresh every 10 seconds
+4. Test with browser DevTools Network tab open
+5. Verify format matches expected UI (e.g., "5/20" format)
+
+### Designing a Professional Frontend
+
+Tailwind CSS patterns used in project:
+- **Hero section**: `bg-gradient-to-br`, `from-slate-900 to-slate-800`
+- **Cards**: `rounded-2xl`, `backdrop-blur-sm`, `bg-white/10` (glassmorphism)
+- **Typography**: `text-3xl font-bold`, `text-slate-300` (light text on dark)
+- **Spacing**: `px-6 py-12`, `gap-6` for consistent margins
+- **Animations**: `transition duration-300 ease-in-out`, `hover:scale-105`
+- **Responsive**: `md:grid-cols-2`, `lg:grid-cols-3` grid breakpoints
+
+### Adding a Database Field
+
+1. Open `/src/modules/database.js`
+2. Update table `CREATE TABLE` statement
+3. Add to schema comments for clarity
+4. Run `ALTER TABLE` for existing DBs
+5. Update corresponding service functions
+6. Test data insertion/retrieval
+
+### Adding a Discord Bot Command
+
+**File**: `bot/bot2.js`
+
+```javascript
+// Example: +command args
+if (message.content.startsWith('+mycommand')) {
+    const args = message.content.slice(11).trim().split(/\s+/);
+    // Process args
+    message.reply('✅ Response');
+}
+```
+
+---
+
+## ⚠️ Important Project Rules
+
+### DO:
+✅ Use `/src/` folder structure for all backend code
+✅ Always validate user input with `zod` schemas
+✅ Add error handling + specific error messages
+✅ Use rate limiting on public APIs (`setupRateLimiters()`)
+✅ Log errors to console + files for debugging
+✅ Test API endpoints before closing issue
+✅ Update `AGENT.md` when adding major features
+
+### DON'T:
+❌ Store secrets in code - use `.env` only
+❌ Query database in hot loops (cache results)
+❌ Leave unhandled promise rejections
+❌ Hardcode URLs/IPs (use config)
+❌ Forget to test on actual Pterodactyl server
+❌ Mix Socket.IO and HTTP for same data (pick one)
+❌ Ignore timezone issues (use getLocalDateString)
+
+---
+
+## 🐛 Debugging Checklist
+
+**When API endpoint fails:**
+- [ ] Check `.env` has required variables
+- [ ] Test endpoint directly in browser/Postman
+- [ ] Look for error messages in server console
+- [ ] Verify database connection with `better-sqlite3`
+- [ ] Check rate limiter isn't blocking requests
+- [ ] Inspect network tab in browser DevTools
+
+**When frontend displays wrong data:**
+- [ ] Verify API returns correct JSON format
+- [ ] Check JavaScript parses response correctly
+- [ ] Use `console.log()` to trace data flow
+- [ ] Verify Tailwind classes are applied
+- [ ] Check for `setTimeout()`/`setInterval()` logic issues
+
+**When Discord bot commands don't work:**
+- [ ] Verify `BOT_TOKEN` in `.env`
+- [ ] Check bot has right permissions in server
 - [ ] Use message logs to debug command parsing
 - [ ] Test in Discord with correct prefix
 
@@ -694,114 +820,33 @@ When building new features, follow this pattern:
 - **Routes Setup**: [src/routes/index.js](src/routes/index.js#L1)
 - **PikaMC Service**: [src/services/pikamcService.js](src/services/pikamcService.js#L1)
 - **Discord Bot**: [bot/bot2.js](bot/bot2.js#L1)
-│   └── API Routes:
-│       ├── POST /api/auth/logout
-│       ├── GET /api/user-info
-│       ├── GET /api/pikamc/status
-│       ├── GET /api/status/stats
-│       ├── GET /api/minecraft-downloads
-│       ├── GET /api/ratings
-│       ├── POST /api/ratings
-│       ├── DELETE /api/ratings/:timestamp
-│       └── More...
-│
-└── Data & Config
-    ├── /json/ (SQLite backups, configs)
-    ├── /cloud/ (user file storage)
-    └── Authentication (Discord OAuth via index.js)
-```
 
-## Common Workflows
+---
 
-### Adding a Frontend Feature (e.g., New Stats Card)
-1. Edit HTMLtemplate in `/html/dowloadmc.html` or appropriate page
-2. Add CSS classes (use Tailwind utilities, check existing `.stat-card`, `.download-card` styles)
-3. Create JavaScript function to fetch data:
-   ```javascript
-   async function loadFeatureName() {
-       const res = await fetch('/api/feature-endpoint');
-       const data = await res.json();
-       // Update DOM elements
-   }
-   ```
-4. Call on page load and set up auto-refresh with `setInterval(loadFeatureName, 10000);`
+## 🛠️ Security & Architecture Standards
 
-### Fixing Backend API Response
-1. Locate endpoint in `/bản chỉnh sửa/index.js` or `server.js`
-2. Check response format: `{success: bool, data: {...}, message: string}`
-3. Verify it matches expected consumer (e.g., `loadServerStats()` expects `{players: {online, max}, ram: {usage, total}}`)
-4. Test API locally: `curl http://localhost:3000/api/endpoint`
+### Content Security Policy (CSP) & Javascript
+- **Zero Inline Scripts**: All Javascript logic MUST be extracted into external `.js` files located in `/html/js/` (e.g., `cloud.js`, `index.js`).
+- **No `unsafe-inline` in `script-src`**: Our Helmet CSP configuration in `setup.js` strictly forbids inline `<script>...</script>` blocks to prevent XSS. 
+- **Inline Event Handlers**: Inline handlers like `onclick` are still temporarily permitted via `script-src-attr: ["'unsafe-inline'"]` but are scheduled for refactoring.
 
-### Adding New API Endpoint
-1. Add route handler in `index.js`:
-   ```javascript
-   app.get('/api/new-endpoint', (req, res) => {
-       // Logic here
-       res.json({success: true, data: {...}});
-   });
-   ```
-2. Update frontend consumer to call `fetch('/api/new-endpoint')`
-3. Ensure response format is documented in comments for future devs
+### Frontend Standards
+- **Framework**: Use Tailwind CSS for styling (no custom CSS unless absolutely necessary).
+- **Components**: Utilize `.stat-card` (glassmorphism) and smooth transition animations.
+- **Responsive Design**: Ensure mobile compatibility using `sm:`, `md:`, `lg:` breakpoints.
+- **Feedback**: Show custom toast notifications (`showToast()`) for UI interactions instead of raw alerts.
 
-## Code Standards
+### Backend Standards
+- **Standardized API Responses**: All API routes must return JSON with structure: `{ success: boolean, data?: any, message?: string, error?: string }`
+- **Error Context**: Use `console.error('[CONTEXT] Error:', error);`
+- **Security Check**: Always validate requests from external sources using `zod` and ensure Rate Limiters are applied.
 
-### Frontend
-- Use Tailwind for styling (no custom CSS unless necessary)
-- Gradients: `.gradient-green` (green), `.gradient-blue` (blue)
-- Cards: `.stat-card` (glassmorphism), `.download-card` (hover effects)
-- Animation: Define in `<style>` tag using CSS or Tailwind transitions
-- Error handling: Show toast notifications via `showToast(message, type)`
+---
 
-### Backend
-- All API routes return JSON with structure: `{success, data/message/items, error?}`
-- Use try-catch for async operations
-- Log errors to console with context: `console.error('[CONTEXT] Error:', error);`
-- Cache strategies where needed (e.g., PikaMC status cached 10 seconds)
+## 📋 Standard Output Format
 
-### Naming Conventions
-- Functions: camelCase (`loadServerStats`, `copyIP`)
-- IDs: kebab-case (`player-count`, `dynamic-downloads`)
-- Classes: kebab-case (`.stat-card`, `.download-card`)
-- APIs: `/api/namespace/endpoint`
-
-## Debugging Checklist
-
-- [ ] API returns expected JSON structure?
-- [ ] Frontend selector matches ID in HTML?
-- [ ] Async functions properly await?
-- [ ] CORS issues with external APIs (e.g., mcsrvstat)?
-- [ ] Cache expiration for repeated calls?
-- [ ] Error fallbacks if API fails?
-- [ ] Responsive design tested on mobile?
-- [ ] Console errors/warnings cleaned up?
-
-## Key Files to Reference
-
-- **Page Template**: `dowloadmc.html` — modern design patterns, API integration examples
-- **API Server**: `/bản chỉnh sửa/index.js` (lines 1100-1150) — `fetchPikaMCStatus()` callback pattern
-- **Rating System**: `index.html` — complex state management with localStorage, retry logic
-- **Sidebar**: `shared-sidebar.js` — reusable UI component
-
-## Do's & Don'ts
-
-✅ **DO:**
-- Validate API responses before using data
-- Use toast notifications for user feedback
-- Test frontend changes with DevTools
-- Keep API response formats consistent
-- Document new endpoints with inline comments
-
-❌ **DON'T:**
-- Mix Tailwind classes with inline styles (choose one)
-- Make blocking API calls without fallbacks
-- Hardcode server IPs (use config/endpoint)
-- Leave console.errors in production code
-- Create deeply nested async/await chains without error handling
-
-## Output Format
-
-When completing a task, provide:
-1. **Summary**: What was changed and why
-2. **Files Modified**: List of files touched
-3. **Testing Notes**: How to verify the fix works
-4. **No Breaking Changes**: Confirm backwards compatibility
+When completing a task as an AI agent, provide:
+1. **Summary**: What was changed and why.
+2. **Files Modified**: List of files touched.
+3. **Verification**: How it was tested.
+4. **Security Check**: Confirm no `unsafe-inline` JS or sensitive route exposures.

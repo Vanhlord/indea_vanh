@@ -69,9 +69,47 @@ db.exec(`
   );
 `);
 
+// Whitelist of valid table names to prevent SQL injection
+const VALID_TABLES = new Set([
+    'players', 'server_status', 'countdown_settings',
+    'custom_download_config', 'whitelist', 'whitelist_keys',
+    'push_subscriptions'
+]);
+
+// Whitelist of valid column names across all tables
+const VALID_COLUMNS = new Set([
+    'id', 'username', 'avatar', 'lastLogin',
+    'status', 'maxPlayers', 'ip', 'port',
+    'eventDate', 'eventTime', 'eventDescription',
+    'note', 'link', 'downloadNote',
+    'admin_id', 'key', 'gamertag', 'gamertag_norm',
+    'created_at', 'used_at',
+    'user_id', 'endpoint', 'p256dh', 'auth'
+]);
+
+function assertValidTable(table) {
+    if (!VALID_TABLES.has(table)) {
+        throw new Error(`Invalid table name: ${table}`);
+    }
+}
+
+function assertValidColumns(columns) {
+    for (const col of columns) {
+        if (!VALID_COLUMNS.has(col)) {
+            throw new Error(`Invalid column name: ${col}`);
+        }
+    }
+}
+
 // Function to get data
 export async function getData(table, conditions = {}) {
     try {
+        assertValidTable(table);
+        const conditionKeys = Object.keys(conditions);
+        if (conditionKeys.length > 0) {
+            assertValidColumns(conditionKeys);
+        }
+
         const cacheKey = `data:${table}:${JSON.stringify(conditions)}`;
         const cachedData = await getCache(cacheKey);
         if (cachedData) {
@@ -79,10 +117,10 @@ export async function getData(table, conditions = {}) {
             return cachedData;
         }
 
-        let query = `SELECT * FROM ${table}`;
+        let query = `SELECT * FROM "${table}"`;
         const params = [];
-        if (Object.keys(conditions).length > 0) {
-            const whereClause = Object.keys(conditions).map(key => `${key} = ?`).join(' AND ');
+        if (conditionKeys.length > 0) {
+            const whereClause = conditionKeys.map(key => `"${key}" = ?`).join(' AND ');
             query += ` WHERE ${whereClause}`;
             params.push(...Object.values(conditions));
         }
@@ -100,9 +138,12 @@ export async function getData(table, conditions = {}) {
 // Function to insert data
 export async function insertData(table, data) {
     try {
-        const columns = Object.keys(data).join(', ');
-        const placeholders = Object.keys(data).map(() => '?').join(', ');
-        const query = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+        assertValidTable(table);
+        const dataKeys = Object.keys(data);
+        assertValidColumns(dataKeys);
+        const columns = dataKeys.map(k => `"${k}"`).join(', ');
+        const placeholders = dataKeys.map(() => '?').join(', ');
+        const query = `INSERT INTO "${table}" (${columns}) VALUES (${placeholders})`;
         const stmt = db.prepare(query);
         const result = stmt.run(...Object.values(data));
         // Invalidate cache for the table
@@ -117,9 +158,14 @@ export async function insertData(table, data) {
 // Function to update data
 export async function updateData(table, data, conditions) {
     try {
-        const setClause = Object.keys(data).map(key => `${key} = ?`).join(', ');
-        const whereClause = Object.keys(conditions).map(key => `${key} = ?`).join(' AND ');
-        const query = `UPDATE ${table} SET ${setClause} WHERE ${whereClause}`;
+        assertValidTable(table);
+        const dataKeys = Object.keys(data);
+        const conditionKeys = Object.keys(conditions);
+        assertValidColumns(dataKeys);
+        assertValidColumns(conditionKeys);
+        const setClause = dataKeys.map(key => `"${key}" = ?`).join(', ');
+        const whereClause = conditionKeys.map(key => `"${key}" = ?`).join(' AND ');
+        const query = `UPDATE "${table}" SET ${setClause} WHERE ${whereClause}`;
         const stmt = db.prepare(query);
         const params = [...Object.values(data), ...Object.values(conditions)];
         const result = stmt.run(...params);

@@ -99,7 +99,6 @@
         const active = {
             home: isActivePath(currentPath, ['/', '/html/index.html']),
             statusServer: isActivePath(currentPath, ['/html/status-server.html']),
-            chat: isActivePath(currentPath, ['/a11/chat.html']),
             cloud: isActivePath(currentPath, ['/cloud', '/p/cloud.html']),
             donate: isActivePath(currentPath, ['/a11/donet.html', '/A11/donet.html']),
             kho: isActivePath(currentPath, ['/p/kho.html']),
@@ -118,7 +117,6 @@
             ${navLink('fas fa-home', 'Trang chủ', '/', active.home)}
             ${navButton('fas fa-copy', 'Copy IP')}
             ${navLink('fas fa-chart-line w-5', 'Status server', '/html/status-server.html', active.statusServer)}
-            ${navLink('fas fa-comments w-5', 'Chat', '/A11/chat.html', active.chat)}
             ${navLink('fas fa-cloud w-5', 'Cloud', '/cloud', active.cloud)}
             ${navLink('fas fa-trophy w-5', 'Leaderboard', '/leaderboard', active.leaderboard)}
             ${navLink('fas fa-gem w-5', 'Donate', '/A11/donet.html', active.donate)}

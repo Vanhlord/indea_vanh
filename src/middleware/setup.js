@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import session from 'express-session';
 import compression from 'compression';
 import cors from 'cors';
@@ -43,8 +43,32 @@ export function setupMiddleware(app) {
     app.use(compression());
     app.use(express.json());
     app.use(helmet({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-eval'",
+                    "https://cdn.jsdelivr.net", "https://cdn.socket.io",
+                    "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com",
+                    "https://fonts.googleapis.com", "https://unpkg.com"],
+                scriptSrcAttr: ["'unsafe-inline'"],
+                styleSrc: ["'self'", "'unsafe-inline'",
+                    "https://fonts.googleapis.com", "https://cdn.jsdelivr.net",
+                    "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com",
+                    "https://unpkg.com"],
+                fontSrc: ["'self'", "data:",
+                    "https://fonts.gstatic.com", "https://cdn.jsdelivr.net",
+                    "https://cdnjs.cloudflare.com"],
+                imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+                mediaSrc: ["'self'", "blob:", "https:", "http:"],
+                connectSrc: ["'self'", "wss:", "ws:", "https:", "http:"],
+                frameSrc: ["'self'", "https://discord.com"],
+                objectSrc: ["'none'"],
+                baseUri: ["'self'"],
+                formAction: ["'self'", "https://discord.com"]
+            }
+        },
+        crossOriginEmbedderPolicy: false,
+        crossOriginResourcePolicy: { policy: 'cross-origin' }
     }));
     app.use(cors((req, callback) => {
         const origin = String(req.get('origin') || '').trim();
