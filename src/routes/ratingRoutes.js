@@ -1,6 +1,7 @@
 import express from 'express';
 import { promises as fs } from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const router = express.Router();
@@ -8,7 +9,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const RATINGS_FILE = path.join(__dirname, '../../json/ratings.json');
+const RATINGS_LOCK_FILE = `${RATINGS_FILE}.lock`;
 const EMPTY_DISTRIBUTION = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 };
+const LOCK_TIMEOUT_MS = 5000;
+const LOCK_RETRY_MS = 60;
+const LOCK_STALE_MS = 10000;
 
 function getSessionUser(req) {
     const userId = String(req.session?.user?.id || '').trim();
@@ -50,9 +55,65 @@ async function readRatings() {
     }
 }
 
-// Ghi dữ liệu ratings
-async function writeRatings(data) {
-    await fs.writeFile(RATINGS_FILE, JSON.stringify(data, null, 2));
+async function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRatingsLock(work) {
+    const startedAt = Date.now();
+    let lockHandle = null;
+
+    await fs.mkdir(path.dirname(RATINGS_FILE), { recursive: true });
+
+    while (!lockHandle) {
+        try {
+            lockHandle = await fs.open(RATINGS_LOCK_FILE, 'wx');
+            await lockHandle.writeFile(String(process.pid));
+        } catch (error) {
+            if (error?.code !== 'EEXIST') {
+                throw error;
+            }
+
+            const stat = await fs.stat(RATINGS_LOCK_FILE).catch(() => null);
+            if (stat && (Date.now() - stat.mtimeMs) > LOCK_STALE_MS) {
+                await fs.rm(RATINGS_LOCK_FILE, { force: true }).catch(() => {});
+                continue;
+            }
+
+            if ((Date.now() - startedAt) > LOCK_TIMEOUT_MS) {
+                throw new Error('Ratings file is busy');
+            }
+
+            await sleep(LOCK_RETRY_MS);
+        }
+    }
+
+    try {
+        return await work();
+    } finally {
+        try {
+            await lockHandle.close();
+        } catch (_error) {
+            // Ignore lock cleanup errors.
+        }
+        await fs.rm(RATINGS_LOCK_FILE, { force: true }).catch(() => {});
+    }
+}
+
+async function writeRatingsAtomic(data) {
+    await fs.mkdir(path.dirname(RATINGS_FILE), { recursive: true });
+    const tmpPath = `${RATINGS_FILE}.tmp-${crypto.randomBytes(6).toString('hex')}`;
+    await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf8');
+    await fs.rename(tmpPath, RATINGS_FILE);
+}
+
+async function mutateRatings(mutator) {
+    return withRatingsLock(async () => {
+        const data = await readRatings();
+        const result = await mutator(data);
+        await writeRatingsAtomic(data);
+        return result;
+    });
 }
 
 // Tính toán thống kê
@@ -104,38 +165,34 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Dữ liệu không hợp lệ' });
         }
         
-        const data = await readRatings();
-        
-        // Kiểm tra đã đánh giá chưa
-        const existingIndex = data.ratings.findIndex(r => r.userId === sessionUser.id);
-        
-        const newRating = {
-            userId: sessionUser.id,
-            userName: sessionUser.username,
-            userAvatar: sessionUser.avatar,
-            rating: parseInt(rating),
-            comment: comment || '',
-            timestamp: timestamp || new Date().toISOString()
-        };
-        
-        if (existingIndex >= 0) {
-            // Cập nhật đánh giá cũ
-            data.ratings[existingIndex] = newRating;
-        } else {
-            // Thêm đánh giá mới
-            data.ratings.push(newRating);
-        }
-        
-        // Tính lại thống kê
-        data.stats = calculateStats(data.ratings);
-        
-        // Lưu file
-        await writeRatings(data);
+        const result = await mutateRatings(async (data) => {
+            const existingIndex = data.ratings.findIndex(r => r.userId === sessionUser.id);
+            const newRating = {
+                userId: sessionUser.id,
+                userName: sessionUser.username,
+                userAvatar: sessionUser.avatar,
+                rating: parseInt(rating, 10),
+                comment: comment || '',
+                timestamp: timestamp || new Date().toISOString()
+            };
+
+            if (existingIndex >= 0) {
+                data.ratings[existingIndex] = newRating;
+            } else {
+                data.ratings.push(newRating);
+            }
+
+            data.stats = calculateStats(data.ratings);
+            return {
+                existed: existingIndex >= 0,
+                stats: data.stats
+            };
+        });
         
         res.json({ 
             success: true, 
-            message: existingIndex >= 0 ? 'Đã cập nhật đánh giá!' : 'Cảm ơn bạn đã đánh giá!',
-            stats: data.stats
+            message: result.existed ? 'Đã cập nhật đánh giá!' : 'Cảm ơn bạn đã đánh giá!',
+            stats: result.stats
         });
         
     } catch (e) {
@@ -182,30 +239,28 @@ router.delete('/:timestamp', async (req, res) => {
             return res.status(401).json({ message: 'Bạn cần đăng nhập để xóa đánh giá.' });
         }
         
-        const data = await readRatings();
-        
-        // Tìm đánh giá cần xóa
-        const ratingIndex = data.ratings.findIndex(r => 
-            r.timestamp === timestamp && r.userId === sessionUser.id
-        );
-        
-        if (ratingIndex === -1) {
+        const result = await mutateRatings(async (data) => {
+            const ratingIndex = data.ratings.findIndex(r =>
+                r.timestamp === timestamp && r.userId === sessionUser.id
+            );
+
+            if (ratingIndex === -1) {
+                return null;
+            }
+
+            data.ratings.splice(ratingIndex, 1);
+            data.stats = calculateStats(data.ratings);
+            return { stats: data.stats };
+        });
+
+        if (!result) {
             return res.status(404).json({ message: 'Không tìm thấy đánh giá' });
         }
-        
-        // Xóa đánh giá
-        data.ratings.splice(ratingIndex, 1);
-        
-        // Tính lại thống kê
-        data.stats = calculateStats(data.ratings);
-        
-        // Lưu file
-        await writeRatings(data);
         
         res.json({ 
             success: true, 
             message: 'Đã xóa đánh giá thành công!',
-            stats: data.stats
+            stats: result.stats
         });
         
     } catch (e) {

@@ -35,6 +35,7 @@ export async function logPlayer(playerData) {
         const username = (playerData.username || 'Unknown').trim().substring(0, 100);
         const avatar = playerData.avatar ? String(playerData.avatar).trim() : null;
         const now = new Date().toISOString();
+        const existedBefore = await playerExists(id);
 
         // Use UPSERT (INSERT OR REPLACE in SQLite)
         const stmt = db.prepare(`
@@ -46,8 +47,8 @@ export async function logPlayer(playerData) {
                 lastLogin = excluded.lastLogin
         `);
         
-        const result = stmt.run(id, username, avatar, now);
-        const isNew = result.changes > 0 && !await playerExists(id); // Simple check
+        stmt.run(id, username, avatar, now);
+        const isNew = !existedBefore;
 
         return { success: true, isNew, message: 'Logged successfully' };
     } catch (error) {

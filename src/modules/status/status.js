@@ -33,7 +33,7 @@ let ramTotalMb = Math.round(os.totalmem() / (1024 * 1024));
 let ramPercent = 0;
 
 let diskInfo = { used: 0, total: 1, percent: 0 };
-let staticInfo = { hostname: os.hostname(), platform: os.platform(), cpuModel: '' };
+const staticInfo = { hostname: os.hostname(), platform: os.platform(), cpuModel: '' };
 
 // Fetch static info once
 (async () => {
@@ -43,7 +43,9 @@ let staticInfo = { hostname: os.hostname(), platform: os.platform(), cpuModel: '
         staticInfo.cpuModel = cpu.brand;
         staticInfo.hostname = osData.hostname;
         staticInfo.platform = `${osData.distro} ${osData.release}`;
-    } catch (e) {}
+    } catch (_error) {
+        // Keep fallback static system info when detection fails.
+    }
 })();
 
 /**
@@ -85,7 +87,9 @@ async function refreshDiskSnapshot() {
                 percent: Math.round(mainFs.use)
             };
         }
-    } catch (e) {}
+    } catch (_error) {
+        // Ignore disk snapshot errors and keep the last known value.
+    }
 }
 
 // Stats Loop
@@ -144,7 +148,9 @@ async function measureNetworkFromServer() {
         if (pingHistory.length > MAX_POINTS) pingHistory.shift();
         if (speedHistory.length > MAX_POINTS) speedHistory.shift();
 
-    } catch (e) {}
+    } catch (_error) {
+        // Network probes are best-effort only.
+    }
 }
 setInterval(measureNetworkFromServer, 3000);
 measureNetworkFromServer();
@@ -171,7 +177,9 @@ async function updateProcessList() {
                 cpu: p.cpu,
                 ram: Math.round(p.mem / 1024)
             }));
-        } catch(e) {}
+        } catch (_error) {
+            // Leave the previous process list intact if fallback lookup fails.
+        }
     }
     setTimeout(updateProcessList, 5000);
 }

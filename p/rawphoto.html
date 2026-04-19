@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Cong Dong | VNA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/html/shared-theme.css">
+</head>
+<body class="bg-slate-100 text-slate-900 flex h-screen overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden"></div>
+
+    <div id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-slate-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
+        <div class="flex items-center justify-center p-6 border-b border-slate-100">
+            <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                <span class="font-black tracking-wide text-sky-700">VNA SERVER</span>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2"></nav>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b border-slate-200 px-4 py-4 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <button type="button" class="text-2xl text-slate-700 lg:hidden" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="text-lg font-black">Album Cong Dong</h1>
+                    <p class="text-sm text-slate-500">Anh do thanh vien tai len tu khu album cong dong</p>
+                </div>
+            </div>
+            <a href="/cloud" class="inline-flex items-center gap-2 rounded-2xl bg-sky-500 text-white px-4 py-2 font-bold hover:bg-sky-600 transition">
+                <i class="fas fa-cloud"></i> Mo Cloud
+            </a>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+            <div class="max-w-6xl mx-auto space-y-5">
+                <section class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-black">Danh sach album</h2>
+                            <p class="text-sm text-slate-500">Chon mot thanh vien de xem anh da cong khai</p>
+                        </div>
+                        <button id="reloadBtn" type="button" class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50">
+                            <i class="fas fa-rotate-right mr-2"></i>Tai lai
+                        </button>
+                    </div>
+                    <div id="albums" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-5"></div>
+                </section>
+
+                <section class="bg-white rounded-3xl border border-slate-200 p-5 shadow-sm">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 id="galleryTitle" class="text-xl font-black">Chua chon album</h2>
+                            <p id="galleryHint" class="text-sm text-slate-500">Bam vao mot the album o tren de tai danh sach anh</p>
+                        </div>
+                    </div>
+                    <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+
+            const isClosed = sidebar.classList.contains('-left-[260px]');
+            if (isClosed) {
+                sidebar.classList.remove('-left-[260px]');
+                sidebar.classList.add('left-0');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-left-[260px]');
+                sidebar.classList.remove('left-0');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.getElementById('overlay').addEventListener('click', toggleSidebar);
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderAlbums(albums) {
+            const wrap = document.getElementById('albums');
+            wrap.innerHTML = '';
+
+            if (!albums.length) {
+                wrap.innerHTML = '<p class="text-sm text-slate-500">Chua co album nao duoc tai len.</p>';
+                return;
+            }
+
+            albums.forEach((album) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'text-left rounded-3xl overflow-hidden border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-md transition';
+                button.innerHTML = `
+                    <div class="aspect-[4/3] bg-slate-200 overflow-hidden">
+                        ${album.firstImage ? `<img src="${album.firstImage}" alt="${escapeHtml(album.username)}" class="w-full h-full object-cover">` : ''}
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <h3 class="font-bold text-slate-800">${escapeHtml(album.username)}</h3>
+                            <span class="text-xs font-bold text-sky-600 bg-sky-100 px-2 py-1 rounded-full">${album.imageCount || 0} anh</span>
+                        </div>
+                    </div>
+                `;
+                button.addEventListener('click', () => loadGallery(album.username));
+                wrap.appendChild(button);
+            });
+        }
+
+        function renderGallery(username, images) {
+            document.getElementById('galleryTitle').textContent = `Album cua ${username}`;
+            document.getElementById('galleryHint').textContent = `${images.length} anh dang hien thi`;
+
+            const wrap = document.getElementById('gallery');
+            wrap.innerHTML = '';
+
+            if (!images.length) {
+                wrap.innerHTML = '<p class="text-sm text-slate-500">Album nay chua co anh.</p>';
+                return;
+            }
+
+            images.forEach((image) => {
+                const card = document.createElement('article');
+                card.className = 'rounded-3xl overflow-hidden border border-slate-200 bg-slate-50';
+                card.innerHTML = `
+                    <a href="${image.path}" target="_blank" rel="noopener noreferrer" class="block aspect-[4/3] bg-slate-200 overflow-hidden">
+                        <img src="${image.path}" alt="${escapeHtml(image.filename)}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                    </a>
+                    <div class="p-4 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-slate-800 truncate">${escapeHtml(image.filename)}</p>
+                            <p class="text-xs text-slate-400">Nhan vao anh de mo tab moi</p>
+                        </div>
+                        <a href="${image.path}" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:text-sky-700">
+                            <i class="fas fa-up-right-from-square"></i>
+                        </a>
+                    </div>
+                `;
+                wrap.appendChild(card);
+            });
+        }
+
+        async function loadAlbums() {
+            const wrap = document.getElementById('albums');
+            wrap.innerHTML = '<p class="text-sm text-slate-500">Dang tai danh sach album...</p>';
+            const response = await fetch('/api/album/list');
+            const data = await response.json();
+            renderAlbums(Array.isArray(data.albums) ? data.albums : []);
+        }
+
+        async function loadGallery(username) {
+            const wrap = document.getElementById('gallery');
+            wrap.innerHTML = '<p class="text-sm text-slate-500">Dang tai album...</p>';
+            document.getElementById('galleryTitle').textContent = `Album cua ${username}`;
+            document.getElementById('galleryHint').textContent = 'Dang tai danh sach anh';
+
+            const response = await fetch(`/api/album/${encodeURIComponent(username)}`);
+            const data = await response.json();
+            renderGallery(username, Array.isArray(data.images) ? data.images : []);
+        }
+
+        document.getElementById('reloadBtn').addEventListener('click', () => {
+            loadAlbums().catch(() => {
+                document.getElementById('albums').innerHTML = '<p class="text-sm text-rose-600">Khong tai duoc danh sach album.</p>';
+            });
+        });
+
+        loadAlbums().catch(() => {
+            document.getElementById('albums').innerHTML = '<p class="text-sm text-rose-600">Khong tai duoc danh sach album.</p>';
+        });
+    </script>
+</body>
+</html>

@@ -107,15 +107,40 @@ export async function setCache(key, data) {
 }
 
 export async function deleteCache(key) {
+    const rawKey = String(key || '');
+    const isWildcard = rawKey.endsWith('*');
+    const prefix = isWildcard ? rawKey.slice(0, -1) : rawKey;
+
     if (redisEnabled && redisReady && client) {
         try {
-            await client.del(key);
+            if (isWildcard) {
+                const matchedKeys = [];
+                for await (const matchedKey of client.scanIterator({ MATCH: `${prefix}*` })) {
+                    matchedKeys.push(matchedKey);
+                }
+                if (matchedKeys.length > 0) {
+                    await client.del(matchedKeys);
+                }
+                return;
+            }
+
+            await client.del(prefix);
             return;
         } catch (error) {
             console.error('Error deleting cache:', error);
         }
     }
-    memoryDelete(key);
+
+    if (isWildcard) {
+        for (const cacheKey of memoryCache.keys()) {
+            if (cacheKey.startsWith(prefix)) {
+                memoryCache.delete(cacheKey);
+            }
+        }
+        return;
+    }
+
+    memoryDelete(prefix);
 }
 
 export default client;

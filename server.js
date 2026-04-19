@@ -11,6 +11,7 @@ import { statfs, mkdir, readFile, writeFile, readdir, stat } from 'fs/promises';
 
 // Import internal modules
 import { setupMiddleware, setupRateLimiters } from './src/middleware/setup.js';
+import { errorHandler, notFoundHandler, requestIdMiddleware } from './src/middleware/errorHandler.js';
 
 import { setupRoutes } from './src/routes/index.js';
 import { loadChatHistory, addChatMessage, shouldBlockMessage } from './src/services/chatService.js';
@@ -50,7 +51,6 @@ import { getDonations } from './src/services/donateService.js';
 import albumRoutes from './src/routes/albumRoutes.js';
 import cloudRoutes from './src/routes/cloudRoutes.js';
 import ssrRoutes from './src/routes/ssrRoutes.js';
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -427,6 +427,7 @@ setBot2SocketIO(io);
 
 // Setup middleware
 const { sessionMiddleware } = setupMiddleware(app);
+app.use(requestIdMiddleware);
 setupRateLimiters(app);
 
 if (sessionMiddleware) {
@@ -1046,7 +1047,6 @@ app.use('/api/album', albumRoutes);
 
 app.use('/api/cloud', cloudRoutes);
 
-
 // Download API routes - legacy routes for backward compatibility
 app.post('/api/proxy-download', proxyDownloadUnified);
 app.post('/api/youtube-proxy', handleYoutubeDownload);
@@ -1571,48 +1571,58 @@ io.on('connection', async (socket) => {
     
     // Handle web to game messages
     socket.on('send-to-game', async (data) => {
-        const sessionUser = socket.request?.session?.user;
-        if (!sessionUser?.id || !sessionUser?.username) {
-            socket.emit('chat-error', { message: 'Bạn cần đăng nhập để gửi tin nhắn.' });
-            return;
-        }
+        try {
+            const sessionUser = socket.request?.session?.user;
+            if (!sessionUser?.id || !sessionUser?.username) {
+                socket.emit('chat-error', { message: 'Bạn cần đăng nhập để gửi tin nhắn.' });
+                return;
+            }
 
-        const safeUser = toSafeDisplayText(sessionUser.username, 50, 'User');
-        const safeContent = toSafeDisplayText(data?.content, 400, '');
-        if (!safeContent) {
-            return;
-        }
+            const safeUser = toSafeDisplayText(sessionUser.username, 50, 'User');
+            const safeContent = toSafeDisplayText(data?.content, 400, '');
+            if (!safeContent) {
+                return;
+            }
 
-        // Block XRay messages
-        if (shouldBlockMessage(safeContent)) {
-            console.log(`🚫 Blocked XRay message: ${safeContent.substring(0, 60)}...`);
-            return;
-        }
+            if (shouldBlockMessage(safeContent)) {
+                console.log(`🚫 Blocked XRay message: ${safeContent.substring(0, 60)}...`);
+                return;
+            }
 
-        // Send to game
-        const command = `say (Web) ${safeUser}: ${safeContent}`;
-        await sendConsoleCommand(command);
-        
-        // Save to history
-        await addChatMessage(safeUser, safeContent, 'web');
-        
-        // Broadcast to all clients
-        io.emit('mc-chat', { user: safeUser, text: safeContent });
-        console.log(`🌍 Web User ${safeUser}: ${safeContent}`);
+            const command = `say (Web) ${safeUser}: ${safeContent}`;
+            const commandResult = await sendConsoleCommand(command);
+            if (!commandResult?.success) {
+                socket.emit('chat-error', {
+                    message: 'Không thể gửi tin nhắn vào server lúc này. Vui lòng thử lại.'
+                });
+                return;
+            }
+
+            await addChatMessage(safeUser, safeContent, 'web');
+            io.emit('mc-chat', { user: safeUser, text: safeContent });
+            console.log(`🌍 Web User ${safeUser}: ${safeContent}`);
+        } catch (error) {
+            console.error('send-to-game socket error:', error);
+            socket.emit('chat-error', { message: 'Có lỗi xảy ra khi gửi tin nhắn.' });
+        }
     });
     
     // Handle game to web messages
     socket.on('mc-chat-from-bot', async (data) => {
-        const safeUser = toSafeDisplayText(data?.user, 80, 'Hệ thống');
-        const safeText = toSafeDisplayText(data?.text, 500, '');
-        if (!safeText) return;
+        try {
+            const safeUser = toSafeDisplayText(data?.user, 80, 'Hệ thống');
+            const safeText = toSafeDisplayText(data?.text, 500, '');
+            if (!safeText) return;
 
-        if (shouldBlockMessage(safeText)) {
-            console.log(`🚫 Blocked XRay message: ${safeText.substring(0, 60)}...`);
-            return;
+            if (shouldBlockMessage(safeText)) {
+                console.log(`🚫 Blocked XRay message: ${safeText.substring(0, 60)}...`);
+                return;
+            }
+            await addChatMessage(safeUser, safeText, 'game');
+            io.emit('mc-chat', { user: safeUser, text: safeText });
+        } catch (error) {
+            console.error('mc-chat-from-bot socket error:', error);
         }
-        await addChatMessage(safeUser, safeText, 'game');
-        io.emit('mc-chat', { user: safeUser, text: safeText });
     });
 
     socket.on('admin-console:subscribe', async () => {
@@ -1639,6 +1649,9 @@ io.on('connection', async (socket) => {
     });
 
 });
+
+app.use('/api', notFoundHandler);
+app.use(errorHandler);
 
 async function bootstrap() {
     console.log(`🚀 Process ${process.pid} is running`);

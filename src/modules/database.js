@@ -115,7 +115,7 @@ export async function insertData(table, data) {
 }
 
 // Function to update data
-export function updateData(table, data, conditions) {
+export async function updateData(table, data, conditions) {
     try {
         const setClause = Object.keys(data).map(key => `${key} = ?`).join(', ');
         const whereClause = Object.keys(conditions).map(key => `${key} = ?`).join(' AND ');
@@ -123,6 +123,7 @@ export function updateData(table, data, conditions) {
         const stmt = db.prepare(query);
         const params = [...Object.values(data), ...Object.values(conditions)];
         const result = stmt.run(...params);
+        await deleteCache(`data:${table}:*`);
         return result.changes;
     } catch (error) {
         console.error('Error updating data:', error);

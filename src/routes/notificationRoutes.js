@@ -1,6 +1,6 @@
 import express from 'express';
 import webpush from 'web-push';
-import { getData, insertData } from '../modules/database.js';
+import { getData, insertData, updateData } from '../modules/database.js';
 
 const router = express.Router();
 
@@ -52,8 +52,7 @@ router.post('/subscribe', async (req, res) => {
                 created_at: new Date().toISOString()
             });
         } else if (userId && existing[0].user_id !== userId) {
-            // Update user_id if it changed
-            // updateData('push_subscriptions', { user_id: userId }, { endpoint: subscription.endpoint });
+            await updateData('push_subscriptions', { user_id: userId }, { endpoint: subscription.endpoint });
         }
         res.status(201).json({ success: true });
     } catch (error) {
