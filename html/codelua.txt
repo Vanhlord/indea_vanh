@@ -1,0 +1,95 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+-- Khởi tạo GUI
+local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 150, 0, 80); mainFrame.Position = UDim2.new(0.1, 0, 0.1, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30); mainFrame.Active = true; mainFrame.Draggable = true
+
+local enabled = false
+local toggleBtn = Instance.new("TextButton", mainFrame)
+toggleBtn.Size = UDim2.new(0, 130, 0, 30); toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.Text = "Aimlock: OFF"
+
+local closeBtn = Instance.new("TextButton", mainFrame)
+closeBtn.Size = UDim2.new(0, 20, 0, 20); closeBtn.Position = UDim2.new(1, -25, 0, 5)
+closeBtn.Text = "X"; closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+
+-- Bảng lưu ESP
+local espObjects = {}
+
+toggleBtn.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    toggleBtn.Text = enabled and "Aimlock: ON" or "Aimlock: OFF"
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    for _, box in pairs(espObjects) do box:Remove() end
+    screenGui:Destroy()
+end)
+
+-- Tạo ESP box cho người chơi
+local function createESP(p)
+    local box = Drawing.new("Square")
+    box.Visible = false
+    box.Color = Color3.new(1, 1, 1)
+    box.Thickness = 1
+    box.Filled = false
+    espObjects[p] = box
+end
+
+for _, p in pairs(Players:GetPlayers()) do if p ~= LocalPlayer then createESP(p) end end
+Players.PlayerAdded:Connect(createESP)
+Players.PlayerRemoving:Connect(function(p) if espObjects[p] then espObjects[p]:Remove() end end)
+
+-- Thay đoạn vòng lặp vẽ ESP cũ bằng đoạn này:
+for _, p in pairs(Players:GetPlayers()) do
+    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Head") then
+        local rootPart = p.Character.HumanoidRootPart
+        local head = p.Character.Head
+        
+        -- Tính tọa độ chân và đầu trên màn hình
+        local rootPos, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+        local headPos = Camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+        local footPos = Camera:WorldToViewportPoint(rootPart.Position - Vector3.new(0, 3, 0))
+        
+        local box = espObjects[p]
+        if box then
+            if onScreen then
+                box.Visible = true
+                -- Độ cao của khung = chênh lệch Y giữa chân và đầu
+                local height = math.abs(headPos.Y - footPos.Y)
+                local width = height * 0.6 -- Tỷ lệ khung vừa vặn với người
+                
+                box.Size = Vector2.new(width, height)
+                box.Position = Vector2.new(rootPos.X - width/2, headPos.Y)
+            else
+                box.Visible = false
+            end
+        end
+    end
+end
+
+            -- Aimlock logic
+            if enabled and (not p.Team or p.Team ~= LocalPlayer.Team) then
+                local head = p.Character:FindFirstChild("Head")
+                if head then
+                    local ray = Ray.new(Camera.CFrame.Position, (head.Position - Camera.CFrame.Position).Unit * 1000)
+                    local hit = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character})
+                    if hit and hit:IsDescendantOf(p.Character) then
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(head.Position)
+                        local dist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                        if dist < minDist then closest = head; minDist = dist end
+                    end
+                end
+            end
+        elseif espObjects[p] then espObjects[p].Visible = false end
+    end
+
+    if enabled and closest then
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, closest.Position)
+    end
+end)
