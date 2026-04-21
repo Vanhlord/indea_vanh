@@ -1620,14 +1620,15 @@ router.get('/public/:token', async (req, res) => {
           <div class="meta">${escapeHtml(sizeLabel)}</div>
         </div>
       </div>
+      <div class="preview-title">Xem trước</div>
+      ${previewHtml}
       <div class="grid">
         <div class="cell"><div class="k">Dung lượng</div><div class="v">${escapeHtml(sizeLabel)}</div></div>
         <div class="cell"><div class="k">Hiệu lực</div><div class="v">${escapeHtml(expireLabel)}</div></div>
         <div class="cell"><div class="k">Lượt tải</div><div class="v">${Number(item.downloadCount || 0)}</div></div>
         <div class="cell"><div class="k">Tác giả</div><div class="v">${authorLabel}</div></div>
       </div>
-      <div class="preview-title">Xem trước</div>
-      ${previewHtml}
+      
       <div class="actions">
         <a class="btn btn-primary" href="${downloadUrl}">⬇ Tải xuống <span class="btn-size">${escapeHtml(sizeLabel)}</span></a>
       </div>
