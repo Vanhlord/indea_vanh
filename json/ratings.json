@@ -36,20 +36,20 @@
       "userId": "999830214198710324",
       "userName": "vanh_68208",
       "userAvatar": "https://cdn.discordapp.com/avatars/999830214198710324/b4e725ce889dddf362787a3f7cc5769b.png",
-      "rating": 5,
-      "comment": "tuyệt",
-      "timestamp": "2026-04-12T00:57:15.757Z"
+      "rating": 4,
+      "comment": "Tuyêth",
+      "timestamp": "2026-04-21T08:45:57.193Z"
     }
   ],
   "stats": {
-    "average": 4.6,
+    "average": 4.4,
     "total": 5,
     "distribution": {
       "1": 0,
       "2": 0,
       "3": 0,
-      "4": 2,
-      "5": 3
+      "4": 3,
+      "5": 2
     }
   }
 }
