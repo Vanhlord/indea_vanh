@@ -3,175 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
-                                            <i class="fas fa-check-circle text-emerald-500"></i> RAM 2GB
-                                        </li>
-                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
-                                            <i class="fas fa-check-circle text-emerald-500"></i> Dung lượng trống 1GB
-                                        </li>
-                                    </ul>
+    <meta name="description" content="Tải Minecraft Bedrock/PE để tham gia VNA Server nhanh chóng, xem tình trạng server và làm theo hướng dẫn cài đặt.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vanhmcpe.top/html/dowloadmc.html">
+    <meta property="og:title" content="Tải Minecraft PE | VNA Server">
+    <meta property="og:description" content="Tải Minecraft Bedrock/PE để tham gia VNA Server nhanh chóng, xem tình trạng server và làm theo hướng dẫn cài đặt.">
+    <meta property="og:image" content="https://vanhmcpe.top/photos/raw/anh-nhom/taimc.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tải Minecraft PE | VNA Server">
+    <meta name="twitter:description" content="Tải Minecraft Bedrock/PE để tham gia VNA Server nhanh chóng, xem tình trạng server và làm theo hướng dẫn cài đặt.">
+    <meta name="twitter:image" content="https://vanhmcpe.top/photos/raw/anh-nhom/taimc.png">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Tải Minecraft PE | VNA Server</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/html/shared-theme.css">
+
+    <style>
+        :root {
+            --surface: #f6f9fc;
+            --card: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --blue: #0f8cff;
+            --green: #11b981;
+            --ink: #10233e;
+            --muted: #61738a;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(17, 185, 129, 0.22), transparent 30%),
+                radial-gradient(circle at top right, rgba(15, 140, 255, 0.2), transparent 26%),
+                linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+            color: var(--ink);
+        }
+
+        #sidebar {
+            transition: left 0.3s ease;
+        }
+
+        .server-wordmark-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 0.85rem;
+        }
+
+        .server-wordmark-wrap--sidebar {
+            width: 170px;
+            height: 54px;
+        }
+
+        .server-wordmark {
+            display: block;
+            width: 125%;
+            height: 160%;
+            object-fit: cover;
+            filter: drop-shadow(0 6px 14px rgba(0, 123, 255, 0.22));
+        }
+
+        .glass {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 25px 60px rgba(16, 35, 62, 0.08);
+            backdrop-filter: blur(18px);
+        }
+
+        .hero-grid {
+            background:
+                linear-gradient(135deg, rgba(16, 35, 62, 0.96), rgba(15, 140, 255, 0.92)),
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.16), transparent 32%);
+        }
+
+        .gradient-green {
+            background: linear-gradient(135deg, #10b981, #0f8cff);
+        }
+
+        .download-shell {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-shell::before {
+            content: '';
+            position: absolute;
+            inset: -35% auto auto -12%;
+            width: 220px;
+            height: 220px;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.13);
+            filter: blur(24px);
+        }
+
+        .download-shell::after {
+            content: '';
+            position: absolute;
+            inset: auto -10% -30% auto;
+            width: 260px;
+            height: 260px;
+            border-radius: 9999px;
+            background: rgba(15, 140, 255, 0.14);
+            filter: blur(30px);
+        }
+
+        .stat-chip {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .spec-card {
+            border: 1px solid rgba(15, 140, 255, 0.1);
+            box-shadow: 0 16px 32px rgba(15, 140, 255, 0.06);
+        }
+
+        .download-card {
+            transform: translateY(0);
+        }
+
+        .download-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 22px 44px rgba(16, 35, 62, 0.14);
+        }
+
+        @media (max-width: 1024px) {
+            body {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-900">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden"></div>
+
+    <div class="flex min-h-screen">
+        <aside id="sidebar" class="fixed lg:sticky top-0 w-[260px] h-screen bg-white border-r border-gray-200 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-xl shadow-slate-200/40">
+            <div class="flex items-center justify-center p-6 pb-4 border-b border-gray-100">
+                <div class="bg-gradient-to-r from-blue-50 to-sky-50 px-4 py-2 rounded-2xl border border-blue-100 shadow-sm">
+                    <div class="server-wordmark-wrap server-wordmark-wrap--sidebar">
+                        <img src="/photos/server-icon/icon-server.png" alt="VNA Server logo" class="server-wordmark">
+                    </div>
+                </div>
+            </div>
+            <nav class="flex-1 overflow-y-auto p-6 space-y-2 text-slate-600"></nav>
+            <div class="px-6 py-4 border-t border-slate-100">
+                <p class="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em]">Bedrock Community 2026</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0">
+            <header class="sticky top-0 z-40 backdrop-blur bg-white/75 border-b border-white/70">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <button type="button" data-toggle="sidebar" class="lg:hidden w-10 h-10 rounded-2xl bg-white text-slate-700 border border-slate-200 shadow-sm">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div>
+                            <p class="text-[11px] uppercase tracking-[0.28em] font-bold text-emerald-500">Trang tải game</p>
+                            <h1 class="text-base sm:text-lg font-extrabold text-slate-900">Minecraft PE cho VNA Server</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-sm text-slate-600">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-bold">Bedrock Online</span>
+                        </div>
+                        <div class="px-4 py-1.5 rounded-2xl bg-slate-900 text-white text-sm font-bold shadow-lg shadow-slate-900/15">
+                            <span id="headerTime">--:--:--</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 sm:space-y-10">
+                <section class="hero-grid rounded-[2rem] text-white overflow-hidden shadow-2xl shadow-slate-300/40">
+                    <div class="grid lg:grid-cols-[1.25fr_0.85fr] gap-8 px-6 sm:px-8 lg:px-12 py-8 sm:py-10">
+                        <div class="relative z-10 space-y-6">
+                            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/12 border border-white/15 text-sm font-bold">
+                                <i class="fas fa-download"></i>
+                                Tải game và vào server trong vài phút
+                            </div>
+
+                            <div class="space-y-4 max-w-3xl">
+                                <h2 class="text-4xl sm:text-5xl font-extrabold leading-tight">Cài Minecraft Bedrock đúng bản, vào VNA Server mượt hơn.</h2>
+                                <p class="text-base sm:text-lg text-white/80 leading-relaxed">
+                                    Trang này tổng hợp link tải Minecraft PE, hướng dẫn cài nhanh, và kiểm tra nhanh tình trạng server để bạn vào game không bị lệch phiên bản.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="stat-chip rounded-2xl px-4 py-4">
+                                    <p class="text-[11px] uppercase tracking-[0.24em] text-white/60 font-bold">Người chơi</p>
+                                    <p id="player-count" class="text-2xl font-extrabold mt-2">--/--</p>
                                 </div>
-                                <div class="space-y-6">
-                                    <h3 class="text-sm font-bold text-blue-500 uppercase tracking-widest">Đề nghị (Mượt mà)</h3>
-                                    <ul class="space-y-4">
-                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
-                                            <i class="fas fa-star text-blue-500"></i> Android 10+ / iOS 14+
-                                        </li>
-                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
-                                            <i class="fas fa-star text-blue-500"></i> RAM 4GB+
-                                        </li>
-                                        <li class="flex items-center gap-3 text-gray-600 font-medium">
-                                            <i class="fas fa-star text-blue-500"></i> Dung lượng trống 2GB+
-                                        </li>
-                                    </ul>
+                                <div class="stat-chip rounded-2xl px-4 py-4">
+                                    <p class="text-[11px] uppercase tracking-[0.24em] text-white/60 font-bold">RAM server</p>
+                                    <p id="ram-usage" class="text-2xl font-extrabold mt-2">--</p>
+                                </div>
+                                <div class="stat-chip rounded-2xl px-4 py-4">
+                                    <p class="text-[11px] uppercase tracking-[0.24em] text-white/60 font-bold">Địa chỉ vào game</p>
+                                    <p class="text-lg font-extrabold mt-2 break-all">vna.vanhmcpe.top:25003</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white text-emerald-600 font-extrabold shadow-xl shadow-slate-950/15 hover:scale-[1.02] transition">
+                                    <i class="fas fa-download"></i>
+                                    Tải Minecraft PE
+                                </button>
+                                <button onclick="copyIP()" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-white/10 border border-white/15 text-white font-bold hover:bg-white/15 transition">
+                                    <i class="fas fa-copy"></i>
+                                    Copy IP server
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="glass rounded-[2rem] p-6 sm:p-7 text-slate-900 h-full">
+                                <div class="flex items-center justify-between gap-4 mb-6">
+                                    <div>
+                                        <p class="text-[11px] uppercase tracking-[0.24em] font-bold text-emerald-500">Kế hoạch cài nhanh</p>
+                                        <h3 class="text-2xl font-extrabold mt-2">3 bước vào game</h3>
+                                    </div>
+                                    <div class="w-14 h-14 rounded-2xl gradient-green text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                                        <i class="fas fa-wand-magic-sparkles text-xl"></i>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-extrabold shrink-0">1</div>
+                                        <div>
+                                            <p class="font-extrabold text-slate-900">Tải đúng bản Minecraft</p>
+                                            <p class="text-sm text-slate-500 mt-1">Chọn bản trong danh sách phía dưới để tránh lệch phiên bản khi vào server.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                        <div class="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center font-extrabold shrink-0">2</div>
+                                        <div>
+                                            <p class="font-extrabold text-slate-900">Cài đặt và mở game</p>
+                                            <p class="text-sm text-slate-500 mt-1">Cho phép cài từ nguồn ngoài nếu máy hỏi, sau đó mở Minecraft Bedrock.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                        <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold shrink-0">3</div>
+                                        <div>
+                                            <p class="font-extrabold text-slate-900">Thêm server và chiến thôi</p>
+                                            <p class="text-sm text-slate-500 mt-1">IP: <span class="font-bold text-slate-700">vna.vanhmcpe.top</span> | Port: <span class="font-bold text-slate-700">25003</span></p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- FAQ Section -->
-                <div class="mb-20">
-                    <h2 class="text-3xl font-black mb-10 text-gray-900 text-center">Câu hỏi thường gặp</h2>
-                    <div class="space-y-4">
-                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
-                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                <section id="downloads" class="download-shell glass rounded-[2rem] px-6 sm:px-8 py-8 sm:py-10">
+                    <div class="relative z-10">
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+                            <div class="max-w-2xl">
+                                <p class="text-[11px] uppercase tracking-[0.28em] font-bold text-emerald-500">Bản tải động</p>
+                                <h2 class="text-3xl sm:text-4xl font-extrabold mt-2">Danh sách Minecraft PE hiện có</h2>
+                                <p class="text-slate-500 mt-3 leading-relaxed">
+                                    Các nút tải bên dưới được lấy động từ hệ thống quản trị. Nếu bạn vừa thêm phiên bản mới trong admin, trang này sẽ tự nhận.
+                                </p>
+                            </div>
+                            <div class="px-5 py-4 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/10">
+                                <p class="text-[11px] uppercase tracking-[0.24em] text-white/60 font-bold">Lưu ý</p>
+                                <p class="font-bold mt-2">Nếu link tải không hiện, kiểm tra lại dữ liệu trong admin Minecraft Downloads.</p>
+                            </div>
+                        </div>
+
+                        <div id="dynamic-downloads" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                            <div class="glass rounded-[1.5rem] p-6 border border-white/70">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
+                                    <i class="fa-brands fa-android text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-extrabold">Đang tải danh sách...</h3>
+                                <p class="text-slate-500 mt-2">Hệ thống đang lấy các phiên bản Minecraft từ API.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
+                    <div class="glass rounded-[2rem] p-6 sm:p-8">
+                        <p class="text-[11px] uppercase tracking-[0.28em] font-bold text-emerald-500">Yêu cầu thiết bị</p>
+                        <h2 class="text-3xl font-extrabold mt-2 mb-8">Máy của bạn cần gì để chạy ổn?</h2>
+                        <div class="grid sm:grid-cols-2 gap-5">
+                            <div class="spec-card rounded-[1.5rem] p-6 bg-white">
+                                <h3 class="text-sm font-bold text-emerald-500 uppercase tracking-widest">Tối thiểu</h3>
+                                <ul class="space-y-4 mt-5">
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-check-circle text-emerald-500"></i> Android 8+ / iOS 13+
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-check-circle text-emerald-500"></i> RAM 2GB
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-check-circle text-emerald-500"></i> Dung lượng trống 1GB
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="spec-card rounded-[1.5rem] p-6 bg-white">
+                                <h3 class="text-sm font-bold text-blue-500 uppercase tracking-widest">Đề nghị (Mượt mà)</h3>
+                                <ul class="space-y-4 mt-5">
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-star text-blue-500"></i> Android 10+ / iOS 14+
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-star text-blue-500"></i> RAM 4GB+
+                                    </li>
+                                    <li class="flex items-center gap-3 text-slate-600 font-medium">
+                                        <i class="fas fa-star text-blue-500"></i> Dung lượng trống 2GB+
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-[2rem] p-8 sm:p-10 text-white relative overflow-hidden shadow-2xl">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+                        <div class="relative z-10 flex flex-col gap-6">
+                            <div class="w-20 h-20 bg-white/18 rounded-3xl flex items-center justify-center">
+                                <i class="fas fa-lightbulb text-4xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-extrabold mb-4">Mẹo nhỏ cho bạn</h3>
+                                <ul class="space-y-3 opacity-95 font-medium">
+                                    <li class="flex items-center gap-3"><i class="fas fa-check"></i> Hãy đăng nhập Xbox để đồng bộ skin và thành tựu</li>
+                                    <li class="flex items-center gap-3"><i class="fas fa-check"></i> Luôn cập nhật phiên bản mới nhất từ trang này để tránh lỗi</li>
+                                    <li class="flex items-center gap-3"><i class="fas fa-check"></i> IP: vna.vanhmcpe.top | Port: 25003</li>
+                                </ul>
+                            </div>
+                            <button onclick="copyIP()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-emerald-600 font-extrabold self-start hover:scale-[1.02] transition">
+                                <i class="fas fa-copy"></i>
+                                Copy IP nhanh
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass rounded-[2rem] px-6 sm:px-8 py-8 sm:py-10">
+                    <h2 class="text-3xl font-extrabold mb-10 text-center">Câu hỏi thường gặp</h2>
+                    <div class="space-y-4 max-w-4xl mx-auto">
+                        <details class="group p-6 rounded-[1.5rem] bg-white border border-slate-100 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-slate-800 list-none">
                                 <span>Làm thế nào để cài đặt Minecraft PE?</span>
-                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
                             </summary>
-                            <p class="mt-4 text-gray-600 leading-relaxed">
-                                Bạn chỉ cần tải file APK về ứng dụng, mở file lên và chọn Cài đặt. Nếu điện thoại báo "Cài đặt bị chặn", hãy vào Cài đặt > Bảo mật và bật "Cho phép cài đặt từ nguồn không xác định".
+                            <p class="mt-4 text-slate-600 leading-relaxed">
+                                Bạn chỉ cần tải file APK về ứng dụng, mở file lên và chọn Cài đặt. Nếu điện thoại báo "Cài đặt bị chặn", hãy vào Cài đặt &gt; Bảo mật và bật "Cho phép cài đặt từ nguồn không xác định".
                             </p>
                         </details>
-                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
-                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                        <details class="group p-6 rounded-[1.5rem] bg-white border border-slate-100 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-slate-800 list-none">
                                 <span>Có cần mua game không?</span>
-                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
                             </summary>
-                            <p class="mt-4 text-gray-600 leading-relaxed">
+                            <p class="mt-4 text-slate-600 leading-relaxed">
                                 Các phiên bản được cung cấp tại đây là bản APK đã được mod nhẹ để có thể chơi cùng máy chủ VNA Server mà không cần mua bản quyền Google Play.
                             </p>
                         </details>
-                        <details class="group glass p-6 rounded-2xl border-white/10 cursor-pointer">
-                            <summary class="flex items-center justify-between font-bold text-gray-800 list-none">
+                        <details class="group p-6 rounded-[1.5rem] bg-white border border-slate-100 cursor-pointer">
+                            <summary class="flex items-center justify-between font-bold text-slate-800 list-none">
                                 <span>Tại sao không thể kết nối vào Server?</span>
-                                <i class="fas fa-chevron-down text-gray-400 group-open:rotate-180 transition-transform"></i>
+                                <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
                             </summary>
-                            <p class="mt-4 text-gray-600 leading-relaxed">
-                                Hãy đảm bảo bạn đã nhập đúng IP: <span class="font-mono bg-gray-100 px-2 py-1 rounded">vna.vanhmcpe.top</span> và Port: <span class="font-mono bg-gray-100 px-2 py-1 rounded">25003</span>. Ngoài ra, hãy kiểm tra kết nối mạng của bạn.
+                            <p class="mt-4 text-slate-600 leading-relaxed">
+                                Hãy đảm bảo bạn đã nhập đúng IP: <span class="font-mono bg-slate-100 px-2 py-1 rounded">vna.vanhmcpe.top</span> và Port: <span class="font-mono bg-slate-100 px-2 py-1 rounded">25003</span>. Ngoài ra, hãy kiểm tra kết nối mạng của bạn.
                             </p>
                         </details>
                     </div>
-                </div>
+                </section>
 
-                <!-- Info Box -->
-                <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-[2rem] p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-                    <div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                        <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center shrink-0">
-                            <i class="fas fa-lightbulb text-4xl"></i>
+                <section class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-extrabold mb-10 text-center">Tại sao chọn VNA Server?</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-8 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 transition-all shadow-sm">
+                            <div class="w-12 h-12 gradient-green rounded-2xl flex items-center justify-center text-white mb-4">
+                                <i class="fas fa-bolt text-lg"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Tốc độ cao</h3>
+                            <p class="text-slate-600">Server chạy trên hạ tầng tối ưu với ping thấp và độ ổn định cao.</p>
                         </div>
-                        <div>
-                            <h3 class="text-2xl font-black mb-4">Mẹo nhỏ cho bạn</h3>
-                            <ul class="space-y-3 opacity-90 font-medium">
-                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> Hãy đăng nhập Xbox để đồng bộ skin và thành tựu</li>
-                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> Luôn cập nhật phiên bản mới nhất từ trang này để tránh lỗi</li>
-                                <li class="flex items-center gap-3"><i class="fas fa-check"></i> IP: vna.vanhmcpe.top | Port: 25003</li>
-                            </ul>
+
+                        <div class="bg-white p-8 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 transition-all shadow-sm">
+                            <div class="w-12 h-12 gradient-green rounded-2xl flex items-center justify-center text-white mb-4">
+                                <i class="fas fa-shield-alt text-lg"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">An toàn</h3>
+                            <p class="text-slate-600">Dữ liệu được quản lý ổn định và quá trình cập nhật bản tải được kiểm soát.</p>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 transition-all shadow-sm">
+                            <div class="w-12 h-12 gradient-green rounded-2xl flex items-center justify-center text-white mb-4">
+                                <i class="fas fa-users text-lg"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Cộng đồng lớn</h3>
+                            <p class="text-slate-600">Có người chơi mới và cũ hoạt động thường xuyên, dễ tìm nhóm và giao lưu.</p>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-[1.5rem] border border-slate-100 hover:border-emerald-200 transition-all shadow-sm">
+                            <div class="w-12 h-12 gradient-green rounded-2xl flex items-center justify-center text-white mb-4">
+                                <i class="fas fa-gift text-lg"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Nhiều tính năng</h3>
+                            <p class="text-slate-600">Minigames, events, rewards và nhiều nội dung cộng đồng được cập nhật liên tục.</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
 
-            <!-- Features Section -->
-            <div class="max-w-4xl mx-auto px-6 mb-20">
-                <h2 class="text-3xl font-bold mb-10 text-gray-900 text-center">Tại sao chọn VNA Server?</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
-                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
-                            <i class="fas fa-bolt text-lg"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Tốc độ cao</h3>
-                        <p class="text-gray-600">Server chạy trên infrastructure tối ưu với ping siêu thấp</p>
+                <section class="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-[2rem] py-14 px-6 sm:px-10 shadow-2xl shadow-emerald-500/15">
+                    <div class="max-w-4xl mx-auto text-center">
+                        <h2 class="text-3xl sm:text-4xl font-extrabold mb-4">Sẵn sàng tham gia?</h2>
+                        <p class="text-lg opacity-90 mb-8">Tải Minecraft PE ngay hôm nay và bắt đầu cuộc phiêu lưu của bạn.</p>
+                        <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-emerald-600 px-6 sm:px-8 py-4 rounded-2xl font-extrabold hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2 whitespace-nowrap text-base">
+                            <i class="fas fa-download"></i> Tải Minecraft PE
+                        </button>
                     </div>
+                </section>
 
-                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
-                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
-                            <i class="fas fa-shield-alt text-lg"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">An toàn</h3>
-                        <p class="text-gray-600">Dữ liệu được bảo vệ và server được quản lý chuyên nghiệp</p>
-                    </div>
-
-                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
-                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
-                            <i class="fas fa-users text-lg"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Cộng đồng lớn</h3>
-                        <p class="text-gray-600">Hàng ngàn người chơi từ khắp nơi tập hợp tại đây</p>
-                    </div>
-
-                    <div class="bg-white p-8 rounded-xl border border-gray-100 hover:border-green-200 transition-all">
-                        <div class="w-12 h-12 gradient-green rounded-lg flex items-center justify-center text-white mb-4">
-                            <i class="fas fa-gift text-lg"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">Nhiều tính năng</h3>
-                        <p class="text-gray-600">Minigames, events, rewards và nhiều điều thú vị khác</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- CTA Section -->
-            <div class="bg-gradient-to-r from-green-500 to-blue-600 text-white py-16 mb-8">
-                <div class="max-w-4xl mx-auto px-6 text-center">
-                    <h2 class="text-3xl font-bold mb-4">Sẵn sàng tham gia?</h2>
-                    <p class="text-lg opacity-90 mb-8">Tải Minecraft PE ngay hôm nay và bắt đầu cuộc phiêu lưu của bạn</p>
-                    <button onclick="document.getElementById('downloads').scrollIntoView({behavior: 'smooth'})" class="bg-white text-green-600 px-6 sm:px-8 py-3 rounded-lg font-bold hover:shadow-xl transition-all hover:scale-105 inline-flex items-center gap-2 whitespace-nowrap text-base" style="color: #059669;">
-                        <i class="fas fa-download"></i> Tải Minecraft PE
-                    </button>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="border-t border-gray-200 bg-white py-8">
-                <div class="max-w-6xl mx-auto px-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <footer class="border-t border-slate-200 bg-white rounded-t-[2rem] px-6 py-8">
+                    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                         <div>
                             <div class="flex items-center gap-2 mb-4">
-                                <i class="fas fa-cube text-green-500 text-xl"></i>
-                                <span class="font-bold text-lg">VNA Server</span>
+                                <i class="fas fa-cube text-emerald-500 text-xl"></i>
+                                <span class="font-extrabold text-lg">VNA Server</span>
                             </div>
-                            <p class="text-gray-600 text-sm">Cộng đồng Minecraft Bedrock tuyệt vời tại vanhmcpe.top</p>
+                            <p class="text-slate-600 text-sm">Cộng đồng Minecraft Bedrock dành cho người chơi muốn vào nhanh, chơi ổn định và có nhiều hoạt động.</p>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 mb-4">Liên kết nhanh</h4>
-                            <ul class="space-y-2 text-sm text-gray-600">
-                                <li><a href="https://vanhmcpe.top" class="hover:text-green-500 transition">Trang chủ</a></li>
-                                <li><a href="status-server.html" class="hover:text-green-500 transition">Trạng thái server</a></li>
-                                <li></li>
+                            <h4 class="font-extrabold text-slate-900 mb-4">Liên kết nhanh</h4>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li><a href="https://vanhmcpe.top" class="hover:text-emerald-500 transition">Trang chủ</a></li>
+                                <li><a href="status-server.html" class="hover:text-emerald-500 transition">Trạng thái server</a></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 mb-4">IP Server</h4>
-                            <div class="bg-gray-100 p-3 rounded-lg">
-                                <code class="text-sm font-mono text-gray-800">vna.vanhmcpe.top:25003</code>
-                                <button onclick="copyIP()" class="ml-2 text-green-500 hover:text-green-600 transition">
+                            <h4 class="font-extrabold text-slate-900 mb-4">IP Server</h4>
+                            <div class="bg-slate-100 p-3 rounded-2xl inline-flex items-center gap-2">
+                                <code class="text-sm font-mono text-slate-800">vna.vanhmcpe.top:25003</code>
+                                <button onclick="copyIP()" class="text-emerald-500 hover:text-emerald-600 transition">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div class="border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
+                    <div class="border-t border-slate-200 pt-8 text-center text-sm text-slate-500">
                         <p>© 2026 VNA Server - Minecraft Bedrock Community | All rights reserved</p>
                     </div>
-                </div>
+                </footer>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="/html/shared-sidebar.js"></script>
-    
-<script src="/html/js/dowloadmc.js"></script>
+    <script src="/html/js/dowloadmc.js"></script>
 </body>
 </html>
-

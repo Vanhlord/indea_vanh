@@ -112,15 +112,15 @@
             const amount = Number(donor?.amount || 0);
             
             return `
-                <div class="donor-item flex items-center justify-between p-4 ${style.bg} rounded-xl border-l-4 ${style.border} ${isTop3 ? 'shadow-sm' : ''}">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">${style.icon}</span>
-                        <div>
-                            <span class="font-${isTop3 ? 'bold' : 'semibold'} ${isTop3 ? 'text-gray-800' : 'text-gray-600'} block">${safeName}</span>
-                            ${donationCount > 1 ? `<span class="text-xs ${style.badge} text-white px-2 py-0.5 rounded-full">${donationCount} lần</span>` : ''}
+                <div class="donor-item flex items-center justify-between gap-3 p-3 sm:p-4 ${style.bg} rounded-xl border-l-4 ${style.border} ${isTop3 ? 'shadow-sm' : ''}">
+                    <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                        <span class="shrink-0 text-lg sm:text-2xl">${style.icon}</span>
+                        <div class="min-w-0">
+                            <span class="font-${isTop3 ? 'bold' : 'semibold'} ${isTop3 ? 'text-gray-800' : 'text-gray-600'} block text-sm sm:text-base truncate">${safeName}</span>
+                            ${donationCount > 1 ? `<span class="inline-flex text-[11px] sm:text-xs ${style.badge} text-white px-1.5 sm:px-2 py-0.5 rounded-full mt-1">${donationCount} lần</span>` : ''}
                         </div>
                     </div>
-                    <span class="${isTop3 ? style.text : 'text-gray-700'} font-${isTop3 ? 'extrabold text-lg' : 'bold'}">${formatCurrency(amount)}</span>
+                    <span class="shrink-0 text-right text-sm sm:text-base ${isTop3 ? style.text + ' font-extrabold sm:text-lg' : 'text-gray-700 font-bold'}">${formatCurrency(amount)}</span>
                 </div>
             `;
         }
@@ -223,17 +223,34 @@
         }
 
         // ===== DONATE POPUP =====
+        const POPUP_CLOSE_DURATION = 420;
+        let donatePopupCloseTimer = null;
+
         function openDonatePopup() {
             const popup = document.getElementById('donatePopup');
-            popup.classList.remove('hidden');
+            if (!popup) return;
+
+            clearTimeout(donatePopupCloseTimer);
+            popup.setAttribute('aria-hidden', 'false');
+
+            requestAnimationFrame(() => {
+                popup.classList.add('is-visible');
+            });
+
             document.body.style.overflow = 'hidden';
         }
 
-        function closeDonatePopup(event) {
-            if (event && event.target !== event.currentTarget) return;
+        function closeDonatePopup() {
             const popup = document.getElementById('donatePopup');
-            popup.classList.add('hidden');
-            document.body.style.overflow = '';
+            if (!popup) return;
+
+            popup.classList.remove('is-visible');
+            popup.setAttribute('aria-hidden', 'true');
+
+            clearTimeout(donatePopupCloseTimer);
+            donatePopupCloseTimer = setTimeout(() => {
+                document.body.style.overflow = '';
+            }, POPUP_CLOSE_DURATION);
         }
 
         // Close popup with Escape key
