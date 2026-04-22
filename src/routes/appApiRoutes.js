@@ -23,10 +23,18 @@ import { getToolUsageSummary } from '../services/toolUsageService.js';
 import { getDonations } from '../services/donateService.js';
 import {
     ROOT_DIR,
+    PIKAMC_IP,
+    PIKAMC_PORT,
     WHITELIST_COMMAND_TEMPLATE,
     WHITELIST_REMOVE_COMMAND_TEMPLATE
 } from '../config/index.js';
 import { sendEmbed, isBotReady } from '../../bot/bot2.js';
+import {
+    deleteSiteSetting,
+    getPublicSiteSettings,
+    getSiteSettings,
+    upsertSiteSettings
+} from '../services/siteSettingsService.js';
 
 function getDiskUsageCandidates() {
     return [
@@ -62,6 +70,7 @@ export function registerAppApiRoutes(app, deps) {
         requireAdminPageAccess,
         toSafeDisplayText,
         readJsonWithFallback,
+        writeJson,
         serverStatusFile,
         countdownSettingsFile,
         defaultVapidPublicKey,
@@ -107,12 +116,23 @@ export function registerAppApiRoutes(app, deps) {
         return res.json({ success: true, bits: 0 });
     });
 
+    app.get('/api/config/site-settings', async (_req, res) => {
+        try {
+            const payload = await getPublicSiteSettings();
+            return res.json({ success: true, ...payload });
+        } catch (error) {
+            console.error('Load public site settings error:', error);
+            return res.status(500).json({ success: false, error: 'Khong the tai cau hinh cong khai.' });
+        }
+    });
+
     app.get('/api/config/server-status', async (_req, res) => {
-        const fallback = { ip: 'vna.vanhmcpe.top', port: '25702', maxPlayers: 50 };
+        const fallback = { maxPlayers: 50 };
         const parsed = await readJsonWithFallback(serverStatusFile, fallback);
+        const publicSettings = await getPublicSiteSettings().catch(() => null);
         const payload = {
-            ip: toSafeDisplayText(parsed?.ip, 120, fallback.ip),
-            port: toSafeDisplayText(parsed?.port, 12, fallback.port),
+            ip: toSafeDisplayText(publicSettings?.minecraft?.ip, 120, PIKAMC_IP),
+            port: toSafeDisplayText(publicSettings?.minecraft?.port, 12, PIKAMC_PORT),
             maxPlayers: Number.isFinite(Number(parsed?.maxPlayers))
                 ? Math.max(1, Math.min(5000, Math.floor(Number(parsed.maxPlayers))))
                 : fallback.maxPlayers
@@ -131,14 +151,35 @@ export function registerAppApiRoutes(app, deps) {
         return res.json(payload);
     });
 
+    app.post('/api/admin/countdown-settings', requireAdminPageAccess, async (req, res) => {
+        try {
+            const eventDate = sanitizeAdminText(req.body?.eventDate, 20);
+            const eventTime = sanitizeAdminText(req.body?.eventTime, 8);
+            const eventDescription = sanitizeAdminText(req.body?.eventDescription, 120);
+
+            if (!eventDate || !eventTime) {
+                return res.status(400).json({ success: false, error: 'Thiếu ngày hoặc giờ sự kiện.' });
+            }
+
+            const nextConfig = { eventDate, eventTime, eventDescription };
+            await writeJson(countdownSettingsFile, nextConfig);
+
+            return res.json({ success: true, data: nextConfig });
+        } catch (error) {
+            console.error('Save countdown settings error:', error);
+            return res.status(500).json({ success: false, error: 'Không thể lưu cấu hình thời gian.' });
+        }
+    });
+
     app.get('/api/config/vapid-public', (_req, res) => {
         const vapidKey = process.env.VAPID_PUBLIC_KEY || defaultVapidPublicKey;
         res.json({ key: vapidKey });
     });
 
     app.get('/api/pikamc/status', async (_req, res) => {
-        const ip = process.env.PIKAMC_IP || 'vna.vanhmcpe.top';
-        const port = process.env.PIKAMC_PORT || '25003';
+        const publicSettings = await getPublicSiteSettings().catch(() => null);
+        const ip = publicSettings?.minecraft?.ip || PIKAMC_IP;
+        const port = publicSettings?.minecraft?.port || PIKAMC_PORT;
         const apiKey = process.env.PIKAMC_API_KEY || '';
 
         let ramUsageStr = '0 MB';
@@ -400,6 +441,81 @@ export function registerAppApiRoutes(app, deps) {
         } catch (error) {
             console.error('Save PikaMC config error:', error);
             return res.status(500).json({ success: false, error: 'Không thể lưu cấu hình PikaMC.' });
+        }
+    });
+
+    app.get('/api/admin/site-settings', requireAdminPageAccess, async (_req, res) => {
+        try {
+            const items = await getSiteSettings();
+            return res.json({ success: true, items });
+        } catch (error) {
+            console.error('Load admin site settings error:', error);
+            return res.status(500).json({ success: false, error: 'Khong the tai danh sach thong so.' });
+        }
+    });
+
+    app.put('/api/admin/site-settings', requireAdminPageAccess, async (req, res) => {
+        try {
+            const inputItems = Array.isArray(req.body?.items) ? req.body.items : [];
+            if (inputItems.length === 0) {
+                return res.status(400).json({ success: false, error: 'Khong co thong so nao de luu.' });
+            }
+
+            const items = await upsertSiteSettings(inputItems);
+            const itemMap = new Map(items.map((item) => [item.key, item.value]));
+            const currentPikamcConfig = await getPikamcConfig();
+            const nextPanelUrl = String(itemMap.get('hosting_panel_url') || '').trim();
+            const nextServerId = String(itemMap.get('hosting_server_id') || '').trim();
+
+            if (nextPanelUrl || nextServerId) {
+                await savePikamcConfig({
+                    ...currentPikamcConfig,
+                    panelUrl: nextPanelUrl || currentPikamcConfig.panelUrl,
+                    serverId: nextServerId || currentPikamcConfig.serverId
+                });
+            }
+
+            return res.json({ success: true, items });
+        } catch (error) {
+            console.error('Save site settings error:', error);
+            const message = error?.message || 'Khong the luu thong so.';
+            const status = /Khong co thong so|Key khong hop le|Gia tri cua|Port Minecraft|IP Minecraft/i.test(message)
+                ? 400
+                : 500;
+            return res.status(status).json({
+                success: false,
+                error: message
+            });
+        }
+    });
+
+    app.delete('/api/admin/site-settings/:key', requireAdminPageAccess, async (req, res) => {
+        try {
+            const result = await deleteSiteSetting(req.params.key);
+
+            if (result.item?.key === 'hosting_panel_url' || result.item?.key === 'hosting_server_id') {
+                const currentPikamcConfig = await getPikamcConfig();
+                await savePikamcConfig({
+                    ...currentPikamcConfig,
+                    panelUrl: result.item.key === 'hosting_panel_url'
+                        ? result.item.value || currentPikamcConfig.panelUrl
+                        : currentPikamcConfig.panelUrl,
+                    serverId: result.item.key === 'hosting_server_id'
+                        ? result.item.value || currentPikamcConfig.serverId
+                        : currentPikamcConfig.serverId
+                });
+            }
+
+            return res.json({
+                success: true,
+                resetToDefault: result.resetToDefault,
+                item: result.item
+            });
+        } catch (error) {
+            console.error('Delete site setting error:', error);
+            const message = error?.message || 'Khong the xoa thong so.';
+            const status = message.includes('Khong tim thay') ? 404 : 400;
+            return res.status(status).json({ success: false, error: message });
         }
     });
 

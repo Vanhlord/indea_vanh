@@ -15,6 +15,8 @@ export const PORT = parseInt(process.env.PORT) || 3000;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // PikaMC config
+export const PIKAMC_IP = process.env.PIKAMC_IP || 'vna.vanhmcpe.top';
+export const PIKAMC_PORT = process.env.PIKAMC_PORT || '25003';
 export const PANEL_URL = process.env.PIKAMC_PANEL_URL || 'https://cp.pikamc.vn';
 export const API_KEY = process.env.PIKAMC_API_KEY;
 export const SERVER_ID = process.env.PIKAMC_SERVER_ID || 'e417ea4b';

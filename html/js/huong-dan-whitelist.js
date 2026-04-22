@@ -16,7 +16,8 @@ function toggleSidebar() {
         }
 
         async function copyIP() {
-            const text = 'vanhmcpe.my-land.fun:25702';
+            const text = await (window.SiteSettingsUtils?.getMinecraftAddressAsync?.()
+                || Promise.resolve('vna.vanhmcpe.top:25003'));
             const copyStatus = document.getElementById('copyStatus');
 
             try {

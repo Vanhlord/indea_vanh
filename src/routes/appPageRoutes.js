@@ -30,6 +30,9 @@ export function registerAppPageRoutes(app, deps) {
     app.get('/admin/whitelist.html', requireAdminPageAccess, (_req, res) => {
         res.sendFile(path.join(__dirname, 'admin/whitelist.html'));
     });
+    app.get('/admin/server-settings.html', requireAdminPageAccess, (_req, res) => {
+        res.sendFile(path.join(__dirname, 'admin/server-settings.html'));
+    });
     app.get('/admin/notifications.html', requireAdminPageAccess, (_req, res) => {
         res.sendFile(path.join(__dirname, 'admin/notifications.html'));
     });

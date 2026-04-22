@@ -73,8 +73,9 @@
             };
         };
 
-        function copyIP() {
-            const ip = 'vna.vanhmcpe.top:25003';
+        async function copyIP() {
+            const ip = await (window.SiteSettingsUtils?.getMinecraftAddressAsync?.()
+                || Promise.resolve('vna.vanhmcpe.top:25003'));
             navigator.clipboard.writeText(ip).then(() => {
                 showToast('✓ Đã copy IP server', 'success');
             }).catch(err => {

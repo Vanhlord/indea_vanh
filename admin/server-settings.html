@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/photos/server-icon/icon-server.png">
+    <link rel="apple-touch-icon" href="/photos/server-icon/icon-server.png">
+    <title>Cấu hình Server</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/html/shared-theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --line: #dbeafe;
+            --ink: #0f172a;
+            --muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.15), transparent 32%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 28%),
+                linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+            color: var(--ink);
+        }
+
+        .page-content {
+            width: 100%;
+            padding: 24px 16px 56px;
+        }
+
+        .page-shell {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .hero-card,
+        .panel-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-card {
+            overflow: hidden;
+            position: relative;
+            padding: 28px;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: auto -80px -100px auto;
+            width: 280px;
+            height: 280px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.24), rgba(59, 130, 246, 0));
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 7px 14px;
+            background: rgba(37, 99, 235, 0.1);
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stats-grid,
+        .panel-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .stat-box {
+            border-radius: 20px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            padding: 18px;
+        }
+
+        .panel-card {
+            padding: 22px;
+        }
+
+        .field-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .field-grid.two-col {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            background: #f8fbff;
+            padding: 13px 15px;
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .field textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+            background: #ffffff;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 16px;
+            padding: 13px 18px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+            box-shadow: 0 18px 28px rgba(37, 99, 235, 0.26);
+        }
+
+        .btn-secondary {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status {
+            min-height: 22px;
+            margin-top: 12px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            transition: opacity 0.3s ease;
+        }
+
+        .status.ok { color: #15803d; }
+        .status.err { color: #dc2626; }
+
+        .hint {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .settings-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .setting-card {
+            border-radius: 22px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .setting-head {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .setting-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .setting-key {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #2563eb;
+            word-break: break-all;
+        }
+
+        .setting-value {
+            border-radius: 16px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 14px 16px;
+            font: 0.88rem/1.55 Consolas, Monaco, 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 11px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .badge.public { background: #dcfce7; color: #166534; }
+        .badge.private { background: #fef3c7; color: #92400e; }
+        .badge.system { background: #dbeafe; color: #1d4ed8; }
+        .badge.custom { background: #ede9fe; color: #6d28d9; }
+
+        .empty-state {
+            border-radius: 22px;
+            border: 1px dashed #bfdbfe;
+            background: rgba(255, 255, 255, 0.78);
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        @media (min-width: 1024px) {
+            .panel-grid {
+                grid-template-columns: 1.05fr 0.95fr;
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-[1000] hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <aside id="sidebar" class="fixed lg:relative w-[260px] bg-white h-full border-r border-gray-200 transition-all duration-300 z-[1001] -left-[260px] lg:left-0 flex flex-col shadow-sm">
+        <div class="flex items-center gap-3 p-6 pb-4 border-b border-gray-100">
+            <div class="w-10 h-10 bg-[#007bff] rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+                <i class="fas fa-server text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-800">VNA</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-6 space-y-2">
+            <!-- Sidebar content injected by shared-sidebar.js -->
+        </nav>
+
+        <div class="p-6 pt-4 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center font-medium">© 2026 Admin Panel</p>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-y-auto">
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-[#007bff] rounded-lg flex items-center justify-center text-white">
+                    <i class="fas fa-sliders text-sm"></i>
+                </div>
+                <span class="font-bold text-slate-700">Cấu hình Server</span>
+            </div>
+            <button type="button" onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+
+        <div class="page-content">
+            <div class="page-shell">
+                <section class="hero-card">
+                    <div class="relative z-10">
+                        <span class="chip"><i class="fa-solid fa-database"></i> JSON-backed settings</span>
+                        <h1 class="text-3xl sm:text-4xl font-black mt-4">Quản lý IP, port và thông số server ở một chỗ</h1>
+                        <p class="mt-4 text-slate-600 max-w-3xl leading-relaxed">
+                            Trang này lưu cấu hình vào file JSON để các trang HTML khác tự fetch về từ server.
+                            Admin chỉ cần đổi một lần, những nơi đang hiển thị IP/port sẽ cập nhật theo mà không cần sửa tay từng file.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <div class="stat-box">
+                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400 font-bold">Public settings</p>
+                        <p id="publicCount" class="text-3xl font-black mt-3">0</p>
+                        <p class="text-sm text-slate-500 mt-1">Những giá trị được frontend công khai fetch.</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400 font-bold">Private settings</p>
+                        <p id="privateCount" class="text-3xl font-black mt-3">0</p>
+                        <p class="text-sm text-slate-500 mt-1">Chỉ admin thấy trên web quản trị.</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400 font-bold">System keys</p>
+                        <p id="systemCount" class="text-3xl font-black mt-3">0</p>
+                        <p class="text-sm text-slate-500 mt-1">Các key mặc định cho Minecraft và hosting.</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="text-xs uppercase tracking-[0.18em] text-slate-400 font-bold">Custom keys</p>
+                        <p id="customCount" class="text-3xl font-black mt-3">0</p>
+                        <p class="text-sm text-slate-500 mt-1">Thông số admin tự thêm để mở rộng sau này.</p>
+                    </div>
+                </section>
+
+                <section class="panel-grid">
+                    <div class="panel-card">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                            <div>
+                                <h2 class="text-2xl font-black">Thông số cốt lõi</h2>
+                                <p class="text-slate-500 mt-1">IP/port Minecraft và thông tin hosting chính.</p>
+                            </div>
+                            <span class="badge system"><i class="fa-solid fa-shield"></i> Core settings</span>
+                        </div>
+
+                        <form id="coreSettingsForm">
+                            <div class="field-grid two-col">
+                                <div class="field">
+                                    <label for="displayNameInput">Tên hiển thị server</label>
+                                    <input id="displayNameInput" type="text" maxlength="80" placeholder="Ví dụ: VNA Server">
+                                </div>
+                                <div class="field">
+                                    <label for="minecraftIpInput">IP Minecraft</label>
+                                    <input id="minecraftIpInput" type="text" maxlength="120" placeholder="Ví dụ: vna.vanhmcpe.top">
+                                </div>
+                                <div class="field">
+                                    <label for="minecraftPortInput">Port Minecraft</label>
+                                    <input id="minecraftPortInput" type="number" min="1" max="65535" placeholder="25003">
+                                </div>
+                                <div class="field">
+                                    <label for="hostingServerIdInput">Hosting Server ID</label>
+                                    <input id="hostingServerIdInput" type="text" maxlength="80" placeholder="Ví dụ: dbedd26c">
+                                </div>
+                                <div class="field">
+                                    <label for="hostingPanelUrlInput">Hosting Panel URL</label>
+                                    <input id="hostingPanelUrlInput" type="url" maxlength="500" placeholder="https://cp.pikamc.vn">
+                                </div>
+                                <div class="field">
+                                    <label for="hostingApiUrlInput">Hosting API URL</label>
+                                    <input id="hostingApiUrlInput" type="url" maxlength="500" placeholder="https://cp.pikamc.vn/api/client">
+                                </div>
+                            </div>
+
+                            <div class="actions mt-5">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fa-solid fa-floppy-disk"></i> Lưu thông số cốt lõi
+                                </button>
+                                <button class="btn btn-secondary" id="refreshCoreBtn" type="button">
+                                    <i class="fa-solid fa-rotate"></i> Tải lại từ server
+                                </button>
+                            </div>
+                            <div id="coreStatus" class="status" aria-live="polite"></div>
+                        </form>
+                    </div>
+
+                <section class="panel-card mb-6">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black">Cấu hình thời gian đếm ngược</h2>
+                            <p class="text-slate-500 mt-1">Thay đổi ngày giờ sự kiện và mô tả hiển thị trên trang chủ.</p>
+                        </div>
+                    </div>
+
+                    <form id="countdownForm">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="countdownDate">Ngày sự kiện (DD/MM/YYYY)</label>
+                                <input id="countdownDate" type="text" placeholder="Ví dụ: 12/06/2026" required>
+                            </div>
+                            <div class="field">
+                                <label for="countdownTime">Giờ sự kiện (HH:mm)</label>
+                                <input id="countdownTime" type="text" placeholder="Ví dụ: 18:00" required>
+                            </div>
+                            <div class="field sm:col-span-2">
+                                <label for="countdownDesc">Mô tả sự kiện</label>
+                                <input id="countdownDesc" type="text" placeholder="Ví dụ: Server OPEN BETA">
+                            </div>
+                        </div>
+                        <div class="actions mt-5">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa-solid fa-floppy-disk"></i> Lưu thời gian
+                            </button>
+                            <span id="countdownStatus" class="status"></span>
+                        </div>
+                    </form>
+                </section>
+
+                <div class="panel-card">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        <div>
+                            <h2 class="text-2xl font-black">Thêm / sửa thông số khác</h2>
+                            <p class="text-slate-500 mt-1">Dùng cho key mở rộng như link hỗ trợ, ghi chú riêng, cờ tính năng...</p>
+                        </div>
+                        <span id="formModeBadge" class="badge custom"><i class="fa-solid fa-pen"></i> Add mode</span>
+                    </div>
+
+                        <form id="settingForm">
+                            <input id="editingKeyInput" type="hidden">
+                            <div class="field-grid">
+                                <div class="field">
+                                    <label for="settingKeyInput">Key</label>
+                                    <input id="settingKeyInput" type="text" maxlength="64" placeholder="Ví dụ: support_discord_url">
+                                </div>
+                                <div class="field">
+                                    <label for="settingLabelInput">Nhãn hiển thị</label>
+                                    <input id="settingLabelInput" type="text" maxlength="80" placeholder="Ví dụ: Link Discord hỗ trợ">
+                                </div>
+                                <div class="field">
+                                    <label for="settingValueInput">Giá trị</label>
+                                    <input id="settingValueInput" type="text" maxlength="500" placeholder="Nhập giá trị cần lưu">
+                                </div>
+                                <div class="field-grid two-col">
+                                    <div class="field">
+                                        <label for="settingVisibilityInput">Phạm vi</label>
+                                        <select id="settingVisibilityInput">
+                                            <option value="public">Public</option>
+                                            <option value="private">Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="settingTypeInput">Kiểu dữ liệu</label>
+                                        <select id="settingTypeInput">
+                                            <option value="text">Text</option>
+                                            <option value="url">URL</option>
+                                            <option value="number">Number</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label for="settingCategoryInput">Nhóm</label>
+                                    <input id="settingCategoryInput" type="text" maxlength="60" placeholder="Ví dụ: support / minecraft / hosting">
+                                </div>
+                                <div class="field">
+                                    <label for="settingDescriptionInput">Mô tả</label>
+                                    <textarea id="settingDescriptionInput" placeholder="Mô tả ngắn để admin khác nhìn vào hiểu ngay thông số này dùng để làm gì."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="actions mt-5">
+                                <button class="btn btn-primary" id="settingSubmitBtn" type="submit">
+                                    <i class="fa-solid fa-plus"></i> Lưu thông số
+                                </button>
+                                <button class="btn btn-secondary" id="resetFormBtn" type="button">
+                                    <i class="fa-solid fa-eraser"></i> Xóa form
+                                </button>
+                            </div>
+                            <div id="formStatus" class="status" aria-live="polite"></div>
+                            <p class="hint mt-4">
+                                Key nên dùng chữ thường, số, dấu gạch ngang/gạch dưới/dấu chấm.
+                                Nếu sửa key hệ thống như <code>minecraft_ip</code> hoặc <code>minecraft_port</code>,
+                                toàn bộ frontend đang bind <code>data-site-setting</code> sẽ đổi theo ngay sau khi reload.
+                            </p>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        <div>
+                            <h2 class="text-2xl font-black">Danh sách thông số hiện có</h2>
+                            <p class="text-slate-500 mt-1">Sửa, xóa hoặc khôi phục mặc định trực tiếp từ đây.</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-secondary" id="refreshListBtn" type="button">
+                                <i class="fa-solid fa-rotate"></i> Làm mới danh sách
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="settingsList" class="settings-list">
+                        <div class="empty-state">Đang tải danh sách cấu hình...</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="/html/shared-sidebar.js"></script>
+    <script src="/html/js/server-settings-admin.js"></script>
+</body>
+</html>

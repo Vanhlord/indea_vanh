@@ -210,7 +210,7 @@
                                 </div>
                                 <div class="stat-chip rounded-2xl px-4 py-4">
                                     <p class="text-[11px] uppercase tracking-[0.24em] text-white/60 font-bold">Địa chỉ vào game</p>
-                                    <p class="text-lg font-extrabold mt-2 break-all">vna.vanhmcpe.top:25003</p>
+                                    <p class="text-lg font-extrabold mt-2 break-all" data-site-setting="minecraft_address">vna.vanhmcpe.top:25003</p>
                                 </div>
                             </div>
 
@@ -257,7 +257,7 @@
                                         <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-extrabold shrink-0">3</div>
                                         <div>
                                             <p class="font-extrabold text-slate-900">Thêm server và chiến thôi</p>
-                                            <p class="text-sm text-slate-500 mt-1">IP: <span class="font-bold text-slate-700">vna.vanhmcpe.top</span> | Port: <span class="font-bold text-slate-700">25003</span></p>
+                                            <p class="text-sm text-slate-500 mt-1">IP: <span class="font-bold text-slate-700" data-site-setting="minecraft_ip">vna.vanhmcpe.top</span> | Port: <span class="font-bold text-slate-700" data-site-setting="minecraft_port">25003</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -341,7 +341,7 @@
                                 <ul class="space-y-3 opacity-95 font-medium">
                                     <li class="flex items-center gap-3"><i class="fas fa-check"></i> Hãy đăng nhập Xbox để đồng bộ skin và thành tựu</li>
                                     <li class="flex items-center gap-3"><i class="fas fa-check"></i> Luôn cập nhật phiên bản mới nhất từ trang này để tránh lỗi</li>
-                                    <li class="flex items-center gap-3"><i class="fas fa-check"></i> IP: vna.vanhmcpe.top | Port: 25003</li>
+                                    <li class="flex items-center gap-3"><i class="fas fa-check"></i> IP: <span data-site-setting="minecraft_ip">vna.vanhmcpe.top</span> | Port: <span data-site-setting="minecraft_port">25003</span></li>
                                 </ul>
                             </div>
                             <button onclick="copyIP()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-emerald-600 font-extrabold self-start hover:scale-[1.02] transition">
@@ -379,7 +379,7 @@
                                 <i class="fas fa-chevron-down text-slate-400 group-open:rotate-180 transition-transform"></i>
                             </summary>
                             <p class="mt-4 text-slate-600 leading-relaxed">
-                                Hãy đảm bảo bạn đã nhập đúng IP: <span class="font-mono bg-slate-100 px-2 py-1 rounded">vna.vanhmcpe.top</span> và Port: <span class="font-mono bg-slate-100 px-2 py-1 rounded">25003</span>. Ngoài ra, hãy kiểm tra kết nối mạng của bạn.
+                                Hãy đảm bảo bạn đã nhập đúng IP: <span class="font-mono bg-slate-100 px-2 py-1 rounded" data-site-setting="minecraft_ip">vna.vanhmcpe.top</span> và Port: <span class="font-mono bg-slate-100 px-2 py-1 rounded" data-site-setting="minecraft_port">25003</span>. Ngoài ra, hãy kiểm tra kết nối mạng của bạn.
                             </p>
                         </details>
                     </div>
@@ -451,7 +451,7 @@
                         <div>
                             <h4 class="font-extrabold text-slate-900 mb-4">IP Server</h4>
                             <div class="bg-slate-100 p-3 rounded-2xl inline-flex items-center gap-2">
-                                <code class="text-sm font-mono text-slate-800">vna.vanhmcpe.top:25003</code>
+                                <code class="text-sm font-mono text-slate-800" data-site-setting="minecraft_address">vna.vanhmcpe.top:25003</code>
                                 <button onclick="copyIP()" class="text-emerald-500 hover:text-emerald-600 transition">
                                     <i class="fas fa-copy"></i>
                                 </button>
@@ -468,5 +468,6 @@
 
     <script src="/html/shared-sidebar.js"></script>
     <script src="/html/js/dowloadmc.js"></script>
+    <script src="/html/js/site-settings-client.js"></script>
 </body>
 </html>

@@ -332,7 +332,7 @@
                 <!-- Countdown Section -->
                 <div class="bg-white py-2 px-4 text-center border-b border-gray-200">
                     <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-gray-700">
-                        <span class="font-bold text-sm sm:text-base font-mono tracking-wider" id="countdown"></span>
+                        <span class="font-bold text-sm sm:text-base font-mono tracking-wider" id="countdown-dynamic"></span>
                     </div>
                 </div>
 
@@ -595,7 +595,7 @@
                                         <div class="mt-5 space-y-3">
                                             <button type="button" onclick="copyIP()" class="w-full inline-flex items-center justify-center gap-2 bg-cyan-500 text-slate-900 px-4 py-3 rounded-xl font-semibold hover:bg-cyan-600 transition-colors">
                                                 <i class="fas fa-copy"></i>
-                                                vna.vanhmcpe.top:25003
+                                                <span data-site-setting="minecraft_address">vna.vanhmcpe.top:25003</span>
                                             </button>
                                             <button onclick="playMinecraft()" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-400/95 text-slate-900 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-300 transition-colors">
                                                 <i class="fas fa-play"></i>
@@ -820,7 +820,7 @@
                     🎮 <strong>Server Minecraft Bedrock</strong> miễn phí, ổn định 24/7
                 </p>
                 <p class="text-gray-600 mb-3 leading-relaxed">
-                    🌟 Server hiện tại đang trong thời gian nghỉ, vui lòng chờ đến ngày 12/6/2026!
+                    🌟 Server hiện tại đang trong thời gian nghỉ, vui lòng chờ đến ngày <span id="popupEventDate" class="font-bold text-blue-600">12/6/2026</span>!
                 </p>
                 <p class="text-sm text-gray-500 mb-6 bg-gray-100 p-3 rounded-xl">
                     💡 <em>Mẹo: Đăng nhập Discord để trải nghiệm đầy đủ tính năng</em>
@@ -839,5 +839,7 @@
     <div id="furinaBubble" class="furina-bubble" aria-live="polite"></div>
     <img id="furinaCornerImage" src="/photos/anh-dowload/furina.png" alt="Furina" class="furina-corner" loading="lazy">
 <script src="/html/js/index.js"></script>
+<script src="/html/js/site-settings-client.js"></script>
+<script src="/html/js/countdown-client.js"></script>
 </body>
 </html>

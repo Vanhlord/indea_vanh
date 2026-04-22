@@ -1,0 +1,65 @@
+{
+  "updatedAt": "2026-04-22T00:00:00.000Z",
+  "items": [
+    {
+      "key": "server_display_name",
+      "label": "Ten hien thi server",
+      "value": "VNA Server",
+      "description": "Ten hien thi cong khai tren website.",
+      "visibility": "public",
+      "type": "text",
+      "category": "minecraft",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    },
+    {
+      "key": "minecraft_ip",
+      "label": "IP Minecraft",
+      "value": "vna.vanhmcpe.top",
+      "description": "Dia chi vao Minecraft Bedrock.",
+      "visibility": "public",
+      "type": "text",
+      "category": "minecraft",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    },
+    {
+      "key": "minecraft_port",
+      "label": "Port Minecraft",
+      "value": "25003",
+      "description": "Cong vao Minecraft Bedrock.",
+      "visibility": "public",
+      "type": "number",
+      "category": "minecraft",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    },
+    {
+      "key": "hosting_panel_url",
+      "label": "Panel hosting",
+      "value": "https://cp.pikamc.vn",
+      "description": "Link panel hosting dang duoc su dung.",
+      "visibility": "private",
+      "type": "url",
+      "category": "hosting",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    },
+    {
+      "key": "hosting_api_url",
+      "label": "API hosting",
+      "value": "https://cp.pikamc.vn/api/client",
+      "description": "Endpoint API hosting neu can goi tu server.",
+      "visibility": "private",
+      "type": "url",
+      "category": "hosting",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    },
+    {
+      "key": "hosting_server_id",
+      "label": "Server ID hosting",
+      "value": "dbedd26c",
+      "description": "Ma server dang duoc quan ly tren hosting.",
+      "visibility": "private",
+      "type": "text",
+      "category": "hosting",
+      "updatedAt": "2026-04-22T00:00:00.000Z"
+    }
+  ]
+}

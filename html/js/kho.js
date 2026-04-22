@@ -14,8 +14,9 @@ function toggleSidebar() {
             }
         }
 
-        function copyIP() {
-            const ip = 'vanhmcpe.my-land.fun:25702';
+        async function copyIP() {
+            const ip = await (window.SiteSettingsUtils?.getMinecraftAddressAsync?.()
+                || Promise.resolve('vna.vanhmcpe.top:25003'));
             navigator.clipboard.writeText(ip)
                 .then(() => alert('Đã copy IP: ' + ip))
                 .catch(() => alert('Không thể copy IP, hãy thử lại.'));

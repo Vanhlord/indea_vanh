@@ -1,5 +1,20 @@
 (function () {
-    const DEFAULT_IP = 'vanhmcpe.my-land.fun:25702';
+    const DEFAULT_SITE_SETTINGS = {
+        settings: {
+            server_display_name: 'VNA Server',
+            minecraft_ip: 'vna.vanhmcpe.top',
+            minecraft_port: '25003'
+        },
+        minecraft: {
+            ip: 'vna.vanhmcpe.top',
+            port: '25003',
+            address: 'vna.vanhmcpe.top:25003',
+            displayName: 'VNA Server'
+        }
+    };
+
+    let siteSettingsCache = normalizeSiteSettings(DEFAULT_SITE_SETTINGS);
+    let siteSettingsPromise = null;
 
     function normalizePath(pathname) {
         const value = String(pathname || '/').toLowerCase();
@@ -10,6 +25,123 @@
     function isActivePath(currentPath, candidates) {
         return candidates.some((candidate) => normalizePath(candidate) === currentPath);
     }
+
+    function cloneSiteSettings(payload) {
+        return JSON.parse(JSON.stringify(payload));
+    }
+
+    function normalizeSiteSettings(payload) {
+        const rawSettings = payload?.settings && typeof payload.settings === 'object'
+            ? payload.settings
+            : {};
+        const displayName = String(
+            payload?.minecraft?.displayName
+            || rawSettings.server_display_name
+            || DEFAULT_SITE_SETTINGS.minecraft.displayName
+        ).trim() || DEFAULT_SITE_SETTINGS.minecraft.displayName;
+        const ip = String(
+            payload?.minecraft?.ip
+            || rawSettings.minecraft_ip
+            || DEFAULT_SITE_SETTINGS.minecraft.ip
+        ).trim() || DEFAULT_SITE_SETTINGS.minecraft.ip;
+        const port = String(
+            payload?.minecraft?.port
+            || rawSettings.minecraft_port
+            || DEFAULT_SITE_SETTINGS.minecraft.port
+        ).trim() || DEFAULT_SITE_SETTINGS.minecraft.port;
+
+        return {
+            settings: {
+                ...rawSettings,
+                server_display_name: displayName,
+                minecraft_ip: ip,
+                minecraft_port: port
+            },
+            minecraft: {
+                ip,
+                port,
+                address: `${ip}:${port}`,
+                displayName
+            }
+        };
+    }
+
+    function dispatchSiteSettingsUpdated() {
+        window.__siteSettings = cloneSiteSettings(siteSettingsCache);
+        window.dispatchEvent(new CustomEvent('site-settings:updated', {
+            detail: cloneSiteSettings(siteSettingsCache)
+        }));
+    }
+
+    async function loadSiteSettings(force = false) {
+        if (!force && siteSettingsPromise) {
+            return siteSettingsPromise;
+        }
+
+        siteSettingsPromise = fetch('/api/config/site-settings', {
+            credentials: 'same-origin'
+        })
+            .then(async (response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const payload = await response.json();
+                siteSettingsCache = normalizeSiteSettings(payload);
+                dispatchSiteSettingsUpdated();
+                return cloneSiteSettings(siteSettingsCache);
+            })
+            .catch(() => cloneSiteSettings(siteSettingsCache))
+            .finally(() => {
+                siteSettingsPromise = null;
+            });
+
+        return siteSettingsPromise;
+    }
+
+    function getSiteSettingsSnapshot() {
+        return cloneSiteSettings(siteSettingsCache);
+    }
+
+    function getMinecraftAddress() {
+        return siteSettingsCache.minecraft.address;
+    }
+
+    async function getMinecraftAddressAsync() {
+        await loadSiteSettings().catch(() => getSiteSettingsSnapshot());
+        return getMinecraftAddress();
+    }
+
+    async function writeClipboardText(text) {
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', 'readonly');
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+    }
+
+    async function copyMinecraftAddress() {
+        const address = await getMinecraftAddressAsync();
+        await writeClipboardText(address);
+        return address;
+    }
+
+    window.SiteSettingsUtils = {
+        load: loadSiteSettings,
+        getSnapshot: getSiteSettingsSnapshot,
+        getMinecraftAddress,
+        getMinecraftAddressAsync,
+        copyMinecraftAddress
+    };
+    window.__siteSettings = cloneSiteSettings(siteSettingsCache);
 
     function navLink(iconClass, label, href, active) {
         if (active) {
@@ -60,15 +192,13 @@
     }
 
     function ensureCopyIP() {
-        if (typeof window.copyIP === 'function') return;
-        window.copyIP = function copyIP() {
-            if (!navigator.clipboard) {
+        window.copyIP = async function copyIP() {
+            try {
+                const address = await copyMinecraftAddress();
+                alert(`Đã copy IP: ${address}`);
+            } catch (_error) {
                 alert('Không thể copy IP, vui lòng thử lại.');
-                return;
             }
-            navigator.clipboard.writeText(DEFAULT_IP)
-                .then(() => alert(`Đã copy IP: ${DEFAULT_IP}`))
-                .catch(() => alert('Không thể copy IP, vui lòng thử lại.'));
         };
     }
 
@@ -83,7 +213,6 @@
     }
 
     function renderSidebar(userInfo) {
-        // Skip pages that use a dedicated custom sidebar (e.g. Cloud file manager).
         if (document.getElementById('all-files-link') || document.body?.dataset?.sidebar === 'custom') {
             return false;
         }
@@ -100,8 +229,10 @@
             home: isActivePath(currentPath, ['/', '/html/index.html']),
             statusServer: isActivePath(currentPath, ['/html/status-server.html']),
             cloud: isActivePath(currentPath, ['/cloud', '/p/cloud.html']),
+            leaderboard: isActivePath(currentPath, ['/leaderboard', '/html/leaderboard.html']),
             donate: isActivePath(currentPath, ['/a11/donet.html', '/A11/donet.html']),
             kho: isActivePath(currentPath, ['/p/kho.html']),
+            facebook: isActivePath(currentPath, ['/p/snapsave.html']),
             tiktok: isActivePath(currentPath, ['/html/tiktok.html']),
             youtube: isActivePath(currentPath, ['/html/youtube.html']),
             x: isActivePath(currentPath, ['/x', '/twitter', '/html/x.html']),
@@ -109,7 +240,8 @@
             whitelist: isActivePath(currentPath, ['/whitelist', '/html/whitelist.html']),
             embedAdmin: isActivePath(currentPath, ['/admin/e.html', '/embed-admin', '/admin06082008']),
             whitelistAdmin: isActivePath(currentPath, ['/admin/whitelist.html']),
-            mcAdmin: isActivePath(currentPath, ['/admin/p.html', '/admin/p'])
+            mcAdmin: isActivePath(currentPath, ['/admin/p.html', '/admin/p']),
+            serverSettingsAdmin: isActivePath(currentPath, ['/admin/server-settings.html'])
         };
 
         nav.innerHTML = `
@@ -135,6 +267,7 @@
             ${navLink('fas fa-toolbox', 'Kho công cụ', '/p/kho.html', active.kho)}
             ${isAdmin ? `
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-3 mt-2">Quản trị</div>
+            ${navLink('fas fa-sliders', 'Cấu hình server', '/admin/server-settings.html', active.serverSettingsAdmin)}
             ${navLink('fas fa-bullhorn', 'Thông báo Discord', '/admin/e.html', active.embedAdmin)}
             ${navLink('fas fa-user-shield', 'Whitelist Admin', '/admin/whitelist.html', active.whitelistAdmin)}
             ${navLink('fas fa-plus-square', 'Thêm Nút Minecraft', '/admin/p.html', active.mcAdmin)}
@@ -149,7 +282,10 @@
 
     async function init() {
         ensureCopyIP();
-        const userInfo = await fetchUserInfo();
+        const [userInfo] = await Promise.all([
+            fetchUserInfo(),
+            loadSiteSettings().catch(() => getSiteSettingsSnapshot())
+        ]);
         return renderSidebar(userInfo);
     }
 

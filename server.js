@@ -377,6 +377,11 @@ async function readJsonWithFallback(filePath, fallbackValue) {
     }
 }
 
+async function writeJson(filePath, data) {
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
 const whitelistStatements = {
     list: db.prepare(`
         SELECT id, "key", gamertag, status, created_at, used_at
@@ -841,6 +846,7 @@ registerAppApiRoutes(app, {
     requireAdminPageAccess,
     toSafeDisplayText,
     readJsonWithFallback,
+    writeJson,
     serverStatusFile: SERVER_STATUS_FILE,
     countdownSettingsFile: COUNTDOWN_SETTINGS_FILE,
     defaultVapidPublicKey: DEFAULT_VAPID_PUBLIC_KEY,

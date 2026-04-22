@@ -20,8 +20,9 @@
         }
 
         // ===== COPY IP =====
-        function copyIP() {
-            const ip = 'vna.vanhmcpe.top:25702';
+        async function copyIP() {
+            const ip = await (window.SiteSettingsUtils?.getMinecraftAddressAsync?.()
+                || Promise.resolve('vna.vanhmcpe.top:25003'));
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(ip)
                     .then(() => showToast('Đã copy IP: ' + ip))
