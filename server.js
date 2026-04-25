@@ -840,7 +840,7 @@ app.use((req, res, next) => {
 
 // Setup routes
 setupRoutes(app);
-registerAppApiRoutes(app, {
+const apiDeps = {
     isAdminUserId,
     requireEmbedAuthorization,
     requireAdminPageAccess,
@@ -868,7 +868,16 @@ registerAppApiRoutes(app, {
     touchAndListRecentUsers,
     recentUsersDefaultLimit: RECENT_USERS_DEFAULT_LIMIT,
     furinaQuotesFile: FURINA_QUOTES_FILE
+};
+
+// Verify dependencies to prevent router crashes
+Object.entries(apiDeps).forEach(([key, val]) => {
+    if (val === undefined) {
+        console.warn(`⚠️ Warning: Dependency "${key}" is undefined in registerAppApiRoutes`);
+    }
 });
+
+registerAppApiRoutes(app, apiDeps);
 
 registerAppPageRoutes(app, {
     __dirname,
@@ -1024,6 +1033,6 @@ process.on('unhandledRejection', (reason) => {
 });
 
 bootstrap().catch((error) => {
-    console.error('❌ Failed to bootstrap server:', error);
-    process.exit(1);
+    console.error('\n❌ CRITICAL: Failed to bootstrap server:', error.stack || error);
+    setTimeout(() => process.exit(1), 1000);
 });

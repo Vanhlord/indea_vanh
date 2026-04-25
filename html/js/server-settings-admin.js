@@ -274,9 +274,9 @@ async function loadSettings(statusTarget = null, successMessage = '') {
         if (countdownData) {
             combinedItems.push({
                 key: 'countdown_event',
-                value: `${countdownData.eventDate} ${countdownData.eventTime} (${countdownData.eventDescription})`,
+                value: `${countdownData.eventDate} ${countdownData.eventTime}`,
                 category: 'system',
-                description: 'Thời gian đếm ngược (Cấu hình ở phần trên)',
+                description: `Sự kiện: ${countdownData.eventDescription || 'Không có mô tả'}`,
                 isVirtual: true
             });
         }
@@ -466,32 +466,40 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCountdownSettings();
 
     // Đảm bảo listener được gắn sau khi DOM đã sẵn sàng
-    if (countdownForm) {
-        countdownForm.addEventListener('submit', async (e) => {
+    const cForm = document.getElementById('countdownForm');
+    if (cForm) {
+        cForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            setStatus(countdownStatus, 'Đang lưu...', true);
+            const cStatus = document.getElementById('countdownStatus');
+            const cDate = document.getElementById('countdownDate');
+            const cTime = document.getElementById('countdownTime');
+            const cDesc = document.getElementById('countdownDesc');
+
+            setStatus(cStatus, 'Đang lưu...', true);
 
             try {
                 const response = await fetch('/api/admin/countdown-settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        eventDate: countdownDateInput.value.trim(),
-                        eventTime: countdownTimeInput.value.trim(),
-                        eventDescription: countdownDescInput.value.trim()
+                        eventDate: cDate.value.trim(),
+                        eventTime: cTime.value.trim(),
+                        eventDescription: cDesc.value.trim()
                     })
                 });
                 
                 const result = await response.json();
                 if (result.success) {
-                    setStatus(countdownStatus, 'Đã lưu thành công!', true);
+                    setStatus(cStatus, '✅ Đã lưu thành công!', true);
+                    alert('Lưu thời gian thành công!');
                     loadSettings();
                 } else {
                     throw new Error(result.error || 'Lỗi không xác định');
                 }
             } catch (error) {
                 console.error('Countdown Save Error:', error);
-                setStatus(countdownStatus, error.message, false);
+                setStatus(cStatus, error.message, false);
+                alert('Lỗi khi lưu: ' + error.message);
             }
         });
     }
