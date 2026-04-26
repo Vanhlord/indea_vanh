@@ -4,6 +4,9 @@ import compression from 'compression';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import RedisStore from 'connect-redis';
+import redisClient, { redisReady, redisEnabled } from '../modules/cache.js';
+
 import {
     RATE_LIMIT_CONFIG,
     SESSION_SECRET,
@@ -96,7 +99,19 @@ export function setupMiddleware(app) {
     }
 
     // Session - use centralized cookie config so OAuth/login/logout stay consistent
+    let sessionStore = undefined;
+    if (redisEnabled && redisReady && redisClient) {
+        sessionStore = new RedisStore({
+            client: redisClient,
+            prefix: 'mcnote:sess:'
+        });
+        console.log('📡 Session store: RedisStore initialized');
+    } else {
+        console.warn('⚠️ Session store: MemoryStore (Redis disabled or client missing)');
+    }
+
     const sessionMiddleware = session({
+        store: sessionStore,
         secret: SESSION_SECRET,
         resave: false,
         saveUninitialized: false,

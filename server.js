@@ -11,6 +11,7 @@ import { mkdir, readFile, writeFile, readdir, stat } from 'fs/promises';
 
 // Import internal modules
 import { setupMiddleware, setupRateLimiters } from './src/middleware/setup.js';
+import { redisInitPromise } from './src/modules/cache.js';
 import { errorHandler, notFoundHandler, requestIdMiddleware } from './src/middleware/errorHandler.js';
 
 import { setupRoutes } from './src/routes/index.js';
@@ -420,6 +421,7 @@ setSocketIO(io);
 setBot2SocketIO(io);
 
 // Setup middleware
+await redisInitPromise;
 const { sessionMiddleware } = setupMiddleware(app);
 app.use(requestIdMiddleware);
 setupRateLimiters(app);

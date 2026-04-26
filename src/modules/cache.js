@@ -75,7 +75,7 @@ async function initRedis() {
     }
 }
 
-void initRedis().catch((error) => {
+const redisInitPromise = initRedis().catch((error) => {
     redisEnabled = false;
     redisReady = false;
     logFallbackOnce(error);
@@ -143,4 +143,5 @@ export async function deleteCache(key) {
     memoryDelete(prefix);
 }
 
+export { redisReady, redisEnabled, redisInitPromise };
 export default client;
