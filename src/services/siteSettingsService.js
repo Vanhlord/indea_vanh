@@ -116,6 +116,12 @@ function sanitizeValueByType(value, type, key) {
 
     if (type === 'url') {
         if (!text) return '';
+        
+        // Relax validation for hosting keys to allow clearing them
+        if (key.startsWith('hosting_') && !text) {
+            return '';
+        }
+
         if (!/^https?:\/\//i.test(text)) {
             throw new Error(`Gia tri cua "${key}" phai la URL hop le.`);
         }

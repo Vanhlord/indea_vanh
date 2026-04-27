@@ -2,11 +2,27 @@ import axios from 'axios';
 import { getPikamcConfig } from './pikamcConfigService.js';
 
 /**
- * Check if API is configured
+ * Check if API is configured and valid
+ * @param {object} config
  * @returns {boolean}
  */
 function isApiConfigured(config) {
-    return Boolean(config?.apiKey && config?.panelUrl && config?.serverId);
+    if (!config?.apiKey || !config?.panelUrl || !config?.serverId) {
+        return false;
+    }
+
+    // Ignore placeholder values
+    if (config.serverId === '000000' || config.serverId === 'placeholder') {
+        return false;
+    }
+
+    // Loopback prevention: Ignore if panelUrl points to the same server
+    const host = 'vanhmcpe.top';
+    if (config.panelUrl.includes(host)) {
+        return false;
+    }
+
+    return true;
 }
 
 export async function getConsoleWebSocketAuth() {
@@ -94,8 +110,14 @@ export async function getServerResources() {
     const config = await getPikamcConfig();
     if (!isApiConfigured(config)) {
         return { 
-            data: { error: 'API not configured' }, 
+            data: { 
+                attributes: { 
+                    resources: { memory_bytes: 0, cpu_absolute: 0, disk_bytes: 0, network_rx_bytes: 0, network_tx_bytes: 0 },
+                    state: 'offline'
+                } 
+            }, 
             cached: false,
+            configured: false,
             error: 'PikaMC API is not configured'
         };
     }
@@ -104,14 +126,14 @@ export async function getServerResources() {
 
     // Return cached data if valid
     if (pikamcCache.data && (now - pikamcCache.timestamp) < pikamcCache.ttl) {
-        return { data: pikamcCache.data, cached: true };
+        return { data: pikamcCache.data, cached: true, configured: true };
     }
 
     // Wait if another request is in flight (simple lock)
     if (pikamcCache.inFlight) {
         try {
             const data = await pikamcCache.inFlight;
-            return { data, cached: true };
+            return { data, cached: true, configured: true };
         } catch (err) {
             // Fall through to fetch
         }
@@ -156,7 +178,7 @@ export async function getServerResources() {
     try {
         const data = await pikamcCache.inFlight;
         pikamcCache.inFlight = null;
-        return { data, cached: false };
+        return { data, cached: false, configured: true };
     } catch (err) {
         pikamcCache.inFlight = null;
         throw err;

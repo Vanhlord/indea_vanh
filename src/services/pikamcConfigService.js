@@ -140,17 +140,17 @@ export function toPublicConfig(config) {
 
 export function applyConfigOverrides(currentConfig, overrides) {
     const next = { ...currentConfig };
-    const panelUrl = sanitizeUrl(overrides?.panelUrl);
-    const serverId = sanitizeServerId(overrides?.serverId);
-    const apiKey = sanitizeApiKey(overrides?.apiKey);
-    const whitelistCommandTemplate = sanitizeCommandTemplate(overrides?.whitelistCommandTemplate);
-    const whitelistRemoveCommandTemplate = sanitizeCommandTemplate(overrides?.whitelistRemoveCommandTemplate);
-
-    if (panelUrl) next.panelUrl = panelUrl;
-    if (serverId) next.serverId = serverId;
-    if (whitelistCommandTemplate) next.whitelistCommandTemplate = whitelistCommandTemplate;
-    if (whitelistRemoveCommandTemplate) next.whitelistRemoveCommandTemplate = whitelistRemoveCommandTemplate;
-    if (apiKey) next.apiKey = apiKey;
+    
+    // Always apply overrides if they are provided (can be empty string to clear)
+    if (overrides?.panelUrl !== undefined) next.panelUrl = sanitizeUrl(overrides.panelUrl);
+    if (overrides?.serverId !== undefined) next.serverId = sanitizeServerId(overrides.serverId);
+    if (overrides?.apiKey !== undefined) next.apiKey = sanitizeApiKey(overrides.apiKey);
+    if (overrides?.whitelistCommandTemplate !== undefined) {
+        next.whitelistCommandTemplate = sanitizeCommandTemplate(overrides.whitelistCommandTemplate);
+    }
+    if (overrides?.whitelistRemoveCommandTemplate !== undefined) {
+        next.whitelistRemoveCommandTemplate = sanitizeCommandTemplate(overrides.whitelistRemoveCommandTemplate);
+    }
 
     return next;
 }

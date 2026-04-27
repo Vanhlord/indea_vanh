@@ -467,11 +467,12 @@ export function registerAppApiRoutes(app, deps) {
             const nextPanelUrl = String(itemMap.get('hosting_panel_url') || '').trim();
             const nextServerId = String(itemMap.get('hosting_server_id') || '').trim();
 
-            if (nextPanelUrl || nextServerId) {
+            // Always sync hosting settings if they are present in the update
+            if (itemMap.has('hosting_panel_url') || itemMap.has('hosting_server_id')) {
                 await savePikamcConfig({
                     ...currentPikamcConfig,
-                    panelUrl: nextPanelUrl || currentPikamcConfig.panelUrl,
-                    serverId: nextServerId || currentPikamcConfig.serverId
+                    panelUrl: nextPanelUrl,
+                    serverId: nextServerId
                 });
             }
 
@@ -498,10 +499,10 @@ export function registerAppApiRoutes(app, deps) {
                 await savePikamcConfig({
                     ...currentPikamcConfig,
                     panelUrl: result.item.key === 'hosting_panel_url'
-                        ? result.item.value || currentPikamcConfig.panelUrl
+                        ? (result.item.value || '')
                         : currentPikamcConfig.panelUrl,
                     serverId: result.item.key === 'hosting_server_id'
-                        ? result.item.value || currentPikamcConfig.serverId
+                        ? (result.item.value || '')
                         : currentPikamcConfig.serverId
                 });
             }

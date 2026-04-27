@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-22T00:00:00.000Z",
+  "updatedAt": "2026-04-27T01:49:00.921Z",
   "items": [
     {
       "key": "server_display_name",
@@ -9,57 +9,57 @@
       "visibility": "public",
       "type": "text",
       "category": "minecraft",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     },
     {
       "key": "minecraft_ip",
       "label": "IP Minecraft",
-      "value": "vna.vanhmcpe.top",
+      "value": "-----------",
       "description": "Dia chi vao Minecraft Bedrock.",
       "visibility": "public",
       "type": "text",
       "category": "minecraft",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     },
     {
       "key": "minecraft_port",
       "label": "Port Minecraft",
-      "value": "25003",
+      "value": "1",
       "description": "Cong vao Minecraft Bedrock.",
       "visibility": "public",
       "type": "number",
       "category": "minecraft",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     },
     {
       "key": "hosting_panel_url",
       "label": "Panel hosting",
-      "value": "https://cp.pikamc.vn",
+      "value": "",
       "description": "Link panel hosting dang duoc su dung.",
       "visibility": "private",
       "type": "url",
       "category": "hosting",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     },
     {
       "key": "hosting_api_url",
       "label": "API hosting",
-      "value": "https://cp.pikamc.vn/api/client",
+      "value": "https://vanhmcpe.top",
       "description": "Endpoint API hosting neu can goi tu server.",
       "visibility": "private",
       "type": "url",
       "category": "hosting",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     },
     {
       "key": "hosting_server_id",
       "label": "Server ID hosting",
-      "value": "dbedd26c",
+      "value": "",
       "description": "Ma server dang duoc quan ly tren hosting.",
       "visibility": "private",
       "type": "text",
       "category": "hosting",
-      "updatedAt": "2026-04-22T00:00:00.000Z"
+      "updatedAt": "2026-04-27T01:49:00.921Z"
     }
   ]
 }
