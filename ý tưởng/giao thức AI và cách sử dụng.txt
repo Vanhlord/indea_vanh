@@ -1,0 +1,3 @@
+cách chỉnh sửa một vật thể trong ảnh bằng AI
+----> Biến thông tin trong ảnh thành định dạng mã json
+# kiểu vậy, gemini có thể chỉnh sửa được những thứ dù là chi tiết nhỏ nhát
