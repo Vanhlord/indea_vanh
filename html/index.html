@@ -206,6 +206,51 @@
                 font-size: 12.5px;
             }
         }
+
+        /* Professional Time Bar */
+        .time-bar-wrapper {
+            background: linear-gradient(to right, #ffffff, #f8fafc, #ffffff);
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.65rem 1rem;
+            gap: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .time-bar-content {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .time-bar-icon {
+            color: #64748b;
+            font-size: 0.95rem;
+            animation: clock-pulse 2.5s infinite ease-in-out;
+        }
+
+        @keyframes clock-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.92); }
+        }
+
+        #countdown-dynamic {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background: #f8fafc;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.6rem;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            letter-spacing: 0.05em;
+            min-width: 100px;
+            text-align: center;
+            display: inline-block;
+        }
 </style>
     <link rel="stylesheet" href="/html/shared-theme.css">
 </head>
@@ -330,9 +375,10 @@
                 </div>
 
                 <!-- Countdown Section -->
-                <div class="bg-white py-2 px-4 text-center border-b border-gray-200">
-                    <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-gray-700">
-                        <span class="font-bold text-sm sm:text-base font-mono tracking-wider" id="countdown-dynamic"></span>
+                <div class="time-bar-wrapper">
+                    <div class="time-bar-content">
+                        <i class="fas fa-clock-rotate-left time-bar-icon"></i>
+                        <span id="countdown-dynamic">Đang đồng bộ...</span>
                     </div>
                 </div>
 

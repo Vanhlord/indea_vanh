@@ -3,7 +3,7 @@
  * Provides consistent error handling across the application
  */
 
-import { formatErrorResponse, getHttpStatusCode, AppError } from '../utils/errors.js';
+import { formatErrorResponse, getHttpStatusCode, AppError, NotFoundError } from '../utils/errors.js';
 
 /**
  * Generate unique request ID for tracing
@@ -19,6 +19,9 @@ export function errorHandler(err, req, res, _next) {
     // Generate request ID for tracing
     const requestId = req.headers['x-request-id'] || generateRequestId();
     res.setHeader('X-Request-Id', requestId);
+
+    // Filter out common bot scans from logs to reduce noise
+    const isBotScan = req.url.match(/\.(env|php|git|aspx|jsp|sh|sql)$|wp-admin|config/i);
 
     // Log error details
     const errorLog = {
@@ -38,7 +41,10 @@ export function errorHandler(err, req, res, _next) {
 
     // Log operational errors as warnings, programming errors as errors
     if (err instanceof AppError && err.isOperational) {
-        console.warn('[Operational Error]', errorLog);
+        // Only log operational errors if they are not common bot scans
+        if (!isBotScan) {
+            console.warn('[Operational Error]', errorLog);
+        }
     } else {
         console.error('[Programming Error]', errorLog);
     }
@@ -58,10 +64,10 @@ export function errorHandler(err, req, res, _next) {
  * 404 Not Found handler
  */
 export function notFoundHandler(req, res, next) {
-    const error = new Error(`Route ${req.method} ${req.path} not found`);
-    error.statusCode = 404;
-    error.code = 'ROUTE_NOT_FOUND';
-    next(error);
+    next(new NotFoundError(`Route ${req.method} ${req.path}`));
+
+
+
 }
 
 /**

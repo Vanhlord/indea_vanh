@@ -61,7 +61,7 @@
         html += `${String(hours).padStart(2, '0')} : `;
         html += `${String(minutes).padStart(2, '0')} : `;
         html += `${String(seconds).padStart(2, '0')}`;
-        html += ` <span class="opacity-60 text-xs sm:text-sm ml-3 font-sans tracking-normal italic">(Ngày kết thúc: ${eventDateStr})</span>`;
+        html += ` <span class="opacity-60 text-xs sm:text-sm ml-3 font-sans tracking-normal italic">(${eventDateStr})</span>`;
 
         el.innerHTML = html;
     }
