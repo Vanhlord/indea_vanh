@@ -13,148 +13,89 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
 
-        /* ===== TikTok Brand Colors ===== */
+        /* ===== Simplified Brand Colors ===== */
         :root {
-            --tk-pink: #fe2c55;
-            --tk-cyan: #25f4ee;
-            --tk-dark: #161823;
-            --tk-pink-glow: rgba(254, 44, 85, 0.35);
-            --tk-cyan-glow: rgba(37, 244, 238, 0.25);
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-glow: rgba(37, 99, 235, 0.1);
+            --dark: #0f172a;
+            --gray-bg: #f8fafc;
+            --border: #e2e8f0;
         }
 
-        /* ===== Gradient Helpers ===== */
-        .tk-gradient { background: linear-gradient(135deg, var(--tk-pink) 0%, #ff006a 50%, var(--tk-cyan) 100%); }
-        .tk-gradient-text {
-            background: linear-gradient(135deg, var(--tk-pink), #ff006a, var(--tk-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* ===== UI Components ===== */
+        .brand-gradient { 
+            background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%); 
         }
-
-        /* ===== Hero Glow ===== */
-        .hero-glow {
-            position: relative;
-        }
-        .hero-glow::before {
-            content: '';
-            position: absolute;
-            top: -20px; left: -20px; right: -20px; bottom: -20px;
-            background: radial-gradient(ellipse at center, var(--tk-pink-glow) 0%, transparent 70%);
-            filter: blur(50px);
-            z-index: 0;
-            pointer-events: none;
-            animation: pulseGlow 4s ease-in-out infinite;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-        }
-
-        /* ===== Icon Float ===== */
-        .icon-float {
-            animation: iconFloat 3s ease-in-out infinite;
-        }
-        @keyframes iconFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+        
+        .brand-text {
+            color: var(--primary);
         }
 
         /* ===== Input Focus ===== */
         .tk-input:focus {
-            border-color: var(--tk-pink);
-            box-shadow: 0 0 0 4px var(--tk-pink-glow), 0 0 20px var(--tk-cyan-glow);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
         }
 
-        /* ===== Download Button ===== */
+        /* ===== Buttons ===== */
         .tk-btn-primary {
-            background: linear-gradient(135deg, var(--tk-pink) 0%, #ff006a 100%);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            background: var(--primary);
+            transition: all 0.2s ease;
         }
-        .tk-btn-primary::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #ff006a 0%, var(--tk-pink) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .tk-btn-primary:hover::before { opacity: 1; }
         .tk-btn-primary:hover {
-            box-shadow: 0 8px 30px var(--tk-pink-glow);
-            transform: translateY(-2px);
+            background: var(--primary-hover);
+            box-shadow: 0 4px 12px var(--primary-glow);
+            transform: translateY(-1px);
         }
-        .tk-btn-primary:active { transform: scale(0.97); }
-        .tk-btn-primary > * { position: relative; z-index: 1; }
+        .tk-btn-primary:active { transform: scale(0.98); }
 
-        /* ===== Music Button ===== */
-        .tk-btn-music {
-            background: linear-gradient(135deg, var(--tk-dark) 0%, #2d2d3f 100%);
-            transition: all 0.3s ease;
-        }
-        .tk-btn-music:hover {
-            box-shadow: 0 8px 25px rgba(22, 24, 35, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* ===== Card Glass ===== */
+        /* ===== Card Styles ===== */
         .glass-card {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.6);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
         }
 
         /* ===== Step Badge ===== */
         .step-badge {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--tk-pink), var(--tk-cyan));
+            width: 32px; height: 32px;
+            background: var(--primary);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 0.85rem;
+            font-weight: 700; font-size: 0.75rem;
             color: #fff;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px var(--tk-pink-glow);
-            transition: transform 0.25s ease;
         }
-        .step-row:hover .step-badge { transform: scale(1.12) rotate(-5deg); }
 
         /* ===== Loader ===== */
         .tk-loader {
-            width: 36px; height: 36px;
-            border: 4px solid #f0f0f0;
-            border-top: 4px solid var(--tk-pink);
-            border-right: 4px solid var(--tk-cyan);
+            width: 32px; height: 32px;
+            border: 3px solid #f1f5f9;
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* ===== Fade In ===== */
-        #resultBox { animation: fadeSlideIn 0.5s ease-out; }
-        @keyframes fadeSlideIn {
-            from { opacity: 0; transform: translateY(16px); }
+        #resultBox { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== Stat Chip ===== */
         .stat-chip {
-            background: linear-gradient(135deg, rgba(254,44,85,0.08), rgba(37,244,238,0.08));
-            border: 1px solid rgba(254,44,85,0.15);
-            transition: all 0.3s ease;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
         }
-        .stat-chip:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(254,44,85,0.1); }
-
-        /* ===== Progress ===== */
-        .tk-progress { background: linear-gradient(90deg, var(--tk-pink), #ff006a, var(--tk-cyan)); }
+        .stat-chip:hover { border-color: var(--primary); transform: translateY(-2px); }
 
         /* ===== Scrollbar ===== */
-        .tk-scroll::-webkit-scrollbar { width: 8px; }
-        .tk-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 99px; }
-        .tk-scroll::-webkit-scrollbar-thumb:hover { background: #bbb; }
+        .tk-scroll::-webkit-scrollbar { width: 6px; }
+        .tk-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
     </style>
     <link rel="stylesheet" href="/html/shared-theme.css">
 </head>
@@ -188,10 +129,10 @@
         <!-- Mobile Header -->
         <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center lg:hidden">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 tk-gradient rounded-lg flex items-center justify-center text-white">
+                <div class="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-black">
                     <i class="fa-brands fa-tiktok text-sm"></i>
                 </div>
-                <span class="font-bold tk-gradient-text">TikTok Save</span>
+                <span class="font-bold brand-text">TikTok Save</span>
             </div>
             <button onclick="toggleSidebar()" class="hamburger w-10 h-10 flex items-center justify-center bg-gray-50 rounded-lg border">
                 <i class="fas fa-bars"></i>
@@ -201,7 +142,7 @@
         <!-- Desktop Top Bar -->
         <div class="p-4 border-b border-gray-200 bg-white hidden lg:flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 tk-gradient rounded-lg flex items-center justify-center text-white">
+                <div class="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-black">
                     <i class="fa-brands fa-tiktok text-sm"></i>
                 </div>
                 <span class="font-semibold text-gray-700">TikTok Downloader</span>
@@ -217,19 +158,19 @@
             <div class="max-w-[700px] mx-auto">
 
                 <!-- ===== Hero + Input Card ===== -->
-                <div class="glass-card p-8 lg:p-10 rounded-[28px] text-center mb-8 hero-glow relative">
-                    <!-- Decorative corner accent -->
-                    <div class="absolute top-0 left-0 right-0 h-1 rounded-t-[28px] tk-gradient"></div>
+                <div class="glass-card p-8 lg:p-10 rounded-[28px] text-center mb-8 relative">
+                    <!-- Decorative accent -->
+                    <div class="absolute top-0 left-0 right-0 h-1 rounded-t-[28px] brand-gradient"></div>
 
                     <!-- TikTok Icon -->
                     <div class="relative z-10 mb-5">
-                        <div class="w-20 h-20 mx-auto tk-gradient rounded-2xl flex items-center justify-center shadow-xl icon-float" style="box-shadow: 0 12px 40px var(--tk-pink-glow);">
-                            <i class="fa-brands fa-tiktok text-white text-3xl"></i>
+                        <div class="w-20 h-20 mx-auto bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm">
+                            <i class="fa-brands fa-tiktok text-black text-3xl"></i>
                         </div>
                     </div>
 
                     <!-- Title -->
-                    <h1 class="relative z-10 text-4xl lg:text-5xl font-extrabold mb-2 tk-gradient-text">TikTok Save</h1>
+                    <h1 class="relative z-10 text-4xl lg:text-5xl font-extrabold mb-2 brand-text">TikTok Save</h1>
                     <p class="relative z-10 text-gray-500 mb-8 text-base">Tải video TikTok không logo • Chất lượng gốc • Miễn phí</p>
 
                     <!-- Input -->
@@ -252,7 +193,7 @@
 
                     <!-- Download Stats Counter -->
                     <div class="relative z-10 mt-4 flex justify-center items-center gap-2 text-sm font-medium text-gray-500">
-                        <i class="fas fa-chart-line text-[var(--tk-pink)] animate-pulse"></i>
+                        <i class="fas fa-chart-line text-blue-500"></i>
                         <span>Tổng lượt tải TikTok: <span id="dailyDownloads" class="font-bold text-gray-800">...</span></span>
                     </div>
 
@@ -270,8 +211,8 @@
                 <!-- ===== Info Cards ===== -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     <div class="stat-chip rounded-2xl p-5 flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, rgba(254,44,85,0.12), rgba(254,44,85,0.05));">
-                            <i class="fas fa-bolt text-[var(--tk-pink)]"></i>
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg bg-blue-50">
+                            <i class="fas fa-bolt text-blue-500"></i>
                         </div>
                         <div>
                             <p class="text-sm font-bold text-gray-800">Tốc độ cao</p>
@@ -279,8 +220,8 @@
                         </div>
                     </div>
                     <div class="stat-chip rounded-2xl p-5 flex items-center gap-4">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background: linear-gradient(135deg, rgba(37,244,238,0.12), rgba(37,244,238,0.05));">
-                            <i class="fas fa-shield-alt text-[var(--tk-cyan)]" style="color: #0ea5a5;"></i>
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg bg-cyan-50">
+                            <i class="fas fa-shield-alt text-cyan-500"></i>
                         </div>
                         <div>
                             <p class="text-sm font-bold text-gray-800">Không logo</p>
@@ -291,9 +232,9 @@
 
                 <!-- ===== How to use ===== -->
                 <div class="glass-card rounded-[24px] p-8 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-1 tk-gradient"></div>
+                    <div class="absolute top-0 left-0 right-0 h-1 brand-gradient"></div>
 
-                    <h3 class="text-lg font-bold text-center mb-6 tk-gradient-text">Hướng dẫn sử dụng 📋</h3>
+                    <h3 class="text-lg font-bold text-center mb-6 brand-text">Hướng dẫn sử dụng 📋</h3>
 
                     <div class="space-y-4">
                         <div class="step-row flex gap-4 items-start">
@@ -322,8 +263,8 @@
     <div id="progressModal" class="fixed inset-0 bg-black/60 z-[2000] hidden items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white p-8 rounded-[24px] w-full max-w-[400px] text-center shadow-2xl">
             <div class="mb-5">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center icon-float" style="background: linear-gradient(135deg, rgba(254,44,85,0.1), rgba(37,244,238,0.1));">
-                    <i class="fas fa-cloud-download-alt text-2xl" style="color: var(--tk-pink);"></i>
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-blue-50">
+                    <i class="fas fa-cloud-download-alt text-2xl text-blue-500"></i>
                 </div>
                 <h3 class="font-bold text-lg mb-1">Đang xử lý file...</h3>
                 <p id="progressFilename" class="text-sm text-gray-500 truncate"></p>
@@ -332,7 +273,7 @@
                 <div id="progressBar" class="w-0 h-full tk-progress transition-all duration-300 rounded-full"></div>
             </div>
             <div class="flex justify-between text-sm mb-3">
-                <span id="progressPercent" class="font-semibold" style="color: var(--tk-pink);">0%</span>
+                <span id="progressPercent" class="font-semibold text-blue-600">0%</span>
                 <span id="progressSize" class="text-gray-500">0 MB / 0 MB</span>
             </div>
             <p id="statusText" class="text-sm text-gray-500">Đang kết nối server...</p>
