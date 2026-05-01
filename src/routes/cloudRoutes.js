@@ -582,7 +582,8 @@ function getPublicPreviewKind(filename = '') {
     if (ext === 'pdf') return 'pdf';
     if (['mp4', 'webm', 'mov', 'm4v', 'mkv'].includes(ext)) return 'video';
     if (['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(ext)) return 'audio';
-    if (['txt', 'md', 'log', 'json', 'csv', 'xml', 'html', 'css', 'js', 'ts', 'py'].includes(ext)) return 'text';
+    if (['html', 'htm'].includes(ext)) return 'html';
+    if (['txt', 'md', 'log', 'json', 'csv', 'xml', 'css', 'js', 'ts', 'py'].includes(ext)) return 'text';
     return 'none';
 }
 
@@ -600,6 +601,9 @@ function renderPublicPreviewHtml(kind, previewUrl, fileName) {
     }
     if (kind === 'audio') {
         return `<div class="preview-wrap"><div class="preview-audio-box"><audio class="preview-audio" src="${safeUrl}" controls preload="metadata"></audio></div></div>`;
+    }
+    if (kind === 'html') {
+        return `<div class="preview-wrap"><div class="preview-phone-shell"><iframe class="preview-phone-screen" src="${safeUrl}" title="${safeName}" sandbox="allow-scripts allow-forms allow-modals allow-popups allow-downloads" referrerpolicy="no-referrer"></iframe></div></div>`;
     }
     if (kind === 'text') {
         return `<div class="preview-wrap"><iframe class="preview-frame" src="${safeUrl}" title="${safeName}"></iframe></div>`;
@@ -1562,6 +1566,8 @@ router.get('/public/:token', async (req, res) => {
     .preview-dark{background:#020617}
     .preview-image{display:block;width:100%;max-height:420px;object-fit:contain;background:#fff}
     .preview-frame{display:block;width:100%;height:420px;border:0;background:#fff}
+    .preview-phone-shell{width:min(390px,100%);aspect-ratio:9/19.5;margin:0 auto;border-radius:34px;background:#0f172a;padding:10px;box-shadow:0 22px 60px rgba(15,23,42,.22)}
+    .preview-phone-screen{display:block;width:100%;height:100%;border:0;border-radius:24px;background:#fff}
     .preview-video{display:block;width:100%;max-height:420px;background:#000}
     .preview-audio-box{padding:24px 16px;background:#fff}
     .preview-audio{display:block;width:100%;max-width:100%;min-height:54px;background:#fff}
@@ -1586,6 +1592,8 @@ router.get('/public/:token', async (req, res) => {
       .preview-title{margin-top:12px}
       .preview-image{max-height:280px}
       .preview-frame{height:300px}
+      .preview-phone-shell{width:min(330px,100%);border-radius:28px;padding:8px}
+      .preview-phone-screen{border-radius:20px}
       .preview-video{max-height:280px}
       .preview-audio-box{padding:14px 10px}
       .preview-audio{min-height:50px}
