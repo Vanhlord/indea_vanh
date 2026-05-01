@@ -17,7 +17,7 @@ const { WorldProvider } = bedrockProvider;
 const { recurseMinecraftKeys, KeyBuilder } = databaseKeys;
 const { getHandlingForChunkVersion } = versionHelpers;
 
-const TMP_ROOT = path.join(os.tmpdir(), 'mcnote-bedrock-world-viewer');
+const TMP_ROOT = path.join(os.tmpdir(), 'vna-bedrock-world-viewer');
 const DEFAULT_REGISTRY_VERSION = 'bedrock_1.20.40';
 const RENDER_JOB_TTL_MS = 15 * 60 * 1000;
 const PENDING_RGBA = [8, 17, 32, 255];
@@ -308,7 +308,7 @@ function resolveFallbackBlockName(registry, rawName) {
 }
 
 function patchBlockFactory(Block, registry) {
-    if (!Block || Block.__mcnoteFallbackPatched) return;
+    if (!Block || Block.__vnaFallbackPatched) return;
 
     const originalFromProperties = Block.fromProperties.bind(Block);
     Block.fromProperties = function patchedFromProperties(typeId, properties, biomeId) {
@@ -352,11 +352,11 @@ function patchBlockFactory(Block, registry) {
         return Block.fromStateId(fallbackDescriptor.defaultState, biomeId);
     };
 
-    Block.__mcnoteFallbackPatched = true;
+    Block.__vnaFallbackPatched = true;
 }
 
 function patchWorldProviderFallbacks(world, registry) {
-    if (!world || world.__mcnoteReadSubChunksPatched) return;
+    if (!world || world.__vnaReadSubChunksPatched) return;
 
     world.readSubChunks = async function patchedReadSubChunks(chunkVersion, x, z) {
         const ChunkColumn = this.Chunks[getHandlingForChunkVersion(chunkVersion)];
@@ -388,7 +388,7 @@ function patchWorldProviderFallbacks(world, registry) {
         return column;
     };
 
-    world.__mcnoteReadSubChunksPatched = true;
+    world.__vnaReadSubChunksPatched = true;
 }
 
 async function loadRenderableChunk(world, x, z) {

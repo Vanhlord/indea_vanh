@@ -103,7 +103,7 @@ export function setupMiddleware(app) {
     if (redisEnabled && redisReady && redisClient) {
         sessionStore = new RedisStore({
             client: redisClient,
-            prefix: 'mcnote:sess:'
+            prefix: 'vna:sess:'
         });
         console.log('📡 Session store: RedisStore initialized');
     } else {

@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 import crypto from 'crypto';
 import express from 'express';
 import { logPlayer } from '../../services/playerService.js';

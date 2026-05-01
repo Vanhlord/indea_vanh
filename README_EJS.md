@@ -2,7 +2,7 @@
 
 **Status:** ✅ Implementation Complete  
 **Date:** February 25, 2026  
-**Project:** MC Note Web Server  
+**Project:** VNA Web Server  
 **Framework:** Express.js + EJS  
 
 ---

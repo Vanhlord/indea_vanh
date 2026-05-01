@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-const uploadTempDir = path.join(os.tmpdir(), 'mcnote-bedrock-world-uploads');
+const uploadTempDir = path.join(os.tmpdir(), 'vna-bedrock-world-uploads');
 if (!fs.existsSync(uploadTempDir)) {
     fs.mkdirSync(uploadTempDir, { recursive: true });
 }

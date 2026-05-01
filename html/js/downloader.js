@@ -1,5 +1,5 @@
 /**
- * MC Note Downloader Utilities
+ * VNA Downloader Utilities
  * Shared utilities for all downloader pages
  */
 

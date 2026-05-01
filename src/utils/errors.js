@@ -1,5 +1,5 @@
 /**
- * Custom Error Classes for MC Note Server
+ * Custom Error Classes for VNA Server
  * Provides consistent error handling across the application
  */
 

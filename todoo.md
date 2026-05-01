@@ -1,4 +1,4 @@
-﻿# TODOO - UI/UX + Logic Fixes
+# TODOO - UI/UX + Logic Fixes
 
 ## Critical / High
 - [x] Secure Socket.IO chat flow: bind socket session and block unauthenticated `send-to-game`

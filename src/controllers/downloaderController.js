@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Downloader Controller
  * Handles HTTP requests for media downloads
  */

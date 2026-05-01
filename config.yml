@@ -5,11 +5,11 @@ credentials-file: C:\\Users\\<YOU>\\.cloudflared\\<TUNNEL_ID>.json
 
 ingress:
   # Tên miền muốn dùng cho Web
-  - hostname: mcnote.io.vn
+  - hostname: vanhmcpe.top
     service: http://localhost:3000
     
   # (Tùy chọn) Nếu muốn chạy thêm cả Server Minecraft trên cùng Tunnel
-  # - hostname: play.mcnote.io.vn
+  # - hostname: play.vanhmcpe.top
   #   service: tcp://localhost:25565
 
   # Quy tắc cuối cùng: Trả về 404 nếu không khớp các cái trên

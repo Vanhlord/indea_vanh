@@ -1015,7 +1015,7 @@ async function bootstrap() {
         const addr = server.address();
         console.log(`
 ===============================================
-🚀 Server MC NOTE đã sẵn sàng!
+🚀 Server VNA đã sẵn sàng!
 🌐 Domain: https://vanhmcpe.top
 📡 Cổng: ${addr.port}
 🔄 Mode: single-process

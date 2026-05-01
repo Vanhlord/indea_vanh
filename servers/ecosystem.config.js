@@ -1,6 +1,6 @@
 export default {
   apps: [{
-    name: 'mcnote-web',
+    name: 'vna-web',
     script: 'server.js',
     instances: 'max', // Use all available CPU cores
     exec_mode: 'cluster', // Enable clustering mode

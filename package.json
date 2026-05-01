@@ -1,7 +1,7 @@
 {
-  "name": "mcnote-web",
+  "name": "vna-web",
   "version": "1.0.0",
-  "description": "MC Note Server Web Interface",
+  "description": "VNA Server Web Interface",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -41,6 +41,8 @@
     "prismarine-block": "^1.23.0",
     "prismarine-chunk": "^1.40.0",
     "prismarine-registry": "^1.12.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "redis": "^4.6.13",
     "sharp": "^0.34.5",
     "socket.io": "^4.8.3",
@@ -51,10 +53,14 @@
     "zod": "^3.25.54"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^8.57.0",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
-    "playwright": "^1.59.1"
+    "playwright": "^1.59.1",
+    "typescript": "^6.0.3"
   },
   "lint-staged": {
     "*.js": [

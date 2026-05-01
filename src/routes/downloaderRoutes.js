@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Downloader Routes
  * API endpoints for media downloading
  */

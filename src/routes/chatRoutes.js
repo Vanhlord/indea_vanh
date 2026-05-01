@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { getRecentMessages, clearHistory } from '../services/chatService.js';
 
 const router = Router();

@@ -1,4 +1,4 @@
-﻿# TODO - Fix html/index.html JS Issues
+# TODO - Fix html/index.html JS Issues
 ✅ [DONE] Plan approved by user
 ⏳ 1. Fix lastFrameTime undefined var
 ⏳ 2. Sync hardcoded IP with API 
