@@ -63,6 +63,31 @@ async function getDiskUsageForAvailablePath() {
     throw lastError ?? new Error('No accessible disk path found for disk usage');
 }
 
+function parseCountdownDateTime(eventDate, eventTime) {
+    const dateMatch = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(eventDate || '').trim());
+    const timeMatch = /^(\d{2}):(\d{2})$/.exec(String(eventTime || '').trim());
+    if (!dateMatch || !timeMatch) return null;
+
+    const day = Number(dateMatch[1]);
+    const month = Number(dateMatch[2]);
+    const year = Number(dateMatch[3]);
+    const hour = Number(timeMatch[1]);
+    const minute = Number(timeMatch[2]);
+    const parsed = new Date(year, month - 1, day, hour, minute);
+
+    if (
+        parsed.getFullYear() !== year
+        || parsed.getMonth() !== month - 1
+        || parsed.getDate() !== day
+        || parsed.getHours() !== hour
+        || parsed.getMinutes() !== minute
+    ) {
+        return null;
+    }
+
+    return parsed;
+}
+
 export function registerAppApiRoutes(app, deps) {
     const {
         isAdminUserId,
@@ -148,6 +173,7 @@ export function registerAppApiRoutes(app, deps) {
             eventTime: toSafeDisplayText(parsed?.eventTime, 8, fallback.eventTime),
             eventDescription: toSafeDisplayText(parsed?.eventDescription, 120, fallback.eventDescription)
         };
+        res.setHeader('Cache-Control', 'no-store');
         return res.json(payload);
     });
 
@@ -159,6 +185,9 @@ export function registerAppApiRoutes(app, deps) {
 
             if (!eventDate || !eventTime) {
                 return res.status(400).json({ success: false, error: 'Thiếu ngày hoặc giờ sự kiện.' });
+            }
+            if (!parseCountdownDateTime(eventDate, eventTime)) {
+                return res.status(400).json({ success: false, error: 'Ngày giờ không hợp lệ. Dùng định dạng DD/MM/YYYY và HH:mm.' });
             }
 
             const nextConfig = { eventDate, eventTime, eventDescription };

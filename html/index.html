@@ -209,28 +209,41 @@
 
         /* Professional Time Bar */
         .time-bar-wrapper {
-            background: linear-gradient(to right, #ffffff, #f8fafc, #ffffff);
-            border-bottom: 1px solid #f1f5f9;
+            background: #ffffff;
+            border-bottom: 1px solid #eef2f7;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0.65rem 1rem;
-            gap: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            padding: 0.5rem 1rem;
         }
 
         .time-bar-content {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
-            color: #475569;
-            font-size: 0.9rem;
-            font-weight: 600;
+            gap: 0.5rem;
+            max-width: 100%;
+            padding: 0.38rem 0.65rem;
+            border: 1px solid #dbeafe;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #ffffff, #f8fbff);
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.08);
+        }
+
+        .time-bar-content::before {
+            content: 'Sự kiện';
+            color: #2563eb;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         .time-bar-icon {
-            color: #64748b;
-            font-size: 0.95rem;
+            color: #2563eb;
+            font-size: 0.78rem;
             animation: clock-pulse 2.5s infinite ease-in-out;
         }
 
@@ -241,15 +254,43 @@
 
         #countdown-dynamic {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            background: #f8fafc;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.6rem;
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-            letter-spacing: 0.05em;
-            min-width: 100px;
+            color: #0f172a;
+            letter-spacing: 0.04em;
+            min-width: 0;
             text-align: center;
             display: inline-block;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 640px) {
+            .time-bar-wrapper {
+                padding: 0.35rem 0.5rem;
+            }
+
+            .time-bar-content {
+                gap: 0.34rem;
+                padding: 0.3rem 0.5rem;
+                font-size: 0.72rem;
+                box-shadow: none;
+            }
+
+            .time-bar-content::before {
+                content: 'Mở';
+                font-size: 0.58rem;
+                letter-spacing: 0.06em;
+            }
+
+            .time-bar-icon {
+                font-size: 0.68rem;
+            }
+
+            #countdown-dynamic {
+                letter-spacing: 0;
+            }
+
+            #countdown-dynamic span {
+                display: none;
+            }
         }
 </style>
     <link rel="stylesheet" href="/html/shared-theme.css">

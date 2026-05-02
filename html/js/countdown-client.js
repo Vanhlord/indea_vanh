@@ -6,6 +6,12 @@
     let eventDesc = '';
     let eventDateStr = '';
 
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = String(value ?? '');
+        return div.innerHTML;
+    }
+
     async function initCountdown() {
         console.log('[Countdown] Initializing dynamic timer...');
         try {
@@ -18,6 +24,9 @@
                 const [day, month, year] = data.eventDate.split('/');
                 const [hour, minute] = data.eventTime.split(':');
                 targetDate = new Date(year, month - 1, day, hour, minute);
+                if (Number.isNaN(targetDate.getTime())) {
+                    throw new Error('Invalid countdown date');
+                }
                 eventDesc = data.eventDescription || 'Sự kiện';
                 eventDateStr = data.eventDate;
                 
@@ -48,7 +57,7 @@
         const diff = targetDate - now;
 
         if (diff <= 0) {
-            el.innerHTML = `<span class="text-emerald-500 font-bold animate-pulse">${eventDesc} ĐANG DIỄN RA!</span>`;
+            el.innerHTML = `<span class="text-emerald-500 font-bold animate-pulse">${escapeHtml(eventDesc)} ĐANG DIỄN RA!</span>`;
             return;
         }
 

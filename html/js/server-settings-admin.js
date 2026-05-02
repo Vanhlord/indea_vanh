@@ -481,6 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/api/admin/countdown-settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
                     body: JSON.stringify({
                         eventDate: cDate.value.trim(),
                         eventTime: cTime.value.trim(),
